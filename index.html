@@ -946,10 +946,9 @@
       XLSX.writeFile(wb, `Template_Nilai_${config.mapel}.xlsx`);
     }
 
-    function handleExcelUpload(event) {
+function handleExcelUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
@@ -957,36 +956,68 @@
           const workbook = XLSX.read(data, { type: 'array' });
           const firstSheet = workbook.SheetNames[0];
           const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { header: 1 });
-
-          let parsed = [];
-          rows.forEach(row => {
-            if (!row || row.length < 2) return;
-            let nama = "";
-            let nilai = null;
-
-            row.forEach(cell => {
-              if (typeof cell === 'string' && isNaN(cell) && !nama && cell.toLowerCase() !== 'nama' && cell.toLowerCase() !== 'nama siswa') {
-                nama = cell.trim();
-              } else if (!isNaN(cell) && cell !== "" && cell !== null && nilai === null) {
-                const num = parseFloat(cell);
-                if (num >= 0 && num <= 100) nilai = num;
+          if (!rows || rows.length < 2) {
+            alert('File Excel kosong atau tidak memiliki baris data.');
+            return;
+          }
+          // 1. Deteksi Baris Header & Indeks Kolom
+          let headerRowIdx = -1;
+          let colNama = -1;
+          let colNilai = -1;
+          for (let r = 0; r < Math.min(10, rows.length); r++) {
+            const row = rows[r];
+            if (!row) continue;
+            for (let c = 0; c < row.length; c++) {
+              const val = String(row[c] || '').toLowerCase().trim();
+              if (val.includes('nama') || val.includes('siswa')) {
+                colNama = c;
+                headerRowIdx = r;
               }
-            });
-
-            if (nama && nilai !== null) {
-              parsed.push({ nama, nilai });
+              if (val.includes('nilai') || val.includes('skor') || val.includes('score')) {
+                colNilai = c;
+                headerRowIdx = r;
+              }
             }
-          });
-
+            if (colNama !== -1 && colNilai !== -1) break;
+          }
+          // Fallback jika tidak menemukan judul header:
+          // Jika 3 kolom (A, B, C) -> A=No, B=Nama (indeks 1), C=Nilai (indeks 2)
+          if (colNama === -1 || colNilai === -1) {
+            if (rows[0] && rows[0].length >= 3) {
+              colNama = 1;
+              colNilai = 2;
+              headerRowIdx = 0;
+            } else {
+              colNama = 0;
+              colNilai = 1;
+              headerRowIdx = 0;
+            }
+          }
+          // 2. Ekstrak Data Siswa & Nilai
+          let parsed = [];
+          for (let r = headerRowIdx + 1; r < rows.length; r++) {
+            const row = rows[r];
+            if (!row || row.length === 0) continue;
+            const nama = String(row[colNama] || '').trim();
+            const rawNilai = row[colNilai];
+            const nilai = parseFloat(rawNilai);
+            // Validasi: nama tidak kosong dan nilai adalah angka
+            if (nama && !isNaN(nilai)) {
+              parsed.push({ 
+                nama: nama, 
+                nilai: Math.min(100, Math.max(0, nilai)) 
+              });
+            }
+          }
           if (parsed.length > 0) {
             dataSiswa = parsed;
             renderAll();
-            alert(`Berhasil mengimpor ${parsed.length} siswa dari Excel!`);
+            alert(`Berhasil mengimpor ${parsed.length} siswa! Nilai tertinggi: ${Math.max(...dataSiswa.map(s=>s.nilai))}`);
           } else {
-            alert('Format Excel tidak sesuai. Pastikan ada kolom Nama dan Nilai.');
+            alert('Format Excel tidak sesuai. Pastikan ada kolom "Nama Siswa" dan kolom "Nilai".');
           }
         } catch (err) {
-          alert('Gagal membaca file: ' + err.message);
+          alert('Gagal membaca file Excel: ' + err.message);
         }
       };
       reader.readAsArrayBuffer(file);
