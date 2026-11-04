@@ -151,6 +151,53 @@
     </div>
   </div>
 
+  <!-- MODAL PENGATURAN GEMINI API KEY -->
+  <div id="modalGeminiKey" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100 animate-fade-in">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl font-black">
+          ✨
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Hubungkan Google Gemini AI</h3>
+          <p class="text-xs text-slate-500">Integrasikan analisis cerdas langsung dari Google</p>
+        </div>
+      </div>
+
+      <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3 text-xs text-indigo-950 mb-4 leading-relaxed">
+        <p class="font-bold text-indigo-900 mb-1">Cara Mendapatkan API Key Gratis:</p>
+        <ol class="list-decimal list-inside space-y-1 text-[11px] text-indigo-800">
+          <li>Kunjungi <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline font-bold text-indigo-900 hover:text-indigo-600">Google AI Studio (aistudio.google.com)</a></li>
+          <li>Login dengan akun Google/Gmail Anda</li>
+          <li>Klik tombol <b>"Create API Key"</b> lalu salin kodenya</li>
+          <li>Tempelkan kode tersebut pada kolom di bawah ini</li>
+        </ol>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Google Gemini API Key</label>
+          <div class="relative">
+            <input type="password" id="inputGeminiApiKey" placeholder="AIzaSy..." class="w-full text-xs px-3 py-2.5 pr-10 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+            <button type="button" onclick="togglePasswordVisibility('inputGeminiApiKey', 'eyeIconGemini')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+              <svg id="eyeIconGemini" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1">API Key tersimpan aman di browser Anda (Local Storage) dan tidak dikirim ke server lain.</p>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="tutupModalGeminiKey()" class="flex-1 py-2 text-xs font-semibold border rounded-xl hover:bg-slate-50 text-slate-700">Batal</button>
+          <button type="button" onclick="hapusGeminiApiKey()" class="px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200" title="Hapus API Key yang tersimpan">Hapus Key</button>
+          <button type="button" onclick="simpanGeminiApiKey()" class="flex-1 py-2 text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl shadow-md shadow-indigo-200">Simpan Key</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL GANTI PASSWORD -->
   <div id="modalPassword" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
     <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-slate-100 animate-fade-in">
@@ -221,10 +268,9 @@
     </div>
   </div>
 
-  <!-- MODAL EDIT MATRIKS SKOR BUTIR SOAL (WEB EDITOR LANGSUNG) -->
+  <!-- MODAL EDIT MATRIKS SKOR BUTIR SOAL -->
   <div id="modalEditMatriks" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4">
     <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col border border-slate-100 animate-fade-in overflow-hidden">
-      <!-- Header Modal -->
       <div class="bg-gradient-to-r from-brand-900 to-emerald-800 px-6 py-4 text-white flex justify-between items-center">
         <div>
           <h3 class="text-base font-black flex items-center gap-2">
@@ -237,12 +283,11 @@
         <button onclick="tutupModalEditMatriks()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white font-bold text-sm">✕</button>
       </div>
 
-      <!-- Keterangan Jenis Soal -->
       <div class="bg-slate-50 border-b border-slate-200 px-6 py-2.5 text-[11px] text-slate-600 flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-4">
-          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> <b>PG:</b> Skor 1 (benar) / 0 (salah)</span>
-          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> <b>PGK:</b> Skor bertingkat 0, 1, 2 (pilihan benar)</span>
-          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> <b>Menjodohkan:</b> Skor 0, 1, 2, 3 (jumlah pasang)</span>
+          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> <b>PG:</b> Skor 1 / 0</span>
+          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> <b>PGK:</b> Skor bertingkat 0, 1, 2</span>
+          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> <b>Menjodohkan:</b> Skor 0, 1, 2, 3</span>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="aturKonfigurasiSoal()" class="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg font-bold text-[10px] text-slate-700 shadow-sm">
@@ -251,19 +296,13 @@
         </div>
       </div>
 
-      <!-- Tabel Input Matriks Siswa -->
       <div class="flex-1 overflow-auto custom-scrollbar p-4">
         <table class="w-full text-xs text-left border-collapse" id="tableMatriksInput">
-          <thead class="bg-slate-100 text-slate-700 font-bold sticky top-0 z-10 text-[11px] border-b border-slate-300" id="theadMatriksInput">
-            <!-- Diisi via JS -->
-          </thead>
-          <tbody id="tbodyMatriksInput" class="divide-y divide-slate-100 text-[11px]">
-            <!-- Diisi baris skor siswa -->
-          </tbody>
+          <thead class="bg-slate-100 text-slate-700 font-bold sticky top-0 z-10 text-[11px] border-b border-slate-300" id="theadMatriksInput"></thead>
+          <tbody id="tbodyMatriksInput" class="divide-y divide-slate-100 text-[11px]"></tbody>
         </table>
       </div>
 
-      <!-- Footer Modal -->
       <div class="bg-white border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs">
         <p class="text-slate-500 italic text-[11px]">💡 Nilai total siswa (0-100) dan daya pembeda akan otomatis dihitung saat disimpan.</p>
         <div class="flex gap-2">
@@ -316,6 +355,9 @@
               </button>
               <button onclick="bukaModalPassword()" class="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 transition">
                 <span>🔒</span> Ganti Password
+              </button>
+              <button onclick="bukaModalGeminiKey()" class="w-full px-4 py-2 text-left hover:bg-indigo-50 text-indigo-700 font-semibold flex items-center gap-2 transition">
+                <span>✨</span> Pengaturan Gemini API Key
               </button>
 
               <hr class="my-1 border-slate-100">
@@ -373,7 +415,7 @@
             🗑️ Hapus
           </button>
         </div>
-        <!-- Quick Class Switcher Badges (1-Click Switch) -->
+        <!-- Quick Class Switcher Badges -->
         <div id="containerQuickKelasPills" class="hidden md:flex items-center gap-1.5 flex-wrap"></div>
       </div>
 
@@ -391,34 +433,53 @@
     </div>
   </div>
 
-  <!-- TAB NAVIGASI -->
-  <div class="bg-white border-b border-slate-200 no-print">
+  <!-- TAB BAR MENU UTAMA -->
+  <nav class="bg-white border-b border-slate-200 shadow-sm no-print sticky top-16 z-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <nav class="flex space-x-2 sm:space-x-4 overflow-x-auto custom-scrollbar py-2 text-xs font-bold" id="mainTabNav">
-        <button onclick="switchTab('beranda')" id="btn-beranda" class="tab-btn px-3 py-2 rounded-xl text-brand-800 bg-brand-50 flex items-center gap-2 transition whitespace-nowrap">
-          <span>🏠</span> Beranda & Ringkasan
+      <div class="flex space-x-1 sm:space-x-3 overflow-x-auto py-2 text-xs font-bold scrollbar-none">
+        
+        <button onclick="switchTab('beranda')" id="tab-btn-beranda" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-brand-800 bg-brand-50/80 border border-brand-200">
+          <span>🏠</span>
+          <span>Beranda & Panduan</span>
         </button>
-        <button onclick="switchTab('siswa')" id="btn-siswa" class="tab-btn px-3 py-2 rounded-xl text-slate-500 hover:text-slate-900 flex items-center gap-2 transition whitespace-nowrap">
-          <span>👥</span> Data Siswa & Nilai <span id="badge-count-siswa" class="bg-brand-100 text-brand-800 px-1.5 py-0.2 rounded-full text-[10px]">32</span>
+
+        <button onclick="switchTab('siswa')" id="tab-btn-siswa" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
+          <span>👥</span>
+          <span>Data Siswa & Nilai</span>
+          <span id="badge-total-siswa" class="px-1.5 py-0.5 rounded-full text-[10px] bg-brand-200 text-brand-900">32</span>
         </button>
-        <button onclick="switchTab('butir')" id="btn-butir" class="tab-btn px-3 py-2 rounded-xl text-slate-500 hover:text-slate-900 flex items-center gap-2 transition whitespace-nowrap">
-          <span>🎯</span> Analisis Butir Soal
+
+        <button onclick="switchTab('butir')" id="tab-btn-butir" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
+          <span>🎯</span>
+          <span>Analisis Butir Soal</span>
         </button>
-        <button onclick="switchTab('ketuntasan')" id="btn-ketuntasan" class="tab-btn px-3 py-2 rounded-xl text-slate-500 hover:text-slate-900 flex items-center gap-2 transition whitespace-nowrap">
-          <span>📊</span> Ketuntasan & Daya Serap
+
+        <button onclick="switchTab('ketuntasan')" id="tab-btn-ketuntasan" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
+          <span>📊</span>
+          <span>Ketuntasan & Daya Serap</span>
         </button>
-        <button onclick="switchTab('remedial')" id="btn-remedial" class="tab-btn px-3 py-2 rounded-xl text-slate-500 hover:text-slate-900 flex items-center gap-2 transition whitespace-nowrap">
-          <span>⭐</span> Program Remedial & Pengayaan
+
+        <button onclick="switchTab('remedial')" id="tab-btn-remedial" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
+          <span>⭐</span>
+          <span>Remedial & Pengayaan</span>
+          <span id="badge-remed-count" class="px-1.5 py-0.5 rounded-full text-[10px] bg-rose-100 text-rose-800">13</span>
         </button>
-      </nav>
+
+        <button onclick="switchTab('ai')" id="tab-btn-ai" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-indigo-700 bg-gradient-to-r from-purple-50 to-indigo-50 hover:from-purple-100 hover:to-indigo-100 border border-indigo-200 shadow-sm whitespace-nowrap">
+          <span>✨</span>
+          <span>Asisten Gemini AI</span>
+          <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-indigo-600 text-white animate-pulse">AI</span>
+        </button>
+
+      </div>
     </div>
-  </div>
+  </nav>
 
   <!-- KONTEN UTAMA -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full no-print">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
     
     <!-- TAB 0: BERANDA & RINGKASAN -->
-    <section id="tab-beranda" class="tab-content space-y-6">
+    <section id="panel-beranda" class="tab-panel space-y-6">
       <div class="bg-gradient-to-r from-brand-900 via-brand-800 to-emerald-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
         <div class="relative z-10 max-w-2xl">
           <span class="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold text-emerald-200 inline-block mb-3">
@@ -489,9 +550,9 @@
             </div>
             <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
               <span class="w-6 h-6 rounded-full bg-brand-800 text-white text-[11px] font-bold flex items-center justify-center mb-2">4</span>
-              <h4 class="text-xs font-bold text-slate-800 mb-1">Cetak Dokumen Resmi & Slip</h4>
-              <p class="text-[11px] text-slate-500 leading-relaxed">Cetak berkas evaluasi resmi A4 bertanda tangan Kamad dan slip nilai untuk wali murid.</p>
-              <button onclick="cetakLaporanA4()" class="mt-3 text-left text-[11px] font-bold text-brand-700 hover:underline">Cetak Laporan →</button>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Konsultasi Gemini AI</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Minta Asisten AI mendiagnosis kelemahan kelas dan menyusun soal remedial otomatis.</p>
+              <button onclick="switchTab('ai')" class="mt-3 text-left text-[11px] font-bold text-indigo-700 hover:underline">Buka Asisten AI →</button>
             </div>
           </div>
         </div>
@@ -506,9 +567,7 @@
             </div>
             <p class="text-xs text-slate-500 mb-4">Kelas yang saat ini tersimpan untuk jenjang <b id="lbl-jenjang-aktif">MTs</b>:</p>
             
-            <div id="listKelasPreview" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar pr-1">
-              <!-- Rendered via JS -->
-            </div>
+            <div id="listKelasPreview" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar pr-1"></div>
           </div>
 
           <div class="pt-4 border-t border-slate-100 mt-4 text-[11px] text-slate-500">
@@ -549,7 +608,7 @@
     </section>
 
     <!-- TAB 1: DATA SISWA & NILAI -->
-    <section id="tab-siswa" class="tab-content hidden space-y-4">
+    <section id="panel-siswa" class="tab-panel hidden space-y-4">
       <div class="flex flex-wrap justify-between items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
         <div class="flex items-center gap-3">
           <input type="text" id="searchSiswa" onkeyup="renderTabelSiswa()" placeholder="Cari nama siswa..." class="text-xs px-3 py-2 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-brand-500 w-48 sm:w-64">
@@ -583,16 +642,14 @@
                 <th class="p-3 w-16 text-center no-print">Aksi</th>
               </tr>
             </thead>
-            <tbody id="tbody-siswa" class="divide-y divide-slate-100">
-              <!-- Rendered via JS -->
-            </tbody>
+            <tbody id="tbody-siswa" class="divide-y divide-slate-100"></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- TAB 2: ANALISIS BUTIR SOAL (SUMBER DATA NYATA) -->
-    <section id="tab-butir" class="tab-content hidden space-y-6">
+    <!-- TAB 2: ANALISIS BUTIR SOAL -->
+    <section id="panel-butir" class="tab-panel hidden space-y-6">
       <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-wrap justify-between items-center gap-4">
         <div>
           <div class="flex items-center gap-2">
@@ -650,9 +707,7 @@
                   <th class="p-3 text-center">Status Kelayakan</th>
                 </tr>
               </thead>
-              <tbody id="tbody-butir" class="divide-y divide-slate-100">
-                <!-- Rendered via JS -->
-              </tbody>
+              <tbody id="tbody-butir" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
@@ -675,7 +730,7 @@
     </section>
 
     <!-- TAB 3: KETUNTASAN & DAYA SERAP -->
-    <section id="tab-ketuntasan" class="tab-content hidden space-y-6">
+    <section id="panel-ketuntasan" class="tab-panel hidden space-y-6">
       <div class="bg-blue-50/70 border border-blue-200 p-4 rounded-2xl text-xs text-blue-950 flex items-start gap-3">
         <span class="text-xl">📈</span>
         <div class="leading-relaxed">
@@ -724,10 +779,15 @@
     </section>
 
     <!-- TAB 4: PROGRAM REMEDIAL & PENGAYAAN -->
-    <section id="tab-remedial" class="tab-content hidden space-y-6">
-      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-        <h3 class="text-base font-bold text-slate-900">Rencana Program Remedial & Pengayaan</h3>
-        <p class="text-xs text-slate-500 mt-1">Daftar tindak lanjut hasil penilaian harian/semester sesuai standar administrasi kurikulum madrasah.</p>
+    <section id="panel-remedial" class="tab-panel hidden space-y-6">
+      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex justify-between items-center flex-wrap gap-4">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Rencana Program Remedial & Pengayaan</h3>
+          <p class="text-xs text-slate-500 mt-1">Daftar tindak lanjut hasil penilaian harian/semester sesuai standar administrasi kurikulum madrasah.</p>
+        </div>
+        <button onclick="switchTab('ai')" class="px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
+          <span>✨</span> Susun Soal Remedial dengan Gemini AI →
+        </button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -748,9 +808,7 @@
                   <th class="p-2">Rencana Bentuk Remedial</th>
                 </tr>
               </thead>
-              <tbody id="tbody-remedial" class="divide-y divide-rose-50 text-[11px]">
-                <!-- Rendered via JS -->
-              </tbody>
+              <tbody id="tbody-remedial" class="divide-y divide-rose-50 text-[11px]"></tbody>
             </table>
           </div>
         </div>
@@ -772,13 +830,118 @@
                   <th class="p-2">Rencana Bentuk Pengayaan</th>
                 </tr>
               </thead>
-              <tbody id="tbody-pengayaan" class="divide-y divide-emerald-50 text-[11px]">
-                <!-- Rendered via JS -->
-              </tbody>
+              <tbody id="tbody-pengayaan" class="divide-y divide-emerald-50 text-[11px]"></tbody>
             </table>
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- TAB 5: ASISTEN GEMINI AI -->
+    <section id="panel-ai" class="tab-panel hidden space-y-6">
+      
+      <!-- Banner Utama Gemini AI -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-indigo-800/40">
+        <div class="relative z-10 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-400/30 backdrop-blur-md rounded-full text-xs font-bold text-indigo-200 flex items-center gap-1.5">
+              <span>✨</span> Pakar Evaluasi Pembelajaran & Remedial Madrasah
+            </span>
+            <span id="badgeStatusGeminiLive" onclick="bukaModalGeminiKey()" class="cursor-pointer px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-slate-400" id="indicatorGeminiDot"></span>
+              <span id="lblStatusGeminiLive">Cek Status API Key</span>
+            </span>
+          </div>
+
+          <h2 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight mb-2">
+            Asisten Gemini AI: Olah Nilai & Rencana Perbaikan
+          </h2>
+          <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed mb-4">
+            Manfaatkan kecerdasan buatan Google Gemini untuk menganalisis kendala hasil belajar, mendiagnosis butir soal yang bermasalah, serta merumuskan modul dan <b>soal remedial & pengayaan otomatis</b> siap pakai.
+          </p>
+
+          <div class="flex flex-wrap gap-2 text-xs">
+            <button onclick="jalankanAnalisisAI('diagnosis_lengkap')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-md shadow-indigo-900/50 transition flex items-center gap-2">
+              <span>📊</span> Analisis Komprehensif Kelas
+            </button>
+            <button onclick="jalankanAnalisisAI('remedial_modul')" class="px-4 py-2 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold shadow-md shadow-brand-900/50 transition flex items-center gap-2">
+              <span>📝</span> Susun Soal & Rencana Remedial
+            </button>
+            <button onclick="jalankanAnalisisAI('pengayaan_hots')" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-bold shadow-md shadow-purple-900/50 transition flex items-center gap-2">
+              <span>🚀</span> Buat Soal Pengayaan HOTS
+            </button>
+            <button onclick="bukaModalGeminiKey()" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition border border-white/20 flex items-center gap-1.5" title="Atur Google Gemini API Key">
+              <span>🔑</span> Pengaturan API Key
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Prompt Chips & Interactive AI Query -->
+      <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+        <div class="flex justify-between items-center">
+          <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+            <span>💬</span> Tanya Asisten Gemini AI Mengenai Data Kelas Ini:
+          </label>
+          <span class="text-[10px] text-slate-400">Kelas Aktif: <b class="lbl-kelas-aktif text-brand-800">VII A</b></span>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="customAIPrompt" placeholder="Contoh: Mengapa Soal 5 dan 6 paling banyak salah? Buatkan 3 soal perbaikannya..." class="flex-1 text-xs px-4 py-2.5 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+          <button onclick="jalankanCustomAIPrompt()" class="px-5 py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
+            <span>Kirim</span> <span>➤</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap pt-1 text-[11px]">
+          <span class="text-slate-400 font-semibold text-[10px]">Pertanyaan Cepat:</span>
+          <button onclick="setPromptAndRun('Analisis mendalam mengapa butir soal sukar tidak dapat dijawab siswa dan bagaimana rekomendasi perbaikannya.')" class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg transition font-medium">
+            🔍 Diagnosis Soal Sukar
+          </button>
+          <button onclick="setPromptAndRun('Susun rencana bimbingan dan 3 paket soal latihan remedial baru untuk siswa yang nilainya di bawah KKM.')" class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg transition font-medium">
+            📋 3 Soal Remedial Siap Pakai
+          </button>
+          <button onclick="setPromptAndRun('Rekomendasikan strategi mengajar dan media pembelajaran yang cocok agar daya serap klasikal mencapai 85%.')" class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg transition font-medium">
+            💡 Strategi Mengajar Efektif
+          </button>
+          <button onclick="setPromptAndRun('Buatkan tugas proyek mandiri dan 2 soal penalaran HOTS untuk siswa berprestasi (kelompok atas).')" class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg transition font-medium">
+            🎯 Soal HOTS Pengayaan
+          </button>
+        </div>
+      </div>
+
+      <!-- Kotak Output Hasil Analisis Gemini AI -->
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="bg-slate-50 border-b border-slate-200 px-6 py-3.5 flex flex-wrap justify-between items-center gap-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+              AI
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-slate-800" id="aiOutputTitle">Hasil Analisis & Rekomendasi Pedagogis</h3>
+              <p class="text-[10px] text-slate-400" id="aiOutputSubtitle">Siap disalin atau dicetak sebagai lampiran portofolio guru</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs">
+            <button onclick="salinHasilAI()" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg font-semibold transition flex items-center gap-1 shadow-sm">
+              <span>📋</span> Salin Teks
+            </button>
+            <button onclick="cetakHasilAI()" class="px-3 py-1.5 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded-lg font-semibold transition flex items-center gap-1">
+              <span>🖨️</span> Cetak Lembar Rencana AI
+            </button>
+          </div>
+        </div>
+
+        <div id="containerHasilAI" class="p-6 text-xs text-slate-700 leading-relaxed space-y-4 max-h-[600px] overflow-y-auto custom-scrollbar">
+          <div class="text-center py-12 text-slate-400">
+            <span class="text-4xl block mb-2 opacity-50">✨</span>
+            <p class="font-bold text-slate-600">Belum ada analisis yang dijalankan.</p>
+            <p class="text-[11px] mt-1 max-w-md mx-auto">Klik salah satu tombol analisis di atas untuk meminta Asisten Gemini AI mendiagnosis hasil belajar dan merumuskan program remedial secara cerdas.</p>
+          </div>
+        </div>
+      </div>
+
     </section>
 
   </main>
@@ -869,6 +1032,463 @@
 
   <!-- SCRIPT UTAMA SISTEM -->
   <script>
+    // =========================================================
+    // --- INTEGRASI GOOGLE GEMINI AI & MESIN PAKAR REMEDIAL ---
+    // =========================================================
+    let geminiApiKey = localStorage.getItem('gemini_api_key') || '';
+    let lastGeneratedAIText = '';
+
+    function bukaModalGeminiKey() {
+      document.getElementById('inputGeminiApiKey').value = geminiApiKey;
+      document.getElementById('modalGeminiKey').classList.remove('hidden');
+    }
+
+    function tutupModalGeminiKey() {
+      document.getElementById('modalGeminiKey').classList.add('hidden');
+    }
+
+    function simpanGeminiApiKey() {
+      const key = document.getElementById('inputGeminiApiKey').value.trim();
+      if (!key) {
+        alert("Silakan masukkan Google Gemini API Key Anda.");
+        return;
+      }
+      geminiApiKey = key;
+      localStorage.setItem('gemini_api_key', key);
+      tutupModalGeminiKey();
+      updateGeminiStatusBadge();
+      alert("Alhamdulillah! Google Gemini API Key berhasil disimpan. Asisten AI siap digunakan secara live!");
+    }
+
+    function hapusGeminiApiKey() {
+      konfirmasiAksi("Apakah Anda yakin ingin menghapus API Key Gemini yang tersimpan di perangkat ini?", () => {
+        geminiApiKey = '';
+        localStorage.removeItem('gemini_api_key');
+        tutupModalGeminiKey();
+        updateGeminiStatusBadge();
+        alert("API Key berhasil dihapus. Sistem akan menggunakan Mesin Pakar Kurikulum Bawaan.");
+      }, { judul: "Hapus API Key", btnText: "Ya, Hapus" });
+    }
+
+    function updateGeminiStatusBadge() {
+      const badge = document.getElementById('badgeStatusGeminiLive');
+      const dot = document.getElementById('indicatorGeminiDot');
+      const lbl = document.getElementById('lblStatusGeminiLive');
+      if (!badge || !dot || !lbl) return;
+
+      if (geminiApiKey) {
+        badge.className = "cursor-pointer px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-600/50 transition flex items-center gap-1.5";
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+        lbl.textContent = "🟢 Gemini AI Live Aktif";
+      } else {
+        badge.className = "cursor-pointer px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5";
+        dot.className = "w-2 h-2 rounded-full bg-amber-400";
+        lbl.textContent = "⚪ Pakar Bawaan (Klik untuk Hubungkan API)";
+      }
+    }
+
+    async function panggilGeminiAPI(promptSistem, dataKonteks) {
+      if (!geminiApiKey) {
+        throw new Error("NO_API_KEY");
+      }
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+      const payload = {
+        contents: [
+          {
+            parts: [
+              {
+                text: `${promptSistem}\n\nDATA EVALUASI PEMBELAJARAN KELAS:\n\`\`\`json\n${JSON.stringify(dataKonteks, null, 2)}\n\`\`\``
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2500
+        }
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error?.message || `HTTP error ${response.status}`);
+      }
+
+      const resData = await response.json();
+      const textOutput = resData.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!textOutput) throw new Error("Format respon Gemini AI kosong.");
+      return textOutput;
+    }
+
+    async function jalankanAnalisisAI(mode = 'diagnosis_lengkap') {
+      const kAktif = getKelasAktif();
+      if (!kAktif || !kAktif.siswa || kAktif.siswa.length === 0) {
+        alert("Pilih kelas yang memiliki data siswa dan nilai terlebih dahulu!");
+        return;
+      }
+
+      switchTab('ai');
+
+      const container = document.getElementById('containerHasilAI');
+      const titleEl = document.getElementById('aiOutputTitle');
+      const subEl = document.getElementById('aiOutputSubtitle');
+
+      container.innerHTML = `
+        <div class="py-16 text-center text-indigo-700 space-y-3">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent"></div>
+          <p class="font-bold text-sm text-slate-800">Sedang Menganalisis Data Hasil Belajar & Butir Soal...</p>
+          <p class="text-xs text-slate-500 max-w-sm mx-auto">Asisten AI sedang memproses statistik kelas, memetakan indikator soal sukar, serta menyusun rekomendasi remedial.</p>
+        </div>
+      `;
+
+      const total = kAktif.siswa.length;
+      let sum = 0, tuntas = 0, remed = 0;
+      let tuntasList = [], remedList = [];
+      kAktif.siswa.forEach(s => {
+        sum += s.nilai;
+        if (s.nilai >= kAktif.kkm) { tuntas++; tuntasList.push({ nama: s.nama, nilai: s.nilai }); }
+        else { remed++; remedList.push({ nama: s.nama, nilai: s.nilai }); }
+      });
+      const avg = (sum / (total || 1)).toFixed(1);
+      const persen = Math.round((tuntas / (total || 1)) * 100);
+
+      let soalSukar = [], soalDayaBedaRendah = [];
+      if (kAktif.soalConfig) {
+        const sorted = [...kAktif.siswa].sort((a, b) => b.nilai - a.nilai);
+        const nk = Math.max(1, Math.round(0.27 * total));
+        const upper = sorted.slice(0, nk);
+        const lower = sorted.slice(-nk);
+
+        kAktif.soalConfig.forEach((cfg, i) => {
+          let tot = 0;
+          kAktif.siswa.forEach(s => tot += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+          const p = parseFloat(((tot / total) / cfg.bobot).toFixed(2));
+          let sU = 0, sL = 0;
+          upper.forEach(s => sU += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+          lower.forEach(s => sL += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+          const dp = parseFloat((((sU / nk) - (sL / nk)) / cfg.bobot).toFixed(2));
+
+          if (p < 0.35) soalSukar.push({ no: i + 1, tipe: cfg.tipe, p: p, dp: dp });
+          if (dp < 0.25) soalDayaBedaRendah.push({ no: i + 1, tipe: cfg.tipe, p: p, dp: dp });
+        });
+      }
+
+      const dataKonteks = {
+        madrasah: userProfile.namaMadrasah,
+        guru: userProfile.namaGuru,
+        mataPelajaran: userProfile.mapel,
+        tahunPelajaran: userProfile.tahunPelajaran,
+        kelas: kAktif.nama,
+        kkm: kAktif.kkm,
+        totalSiswa: total,
+        rataRataKelas: avg,
+        ketuntasanKlasikalPersen: persen,
+        jumlahSiswaTuntas: tuntas,
+        jumlahSiswaRemedial: remed,
+        butirSoalSukar: soalSukar,
+        butirSoalDayaBedaRendah: soalDayaBedaRendah,
+        contohSiswaRemedial: remedList.slice(0, 10),
+        contohSiswaTuntas: tuntasList.slice(0, 5)
+      };
+
+      let promptSistem = "";
+      if (mode === 'diagnosis_lengkap') {
+        titleEl.textContent = `Diagnosis Komprehensif Hasil Belajar & Butir Soal Kelas ${kAktif.nama}`;
+        subEl.textContent = `Analisis ketercapaian kompetensi, evaluasi butir soal, dan tindak lanjut`;
+        promptSistem = `Anda adalah Pakar Pengukuran & Evaluasi Pembelajaran Madrasah (Senior Educational Assessment & Psychometrics Specialist) sekaligus Konsultan Kurikulum Kemenag RI.
+Analisis data evaluasi pembelajaran kelas ini secara mendalam, profesional, dan solutif.
+Sajikan dalam format Markdown yang rapi dengan struktur:
+1. Ringkasan Kinerja & Daya Serap Klasikal (evaluasi apakah mencapai standar Kemenag 85%).
+2. Diagnosis Penyebab Siswa Belum Tuntas & Analisis Kesulitan Belajar.
+3. Evaluasi Kualitas Butir Soal (ulas butir yang sukar dan daya beda rendah serta saran revisi).
+4. Rekomendasi Program Perbaikan (Remedial & Pengayaan).
+5. Saran Metodologi Pengajaran Guru untuk materi berikutnya.`;
+      } else if (mode === 'remedial_modul') {
+        titleEl.textContent = `Modul & Paket Soal Remedial Otomatis Kelas ${kAktif.nama}`;
+        subEl.textContent = `Program bimbingan terstruktur dan 3 paket soal remedial siap pakai`;
+        promptSistem = `Anda adalah Ahli Kurikulum & Evaluasi Pembelajaran Madrasah.
+Berdasarkan data kelas terlampir, susunlah Dokumen Program Remedial Lengkap dan Siap Pakai:
+1. Strategi Pengelompokan Remedial:
+   - Kelompok Bimbingan Intensif Langsung oleh Guru (siswa nilai rendah).
+   - Kelompok Pendampingan Tutor Sebaya.
+2. Rencana Pelaksanaan Pembelajaran Ulang (Re-teaching) ringkas.
+3. TULISKAN 3-4 PAKET BUTIR SOAL REMEDIAL BARU yang relevan dengan mata pelajaran ${userProfile.mapel} (tipe Pilihan Ganda & Menjodohkan), lengkap dengan Kunci Jawaban dan Pembahasannya.
+4. Kriteria Kelulusan Pasca Remedial.`;
+      } else if (mode === 'pengayaan_hots') {
+        titleEl.textContent = `Program Pengayaan HOTS & Proyek Mandiri Kelas ${kAktif.nama}`;
+        subEl.textContent = `Penguatan penalaran tingkat tinggi bagi siswa kelompok atas`;
+        promptSistem = `Anda adalah Pakar Pembelajaran HOTS (Higher Order Thinking Skills).
+Berdasarkan data siswa yang telah tuntas KKM di kelas ${kAktif.nama}, susunlah Program Pengayaan:
+1. Rekomendasi Penugasan Analitis & Literasi Eksploratif Mandiri.
+2. Peran sebagai Tutor Sebaya bagi rekan yang remedial.
+3. TULISKAN 2 BUTIR SOAL PENALARAN HOTS (Level Kognitif C4-C6 Analisis/Evaluasi/Kreasi) sesuai mata pelajaran ${userProfile.mapel}, lengkap dengan Rubrik Penilaian dan Kunci Jawaban.`;
+      } else {
+        titleEl.textContent = `Analisis & Rekomendasi Khusus Gemini AI`;
+        subEl.textContent = `Jawaban atas pertanyaan spesifik guru`;
+        promptSistem = `Anda adalah Konsultan Ahli Pendidikan Madrasah. Jawablah instruksi khusus guru secara mendalam, praktis, dan langsung dapat diimplementasikan di kelas: ${mode}`;
+      }
+
+      try {
+        let hasilTeks = "";
+        let isLiveAI = false;
+
+        if (geminiApiKey) {
+          try {
+            hasilTeks = await panggilGeminiAPI(promptSistem, dataKonteks);
+            isLiveAI = true;
+          } catch (errApi) {
+            console.warn("Gemini API Error, fallback to expert engine:", errApi.message);
+            hasilTeks = generateExpertAnalysisOffline(mode, dataKonteks);
+          }
+        } else {
+          hasilTeks = generateExpertAnalysisOffline(mode, dataKonteks);
+        }
+
+        lastGeneratedAIText = hasilTeks;
+        const bannerLive = isLiveAI 
+          ? `<div class="mb-4 p-2.5 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-900 text-xs flex items-center justify-between">
+               <span class="font-bold flex items-center gap-1.5"><span>✨</span> Dihasilkan secara langsung oleh Google Gemini AI Live</span>
+               <span class="text-[10px] text-indigo-600 font-semibold">Model: Gemini 1.5 Flash</span>
+             </div>`
+          : `<div class="mb-4 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs flex items-center justify-between">
+               <span class="font-bold flex items-center gap-1.5"><span>💡</span> Dihasilkan oleh Mesin Pakar Kurikulum Bawaan</span>
+               <button onclick="bukaModalGeminiKey()" class="text-[10px] bg-amber-200 hover:bg-amber-300 text-amber-900 px-2 py-0.5 rounded font-bold">Hubungkan Gemini API Key</button>
+             </div>`;
+
+        container.innerHTML = bannerLive + renderMarkdownAI(hasilTeks);
+
+      } catch (err) {
+        container.innerHTML = `
+          <div class="p-6 text-center text-rose-600 bg-rose-50 rounded-2xl border border-rose-200">
+            <p class="font-bold mb-1">Gagal Menjalankan Analisis AI</p>
+            <p class="text-xs text-rose-500">${err.message}</p>
+            <button onclick="jalankanAnalisisAI('${mode}')" class="mt-3 px-4 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-bold">Coba Lagi</button>
+          </div>
+        `;
+      }
+    }
+
+    function generateExpertAnalysisOffline(mode, ctx) {
+      const isTuntasKlasikal = ctx.ketuntasanKlasikalPersen >= 85;
+      const mapel = ctx.mataPelajaran || "Mata Pelajaran";
+      const kelas = ctx.kelas || "Kelas";
+
+      if (mode === 'remedial_modul') {
+        return `### 📋 DOKUMEN PROGRAM REMEDIAL & SOAL PERBAIKAN
+**Madrasah:** ${ctx.madrasah}  
+**Mata Pelajaran:** ${mapel} | **Kelas:** ${kelas}  
+**Target Batas KKM:** ${ctx.kkm} | **Jumlah Siswa Remedial:** ${ctx.jumlahSiswaRemedial} Siswa  
+
+---
+
+#### 1. Strategi Pengelompokan Pembelajaran Remedial
+Berdasarkan analisis nilai, ${ctx.jumlahSiswaRemedial} siswa yang belum tuntas dibagi menjadi 2 kelompok penanganan:
+- **Kelompok A (Bimbingan Konsep Intensif - Nilai < 50):**  
+  Memerlukan *re-teaching* (pembelajaran ulang) secara langsung oleh guru dengan pendekatan individual dan penyederhanaan indikator materi dasar.
+- **Kelompok B (Tutor Sebaya Terbimbing - Nilai 50 s.d. ${ctx.kkm - 1}):**  
+  Didampingi oleh siswa kelompok atas (${ctx.contohSiswaTuntas.map(s => s.nama).slice(0, 3).join(', ')}) untuk membahas kembali soal-soal latihan dan indikator yang keliru.
+
+---
+
+#### 2. Paket Soal Latihan Remedial Baru (Siap Pakai)
+Berikut adalah butir soal perbaikan yang disesuaikan dengan indikator yang belum tuntas:
+
+**Paket Soal 1 (Pilihan Ganda - Pemahaman Konsep):**  
+1. *Soal:* Pada materi pembelajaran ${mapel}, identifikasi pernyataan berikut yang paling tepat sesuai kaidah konsep dasar yang telah dipelajari...  
+   - A. Konsep dasar yang menyatakan hubungan sebab-akibat langsung  
+   - B. Kaidah umum yang berlaku pada setiap kondisi pembelajaran *(Kunci)*  
+   - C. Contoh kasus khusus yang memiliki pengecualian  
+   - D. Bentuk penyimpangan kaidah bahasa/konsep  
+   *Kunci Jawaban: B* | *Indikator: Memahami konsep dasar materi bab ulangan.*
+
+2. *Soal:* Perhatikan ilustrasi kasus pembelajaran berikut. Manakah langkah penerapan kaidah yang paling tepat untuk menyelesaikan permasalahan tersebut?  
+   - A. Menyesuaikan kaidah dengan aturan yang telah dibahas *(Kunci)*  
+   - B. Mengabaikan aturan dasar dan memilih jalan pintas  
+   - C. Mengganti variabel dengan ketentuan baru tanpa dasar  
+   - D. Menunda penyelesaian hingga materi berikutnya  
+   *Kunci Jawaban: A* | *Indikator: Menerapkan kaidah materi dalam contoh konkret.*
+
+**Paket Soal 2 (Menjodohkan - Penguasaan Istilah & Kaidah):**  
+3. *Instruksi:* Pasangkanlah istilah/kosakata di Kolom A dengan definisi/padanan yang tepat di Kolom B:  
+   - **Kolom A (Istilah):** (1) Istilah Pokok 1, (2) Kaidah Pokok 2, (3) Contoh Penerapan 3  
+   - **Kolom B (Definisi):** (A) Penerapan praktis, (B) Definisi dasar, (C) Ketentuan hukum kaidah  
+   *Kunci Pasangan: 1-B, 2-C, 3-A.*
+
+---
+
+#### 3. Ketentuan Penilaian Pasca Remedial
+- Nilai maksimal yang diberikan setelah tuntas remedial adalah **setara nilai KKM (${ctx.kkm})**.
+- Siswa yang telah mencapai KKM pada tes perbaikan dinyatakan tuntas dan berhak melanjutkan ke bab berikutnya.`;
+      }
+
+      if (mode === 'pengayaan_hots') {
+        return `### 🚀 PROGRAM PENGAYAAN HOTS & PENDALAMAN MATERI
+**Madrasah:** ${ctx.madrasah}  
+**Mata Pelajaran:** ${mapel} | **Kelas:** ${kelas}  
+**Siswa Pengayaan:** ${ctx.jumlahSiswaTuntas} Siswa (${ctx.ketuntasanKlasikalPersen}% Tuntas)  
+
+---
+
+#### 1. Rencana Aksi Pengayaan (Penalaran Tingkat Tinggi / HOTS)
+Bagi siswa yang telah melampaui batas KKM (terutama siswa peringkat teratas: ${ctx.contohSiswaTuntas.map(s => `${s.nama} [${s.nilai}]`).join(', ')}), diberikan pengayaan berupa:
+1. **Peran Edukatif:** Ditunjuk sebagai Duta Pembelajaran / Tutor Sebaya dalam mendampingi rekan kelompok remedial.
+2. **Tugas Proyek Analisis Mandiri:** Menyusun peta konsep (mind mapping) atau resume analisis perbandingan konsep materi ${mapel}.
+
+---
+
+#### 2. Paket Soal Penalaran HOTS (Level Kognitif C4 - C6)
+1. *Soal Analisis (C4):*  
+   Bandingkanlah dua sudut pandang/kaidah dalam materi ${mapel} ketika dihadapkan pada situasi kontekstual sehari-hari. Analisislah mengapa kaidah pertama lebih efektif diterapkan dibandingkan kaidah kedua pada kondisi khusus tersebut!  
+   *Rubrik Penilaian:* Skor 4 (Analisis kritis mendalam dan logis), Skor 3 (Cukup logis dengan argumen dasar), Skor 2 (Hanya menyebutkan tanpa analisis).
+
+2. *Soal Kreasi & Problem Solving (C6):*  
+   Rancanglah sebuah bagan alur sistematis atau formula solusi yang memudahkan pemula dalam memahami hubungan antar-kaidah pada materi ${mapel}!  
+   *Rubrik Penilaian:* Keaslian ide (40%), Ketepatan konsep (40%), Kerapian penyajian (20%).`;
+      }
+
+      return `### 📊 LAPORAN DIAGNOSIS HASIL EVALUASI PEMBELAJARAN
+**Madrasah:** ${ctx.madrasah}  
+**Mata Pelajaran:** ${mapel} | **Tahun Pelajaran:** ${ctx.tahunPelajaran}  
+**Kelas:** ${kelas} | **Guru Pengampu:** ${ctx.guru}  
+
+---
+
+#### 1. Ringkasan Kinerja & Daya Serap Klasikal
+- **Rata-rata Kelas:** **${ctx.rataRataKelas}** (Daya serap klasikal rata-rata).
+- **Ketuntasan Klasikal:** **${ctx.ketuntasanKlasikalPersen}%** (${ctx.jumlahSiswaTuntas} siswa tuntas, ${ctx.jumlahSiswaRemedial} siswa remedial dari total ${ctx.totalSiswa} siswa).
+- **Status Evaluasi:** ${isTuntasKlasikal 
+    ? '✅ **TUNTAS KLASIKAL**. Kelas telah melampaui target standar ketuntasan nasional/madrasah (≥ 85%).' 
+    : '⚠️ **BELUM TUNTAS KLASIKAL**. Ketuntasan kelas di bawah 85%, sehingga pembelajaran klasikal pada materi ini memerlukan penekanan ulang (re-teaching).'}
+
+---
+
+#### 2. Diagnosis Butir Soal Ulangan
+- **Butir Soal Sukar (P < 0.35):**  
+  ${ctx.butirSoalSukar && ctx.butirSoalSukar.length > 0 
+    ? ctx.butirSoalSukar.map(b => `- **Soal ${b.no} (${b.tipe}):** Indeks Kesukaran P = ${b.p}. Sebagian besar siswa gagal menjawab benar. Kemungkinan kalimat soal memiliki tingkat keabstrakan tinggi atau pilihan pengecoh terlalu menjebak.`).join('\\n')
+    : '- Tidak ditemukan butir soal yang terlalu sukar secara ekstrem. Seluruh butir memiliki daya serap seimbang.'}
+
+- **Butir Soal Daya Pembeda Rendah (DP < 0.25):**  
+  ${ctx.butirSoalDayaBedaRendah && ctx.butirSoalDayaBedaRendah.length > 0 
+    ? ctx.butirSoalDayaBedaRendah.map(b => `- **Soal ${b.no} (${b.tipe}):** Daya Pembeda DP = ${b.dp}. Butir ini kurang mampu membedakan siswa kelompok atas dan bawah. Disarankan untuk **direvisi opsi pengecohnya** sebelum disimpan di Bank Soal.`).join('\\n')
+    : '- Seluruh butir soal memiliki daya pembeda yang baik (DP ≥ 0.25) dan representatif membedakan kemampuan siswa.'}
+
+---
+
+#### 3. Rekomendasi Tindak Lanjut Guru (Rencana Aksi)
+1. **Untuk ${ctx.jumlahSiswaRemedial} Siswa Remedial:**  
+   Fokuskan pada pembelajaran ulang konsep dasar melalui tutor sebaya, lalu berikan tes remedial dengan bobot soal setara.
+2. **Untuk ${ctx.jumlahSiswaTuntas} Siswa Pengayaan:**  
+   Berikan tugas mandiri analisis kontekstual (HOTS) agar potensi akademis mereka terus berkembang.
+3. **Refleksi Metodologi Mengajar:**  
+   Gunakan media visual/kontekstual yang lebih interaktif saat menjelaskan indikator yang diuji pada butir soal sukar di atas.`;
+    }
+
+    function setPromptAndRun(promptTeks) {
+      document.getElementById('customAIPrompt').value = promptTeks;
+      jalankanCustomAIPrompt();
+    }
+
+    function jalankanCustomAIPrompt() {
+      const q = document.getElementById('customAIPrompt')?.value.trim();
+      if (!q) {
+        alert("Silakan ketik pertanyaan atau perintah analisis terlebih dahulu.");
+        return;
+      }
+      jalankanAnalisisAI(q);
+    }
+
+    function salinHasilAI() {
+      if (!lastGeneratedAIText) {
+        alert("Belum ada teks analisis AI yang dihasilkan untuk disalin.");
+        return;
+      }
+      navigator.clipboard.writeText(lastGeneratedAIText).then(() => {
+        alert("Teks rekomendasi AI berhasil disalin ke papan klip!");
+      }).catch(() => {
+        alert("Gagal menyalin teks.");
+      });
+    }
+
+    function cetakHasilAI() {
+      if (!lastGeneratedAIText) {
+        alert("Jalankan analisis AI terlebih dahulu sebelum mencetak!");
+        return;
+      }
+
+      const kAktif = getKelasAktif();
+      const namaKelas = kAktif ? kAktif.nama : "Kelas";
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Lampiran Rencana Aksi Pembelajaran AI - ${userProfile.namaMadrasah}</title>
+          <style>
+            body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; font-size: 11pt; line-height: 1.6; padding: 2cm; color: #1e293b; }
+            h1, h2, h3, h4 { color: #064e3b; margin-top: 1.2em; margin-bottom: 0.4em; }
+            hr { border: 0; border-top: 1px solid #cbd5e1; margin: 15px 0; }
+            ul, ol { margin-left: 20px; }
+            .kop { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+            .kop h2 { margin: 0; font-size: 14pt; }
+            .kop p { margin: 2px 0; font-size: 9pt; }
+            .ttd-box { display: flex; justify-content: space-between; margin-top: 50px; text-align: center; }
+            .ttd { width: 45%; }
+            @media print { body { padding: 0; } }
+          </style>
+        </head>
+        <body>
+          <div class="kop">
+            <p><b>KEMENTERIAN AGAMA REPUBLIK INDONESIA</b></p>
+            <h2>${userProfile.namaMadrasah.toUpperCase()}</h2>
+            <p>LAMPIRAN DOKUMEN TINDAK LANJUT & RENCANA AKSI PEMBELAJARAN (AI GEMINI)</p>
+          </div>
+          <div>
+            ${renderMarkdownAI(lastGeneratedAIText)}
+          </div>
+          <div class="ttd-box">
+            <div class="ttd">
+              <p>Mengetahui,<br><b>Kepala Madrasah</b></p>
+              <div style="height: 60px;"></div>
+              <p><u>${userProfile.namaKamad}</u><br>NIP. ${userProfile.nipKamad}</p>
+            </div>
+            <div class="ttd">
+              <p>Cimahi, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br><b>Guru Mata Pelajaran</b></p>
+              <div style="height: 60px;"></div>
+              <p><u>${userProfile.namaGuru}</u><br>NIP. ${userProfile.nipGuru}</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => { printWindow.print(); }, 500);
+    }
+
+    function renderMarkdownAI(md) {
+      if (!md) return '';
+      let html = md
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/^### (.*$)/gim, '<h4 class="text-sm font-black text-brand-900 mt-4 mb-2 pb-1 border-b border-slate-200 flex items-center gap-1.5">$1</h4>')
+        .replace(/^#### (.*$)/gim, '<h5 class="text-xs font-bold text-slate-800 mt-3 mb-1.5">$1</h5>')
+        .replace(/^## (.*$)/gim, '<h3 class="text-base font-black text-brand-950 mt-4 mb-2">$1</h3>')
+        .replace(/\\*\\*(.*?)\\*\\*/gim, '<strong class="font-bold text-slate-900">$1</strong>')
+        .replace(/\\*(.*?)\\*/gim, '<em class="italic">$1</em>')
+        .replace(/^---$/gim, '<hr class="my-3 border-slate-200">')
+        .replace(/^\\s*-\\s*(.*$)/gim, '<li class="ml-4 list-disc text-slate-700 py-0.5">$1</li>')
+        .replace(/^\\s*\\d+\\.\\s*(.*$)/gim, '<li class="ml-4 list-decimal text-slate-700 py-0.5">$1</li>')
+        .replace(/\\n\\n/gim, '<p class="mb-2"></p>');
+
+      return html;
+    }
+
     // --- STATE & DATABASE APLIKASI ---
     let userProfile = {
       email: "guru@kemenag.go.id",
@@ -893,7 +1513,6 @@
     let filterAktif = 'semua';
     let sortAsc = false;
 
-    // Database kelas dengan soalConfig & skorButir riil untuk 32 siswa kelas VII A
     let databaseKelas = {
       "MTs": [
         {
@@ -959,7 +1578,6 @@
 
     let aksiKonfirmasiCallback = null;
 
-    // --- SISTEM KONFIRMASI AKSI ---
     function konfirmasiAksi(pesan, callbackAksi, opsi = {}) {
       aksiKonfirmasiCallback = callbackAksi;
       document.getElementById('confirmMessage').innerHTML = pesan;
@@ -996,7 +1614,6 @@
       }
     });
 
-    // --- MODAL EDITOR MATRIKS BUTIR SOAL (PG, PGK, MENJODOHKAN) ---
     function bukaModalEditMatriks() {
       const kAktif = getKelasAktif();
       if (!kAktif) {
@@ -1019,7 +1636,6 @@
       document.getElementById('m-edit-jmlSoal').textContent = jmlSoal;
       document.getElementById('m-edit-totalBobot').textContent = totalBobot;
 
-      // Render Thead
       let theadHtml = `
         <tr class="bg-slate-200 text-slate-800">
           <th class="p-2 w-8 text-center" rowspan="2">No</th>
@@ -1038,7 +1654,6 @@
       theadHtml += `</tr>`;
       document.getElementById('theadMatriksInput').innerHTML = theadHtml;
 
-      // Render Tbody Siswa
       let tbodyHtml = '';
       kAktif.siswa.forEach((s, idx) => {
         if (!s.skorButir || s.skorButir.length !== jmlSoal) {
@@ -1140,8 +1755,8 @@
       alert("Alhamdulillah! Skor butir siswa dan nilai akhir berhasil disimpan dan dihitung ulang.");
     }
 
-    // --- INISIALISASI & DAFTAR EVENT ---
     window.addEventListener('DOMContentLoaded', () => {
+      updateGeminiStatusBadge();
       muatDataTersimpan();
       cekStatusLogin();
       generateCaptcha();
@@ -1149,7 +1764,6 @@
       renderSemua();
     });
 
-    // --- EXPORT EXCEL 3-IN-1 ---
     function exportExcelMultiSheet() {
       const kAktif = getKelasAktif();
       if (!kAktif || kAktif.siswa.length === 0) {
@@ -1159,7 +1773,6 @@
 
       const wb = XLSX.utils.book_new();
 
-      // Sheet 1: Leger Nilai & Analisis Siswa
       const sheet1Data = [
         ["LEGER NILAI & ANALISIS KETUNTASAN SISWA"],
         ["Madrasah", userProfile.namaMadrasah],
@@ -1184,7 +1797,6 @@
       const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
       XLSX.utils.book_append_sheet(wb, ws1, "Leger_Nilai");
 
-      // Sheet 2: Analisis Butir Soal Riil
       const sheet2Data = [
         ["ANALISIS TINGKAT KESUKARAN & DAYA PEMBEDA BUTIR SOAL (DATA RIIL)"],
         ["Kelas", kAktif.nama],
@@ -1225,7 +1837,6 @@
       const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
       XLSX.utils.book_append_sheet(wb, ws2, "Analisis_Butir_Soal");
 
-      // Sheet 3: Program Remedial & Pengayaan
       const sheet3Data = [
         ["PROGRAM TINDAK LANJUT (REMEDIAL & PENGAYAAN)"],
         ["Kelas", kAktif.nama],
@@ -1248,7 +1859,6 @@
       XLSX.writeFile(wb, `Laporan_Analisis_${kAktif.nama}_${userProfile.mapel}.xlsx`);
     }
 
-    // --- CETAK SLIP HASIL EVALUASI WALI MURID ---
     function cetakSlipNilai() {
       const kAktif = getKelasAktif();
       if (!kAktif || kAktif.siswa.length === 0) {
@@ -1337,7 +1947,6 @@
       window.print();
     }
 
-    // --- LOCAL STORAGE DATA SYNC ---
     function muatDataTersimpan() {
       const savedUser = localStorage.getItem('madrasah_analisis_user');
       if (savedUser) {
@@ -1360,7 +1969,6 @@
       localStorage.setItem('madrasah_analisis_user', JSON.stringify(userProfile));
     }
 
-    // --- AUTENTIKASI ---
     function cekStatusLogin() {
       if (!authUser.isLoggedIn) {
         showAuthModal('signin');
@@ -1535,7 +2143,6 @@
       document.getElementById('lbl-jenjang-aktif').textContent = userProfile.jenjang;
     }
 
-    // --- MANAJEMEN MULTI-JENJANG & MULTI-KELAS ---
     function inisialisasiKelasUI() {
       document.getElementById('pilihJenjang').value = userProfile.jenjang;
       renderDropdownKelas();
@@ -1662,37 +2269,35 @@
       return list[kelasAktifIndex];
     }
 
-    // --- NAVIGASI TAB ---
     function switchTab(tabKey) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('bg-brand-50', 'text-brand-800');
-        btn.classList.add('text-slate-500');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('text-brand-800', 'bg-brand-50/80', 'border-brand-200');
+        btn.classList.add('text-slate-600', 'border-transparent');
       });
 
-      const activeSection = document.getElementById(`tab-${tabKey}`);
-      const activeBtn = document.getElementById(`btn-${tabKey}`);
-      if (activeSection) activeSection.classList.remove('hidden');
-      if (activeBtn) {
-        activeBtn.classList.add('bg-brand-50', 'text-brand-800');
-        activeBtn.classList.remove('text-slate-500');
+      const targetPanel = document.getElementById('panel-' + tabKey);
+      const targetBtn = document.getElementById('tab-btn-' + tabKey);
+      if (targetPanel) targetPanel.classList.remove('hidden');
+      if (targetBtn) {
+        targetBtn.classList.remove('text-slate-600', 'border-transparent');
+        targetBtn.classList.add('text-brand-800', 'bg-brand-50/80', 'border-brand-200');
       }
 
-      if (tabKey === 'butir' || tabKey === 'ketuntasan') {
-        setTimeout(renderSemua, 50);
+      if (tabKey === 'ketuntasan' || tabKey === 'butir') {
+        renderSemua();
       }
     }
 
-    // --- VISIBILITAS PASSWORD & CAPTCHA ---
     function togglePasswordVisibility(inputId, iconId) {
       const input = document.getElementById(inputId);
       const icon = document.getElementById(iconId);
       if (input.type === 'password') {
         input.type = 'text';
-        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />`;
+        icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-brand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>`;
       } else {
         input.type = 'password';
-        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+        icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
       }
     }
 
@@ -1728,7 +2333,6 @@
       }
     }
 
-    // --- SMART EXCEL & GOOGLE FORM IMPORTER ---
     function handleExcelUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1739,7 +2343,7 @@
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           
-          const kelasMap = {}; // { "VII A": { siswa: [], soalConfig: [] } }
+          const kelasMap = {};
 
           workbook.SheetNames.forEach(sheetName => {
             const sNameLower = sheetName.toLowerCase().trim();
@@ -1750,7 +2354,6 @@
             const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
             if (!rows || rows.length < 2) return;
 
-            // Periksa baris Tipe Soal & Bobot Maks
             let rowTipeIdx = -1, rowBobotIdx = -1, headerIdx = -1;
             let colNama = -1, colNilai = -1, colKelas = -1;
             let itemCols = [];
@@ -1938,7 +2541,6 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // --- PERHITUNGAN PREDIKAT & TINDAK LANJUT EVALUASI ---
     function hitungPredikat(nilai, kkm) {
       const interval = (100 - kkm) / 3;
       const batasB = kkm + interval;
@@ -1976,7 +2578,6 @@
       };
     }
 
-    // --- RENDER SEMUA MODUL ---
     function renderSemua() {
       const kAktif = getKelasAktif();
       if (!kAktif) {
@@ -1986,7 +2587,7 @@
         document.getElementById('stat-remed').textContent = "0";
         document.getElementById('stat-max').textContent = "0";
         document.getElementById('stat-min').textContent = "0";
-        document.getElementById('badge-count-siswa').textContent = "0";
+        document.getElementById('badge-total-siswa').textContent = "0";
         document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada kelas yang dipilih atau dibuat.</td></tr>`;
         return;
       }
@@ -1996,7 +2597,7 @@
 
       const dataSiswa = kAktif.siswa;
       const total = dataSiswa.length;
-      document.getElementById('badge-count-siswa').textContent = total;
+      document.getElementById('badge-total-siswa').textContent = total;
 
       let tuntasArr = [], remedArr = [];
       let sum = 0, max = total > 0 ? -Infinity : 0, min = total > 0 ? Infinity : 0;
@@ -2034,6 +2635,7 @@
       document.getElementById('stat-persen').textContent = `${persen}%`;
       document.getElementById('stat-tuntas-detail').textContent = `${tuntas} dari ${total} siswa tuntas`;
       document.getElementById('stat-remed').textContent = remed;
+      document.getElementById('badge-remed-count').textContent = remed;
       document.getElementById('stat-max').textContent = total > 0 ? max : 0;
       document.getElementById('stat-min').textContent = total > 0 ? min : 0;
 
@@ -2165,12 +2767,11 @@
       }, { judul: 'Hapus Siswa', btnText: 'Ya, Hapus' });
     }
 
-    // --- ANALISIS KUALITAS BUTIR SOAL RIIL (PSIKOMETRIK BAKU) ---
     function ubahJumlahSoal(val) {
       const kAktif = getKelasAktif();
       if (kAktif) {
         kAktif.jmlSoal = parseInt(val) || 10;
-        kAktif.soalConfig = null; // Reset agar di-generate ulang sesuai jumlah baru
+        kAktif.soalConfig = null;
         simpanDatabaseKeStorage();
         renderSemua();
       }
@@ -2307,7 +2908,6 @@
       renderChartsButir(kesukaranData, baikCount, revisiCount, buangCount);
     }
 
-    // --- PROGRAM REMEDIAL & PENGAYAAN ---
     function renderRemedialPengayaan(tuntasArr, remedArr, kkm) {
       document.getElementById('count-siswa-remed').textContent = remedArr.length;
       document.getElementById('count-siswa-pengayaan').textContent = tuntasArr.length;
@@ -2341,7 +2941,6 @@
       }
     }
 
-    // --- CETAK DOKUMEN RESMI A4 ---
     function renderPrintTemplate(total, avg, max, min, tuntas, remed, persen, namaKelas) {
       document.getElementById('p-kelas').textContent = namaKelas;
       document.getElementById('p-stat-total').textContent = total;
@@ -2375,7 +2974,6 @@
       }).join('');
     }
 
-    // --- GRAFIK CHART.JS ---
     function renderCharts(tuntas = 0, remed = 0, kkm = 75, dataSiswa = []) {
       document.getElementById('chart-lbl-tuntas').textContent = tuntas;
       document.getElementById('chart-lbl-remedial').textContent = remed;
@@ -2482,11 +3080,9 @@
       }
     }
 
-    // --- DOWNLOAD TEMPLATE EXCEL BUTIR SOAL & GOOGLE FORM ---
     function downloadTemplateExcel() {
       const wb = XLSX.utils.book_new();
 
-      // SHEET 1: MATRIKS SKOR BUTIR SOAL (PG, PGK, MENJODOHKAN)
       const dataMatriks = [
         ["Tipe Soal", "", "", "PG", "PG", "PG", "PG", "PG", "PG", "PGK", "PGK", "Menjodohkan", "Menjodohkan"],
         ["Bobot Maksimal", "", "", 1, 1, 1, 1, 1, 1, 2, 2, 3, 3],
@@ -2503,7 +3099,6 @@
       ws1['!cols'] = [{ wch: 5 }, { wch: 10 }, { wch: 28 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 8 }, { wch: 8 }];
       XLSX.utils.book_append_sheet(wb, ws1, "Matriks_Butir_Soal");
 
-      // SHEET 2: HASIL UNDUHAN GOOGLE FORM (GOOGLE FORM RESPONSES)
       const dataGForm = [
         ["Timestamp", "Score", "Nama Siswa", "Kelas", "S01_PG", "S02_PG", "S03_PG", "S04_PG", "S05_PG", "S06_PG", "S07_PGK", "S08_PGK", "S09_Jodoh", "S10_Jodoh"],
         ["2026/11/04 08:15:22", "91 / 100", "AEESHA KIREY UFAIRAH", "VII A", 1, 1, 1, 1, 1, 0, 2, 2, 3, 3],
@@ -2515,7 +3110,6 @@
       ws2['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 28 }, { wch: 10 }];
       XLSX.utils.book_append_sheet(wb, ws2, "Unduhan_Google_Form");
 
-      // SHEET 3: REKAP NILAI CEPAT (MULTI-KELAS)
       const dataCepat = [
         ["No", "Kelas", "Nama Siswa", "Nilai"],
         [1, "VII A", "AEESHA KIREY UFAIRAH", 91],
@@ -2527,7 +3121,6 @@
       ws3['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 30 }, { wch: 10 }];
       XLSX.utils.book_append_sheet(wb, ws3, "Format_Nilai_Cepat");
 
-      // SHEET 4: PANDUAN SUMBER DATA & PSIKOMETRIK
       const dataPanduan = [
         ["PANDUAN SUMBER DATA ANALISIS NILAI & MUTU BUTIR SOAL"],
         [],
