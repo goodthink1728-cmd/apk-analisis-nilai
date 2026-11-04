@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Tailwind CSS & Plugins -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -47,28 +47,110 @@
 </head>
 <body class="bg-slate-50/70 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
+  <!-- ================= POP-UP MODAL AUTH (SIGN UP & SIGN IN) ================= -->
+  <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm hidden no-print">
+    <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in duration-200">
+      
+      <!-- Header Modal -->
+      <div class="bg-gradient-to-r from-brand-900 to-brand-800 p-6 text-white text-center relative">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-white/10 flex items-center justify-center text-2xl mb-2 backdrop-blur-md">
+          🕌
+        </div>
+        <h3 class="text-lg font-black tracking-tight" id="authModalTitle">Selamat Datang di Portal Madrasah</h3>
+        <p class="text-xs text-brand-100 mt-1" id="authModalSubtitle">Silakan daftarkan akun pendidik & madrasah Anda</p>
+      </div>
+
+      <!-- Tab Switcher Modal (Sign Up vs Sign In) -->
+      <div class="flex border-b border-slate-100 text-xs font-bold text-center bg-slate-50/50">
+        <button onclick="toggleAuthMode('signup')" id="tabBtnSignUp" class="flex-1 py-3 border-b-2 border-brand-700 text-brand-800 transition">
+          Daftar Baru (Sign Up)
+        </button>
+        <button onclick="toggleAuthMode('signin')" id="tabBtnSignIn" class="flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition">
+          Sudah Punya Akun (Sign In)
+        </button>
+      </div>
+
+      <!-- Form Body -->
+      <form id="authForm" onsubmit="handleAuthSubmit(event)" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        
+        <!-- Field Email & Password (Selalu Ada) -->
+        <div class="grid grid-cols-1 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Email Guru / Akun Madrasah</label>
+            <input type="email" id="authEmail" required placeholder="nama.guru@kemenag.go.id" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+            <input type="password" id="authPassword" required placeholder="Minimal 6 karakter" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+        </div>
+
+        <!-- Bagian Input Profil (Hanya Muncul saat Sign Up) -->
+        <div id="signUpFields" class="space-y-3 pt-2 border-t border-slate-100">
+          <p class="text-[11px] font-extrabold text-brand-800 uppercase tracking-wider">Identitas Pembelajaran</p>
+          
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap Guru (dengan Gelar)</label>
+            <input type="text" id="authNamaGuru" placeholder="Contoh: Ahmad Fauzi, S.Pd.I" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Madrasah / Satuan Pendidikan</label>
+            <input type="text" id="authNamaMadrasah" placeholder="Contoh: MTs Negeri 1 Kota" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Mata Pelajaran</label>
+              <input type="text" id="authMapel" placeholder="Contoh: Bahasa Arab" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Tahun Pelajaran</label>
+              <input type="text" id="authTahunPelajaran" placeholder="Contoh: 2026/2027" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tombol Submit -->
+        <button type="submit" id="btnSubmitAuth" class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl text-xs font-bold shadow-lg shadow-brand-700/20 transition">
+          Daftar & Masuk ke Aplikasi
+        </button>
+
+      </form>
+    </div>
+  </div>
+
   <!-- ================= TOP NAVIGATION BAR ================= -->
   <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         
-        <!-- Identitas Kemenag -->
+        <!-- Logo & Identitas Madrasah -->
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-800 to-brand-700 text-brand-100 flex items-center justify-center font-bold text-lg shadow-sm shadow-brand-900/20">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-800 to-brand-700 text-brand-100 flex items-center justify-center font-bold text-lg shadow-sm">
             🕌
           </div>
           <div>
             <div class="flex items-center gap-2">
               <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200">KEMENAG RI</span>
-              <span class="text-xs text-slate-400 font-medium hidden sm:inline">Madrasah Mandiri Berprestasi</span>
+              <span id="nav-madrasah" class="text-xs text-slate-500 font-bold hidden sm:inline">MTs Negeri 1 Kota</span>
             </div>
-            <h1 class="text-sm sm:text-base font-extrabold text-slate-800 leading-tight">Analisis Nilai & Mutu Pembelajaran</h1>
+            <h1 class="text-sm sm:text-base font-extrabold text-slate-800 leading-tight">Analisis Nilai & Mutu Soal</h1>
           </div>
         </div>
 
-        <!-- Tombol Aksi Excel & Cetak -->
+        <!-- Profil User & Aksi Cepat -->
         <div class="flex items-center gap-2">
-          <button onclick="downloadTemplateExcel()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-800 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg transition">
+          <!-- Tombol Buka Profil / Ganti Akun -->
+          <button onclick="openProfileModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-medium transition">
+            <span class="w-6 h-6 rounded-full bg-brand-700 text-white text-[10px] flex items-center justify-center font-bold">👤</span>
+            <div class="text-left hidden md:block">
+              <p id="nav-guru-nama" class="text-[11px] font-bold text-slate-800 leading-none">Ahmad Fauzi, S.Pd.I</p>
+              <p id="nav-mapel-tp" class="text-[9px] text-slate-400 mt-0.5">Bahasa Arab • 2026/2027</p>
+            </div>
+          </button>
+
+          <button onclick="downloadTemplateExcel()" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-800 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg transition">
             📥 Template Excel
           </button>
           
@@ -77,8 +159,8 @@
           </button>
           <input type="file" id="excelUpload" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
           
-          <button onclick="cetakLaporanLengkap()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-brand-700 hover:bg-brand-800 rounded-lg shadow-sm shadow-brand-700/20 transition">
-            🖨️ Cetak Semua Dokumen
+          <button onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-brand-700 hover:bg-brand-800 rounded-lg shadow-sm transition">
+            🖨️ Cetak Dokumen
           </button>
         </div>
 
@@ -86,21 +168,25 @@
     </div>
   </header>
 
-  <!-- ================= TAB BAR 4 MENU UTAMA ================= -->
+  <!-- ================= TAB BAR MENU (BERANDA + 4 MENU UTAMA) ================= -->
   <nav class="bg-white border-b border-slate-200 shadow-sm no-print sticky top-16 z-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex space-x-1 sm:space-x-3 overflow-x-auto py-2 text-xs font-bold scrollbar-none">
         
-        <button onclick="switchTab('siswa')" id="tab-btn-siswa" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-brand-800 bg-brand-50/80 border border-brand-200">
+        <button onclick="switchTab('beranda')" id="tab-btn-beranda" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-brand-800 bg-brand-50/80 border border-brand-200">
+          <span>🏠</span>
+          <span>Beranda & Panduan</span>
+        </button>
+
+        <button onclick="switchTab('siswa')" id="tab-btn-siswa" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
           <span>👥</span>
           <span>Data Siswa & Nilai</span>
-          <span id="badge-total-siswa" class="px-1.5 py-0.5 rounded-full text-[10px] bg-brand-200 text-brand-900">0</span>
+          <span id="badge-total-siswa" class="px-1.5 py-0.5 rounded-full text-[10px] bg-brand-200 text-brand-900">32</span>
         </button>
 
         <button onclick="switchTab('butir')" id="tab-btn-butir" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
           <span>🎯</span>
           <span>Analisis Butir Soal</span>
-          <span class="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200 text-slate-700">10 Soal</span>
         </button>
 
         <button onclick="switchTab('ketuntasan')" id="tab-btn-ketuntasan" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
@@ -111,43 +197,186 @@
         <button onclick="switchTab('remedial')" id="tab-btn-remedial" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
           <span>⭐</span>
           <span>Remedial & Pengayaan</span>
-          <span id="badge-remed-count" class="px-1.5 py-0.5 rounded-full text-[10px] bg-rose-100 text-rose-800">0</span>
+          <span id="badge-remed-count" class="px-1.5 py-0.5 rounded-full text-[10px] bg-rose-100 text-rose-800">13</span>
         </button>
 
       </div>
     </div>
   </nav>
 
-  <!-- ================= KONTEN UTAMA APLIKASI ================= -->
+  <!-- ================= KONTEN UTAMA ================= -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
 
-    <!-- Metadata Pengaturan Nilai (Ringkas) -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm no-print flex flex-wrap items-center justify-between gap-4 text-xs">
-      <div class="flex flex-wrap items-center gap-4">
+    <!-- ================= 0. TAB: BERANDA & PANDUAN PENGGUNAAN ================= -->
+    <section id="panel-beranda" class="tab-panel space-y-6">
+      
+      <!-- Banner Sambutan Akun Guru -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-900 via-brand-800 to-teal-800 p-6 sm:p-8 text-white shadow-xl">
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md border border-white/20 mb-3">
+            <span>✨ Sistem Evaluasi Pembelajaran Digital Madrasah</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black tracking-tight leading-snug">
+            Ahlan wa Sahlan, <span id="banner-guru" class="text-brand-200">Ahmad Fauzi, S.Pd.I</span>!
+          </h2>
+          <p class="mt-2 text-xs sm:text-sm text-brand-100 leading-relaxed">
+            Aplikasi analisis nilai ulangan ini dirancang khusus untuk mempermudah Bapak/Ibu guru di lingkungan Kementerian Agama dalam mengolah daya serap siswa, tingkat kesukaran soal, serta menyusun administrasi kurikulum madrasah secara otomatis.
+          </p>
+
+          <div class="mt-5 flex flex-wrap items-center gap-2 text-xs">
+            <span class="px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">Madrasah: <b id="banner-madrasah">MTs Negeri 1 Kota</b></span>
+            <span class="px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">Mapel: <b id="banner-mapel">Bahasa Arab</b></span>
+            <span class="px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">Tahun Pelajaran: <b id="banner-tp">2026/2027</b></span>
+            <span class="px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">KKM: <b>75</b></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panduan Alur Kerja Bergambar (4 Langkah Praktis) -->
+      <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
         <div>
-          <span class="text-slate-400 block text-[10px] uppercase font-bold">Mata Pelajaran</span>
-          <input id="cfg-mapel" type="text" value="Bahasa Arab" onchange="updateConfig()" class="font-bold text-slate-800 border-b border-dashed border-slate-300 focus:border-brand-600 outline-none pb-0.5">
+          <h3 class="text-base font-extrabold text-slate-800 flex items-center gap-2">
+            <span>📖</span> Petunjuk Singkat Penggunaan Aplikasi
+          </h3>
+          <p class="text-xs text-slate-500">Ikuti 4 langkah mudah berikut untuk menyelesaikan analisis ulangan Anda dalam hitungan detik:</p>
         </div>
-        <div class="border-l pl-4 border-slate-200">
-          <span class="text-slate-400 block text-[10px] uppercase font-bold">Kelas</span>
-          <input id="cfg-kelas" type="text" value="VII A" onchange="updateConfig()" class="font-bold text-slate-800 border-b border-dashed border-slate-300 focus:border-brand-600 outline-none pb-0.5 w-16">
-        </div>
-        <div class="border-l pl-4 border-slate-200">
-          <span class="text-slate-400 block text-[10px] uppercase font-bold">Batas KKM</span>
-          <input id="cfg-kkm" type="number" value="75" onchange="updateConfig()" class="font-extrabold text-brand-700 border-b border-dashed border-brand-300 focus:border-brand-600 outline-none pb-0.5 w-14">
-        </div>
-        <div class="border-l pl-4 border-slate-200">
-          <span class="text-slate-400 block text-[10px] uppercase font-bold">Guru Pengampu</span>
-          <input id="cfg-guru" type="text" value="Ahmad Fauzi, S.Pd.I" onchange="updateConfig()" class="font-bold text-slate-800 border-b border-dashed border-slate-300 focus:border-brand-600 outline-none pb-0.5">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+          
+          <!-- Langkah 1 -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between hover:border-brand-500 transition">
+            <div>
+              <div class="w-10 h-10 rounded-xl bg-brand-100 text-brand-800 flex items-center justify-center font-black text-sm mb-3">
+                1
+              </div>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Unduh Template Excel</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Klik tombol <b>Template Excel</b> di bagian atas untuk mendapatkan format tabel baku nama dan nilai.</p>
+            </div>
+            <button onclick="downloadTemplateExcel()" class="mt-3 text-left text-[11px] font-bold text-brand-700 hover:underline">
+              Download Template →
+            </button>
+          </div>
+
+          <!-- Langkah 2 -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between hover:border-brand-500 transition">
+            <div>
+              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-black text-sm mb-3">
+                2
+              </div>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Import File Nilai</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Klik tombol <b>Import Excel</b> untuk mengunggah file nilai Anda. Sistem membaca nama & nilai secara instan.</p>
+            </div>
+            <button onclick="document.getElementById('excelUpload').click()" class="mt-3 text-left text-[11px] font-bold text-blue-700 hover:underline">
+              Pilih File Excel →
+            </button>
+          </div>
+
+          <!-- Langkah 3 -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between hover:border-brand-500 transition">
+            <div>
+              <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-black text-sm mb-3">
+                3
+              </div>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Periksa Grafik & Butir</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Buka tab <b>Analisis Butir Soal</b> dan <b>Ketuntasan</b> untuk melihat grafik persentase serta kualitas soal.</p>
+            </div>
+            <button onclick="switchTab('ketuntasan')" class="mt-3 text-left text-[11px] font-bold text-amber-700 hover:underline">
+              Buka Analisis →
+            </button>
+          </div>
+
+          <!-- Langkah 4 -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between hover:border-brand-500 transition">
+            <div>
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-sm mb-3">
+                4
+              </div>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Cetak Laporan Resmi</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Klik <b>Cetak Dokumen</b> untuk mencetak bundel laporan A4 lengkap dengan Kop & Tanda Tangan pengesahan.</p>
+            </div>
+            <button onclick="window.print()" class="mt-3 text-left text-[11px] font-bold text-emerald-700 hover:underline">
+              Cetak Dokumen →
+            </button>
+          </div>
+
         </div>
       </div>
-      <div class="text-[11px] text-slate-500">
-        Status: <b id="cfg-info-status" class="text-brand-700">Tersinkronisasi Otomatis</b>
+
+      <!-- Tutorial Interaktif Bergambar & Video -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Frame Video Tutorial -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div>
+            <h4 class="text-sm font-extrabold text-slate-800 mb-1 flex items-center gap-2">
+              <span>🎥</span> Video Panduan Analisis Nilai
+            </h4>
+            <p class="text-xs text-slate-500 mb-3">Simak tutorial visual interaktif cara menggunakan aplikasi ini:</p>
+            
+            <!-- Video Player Mockup / Responsive Embed -->
+            <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 shadow-inner flex items-center justify-center group cursor-pointer">
+              <div class="absolute inset-0 bg-cover bg-center opacity-60 group-hover:scale-105 transition duration-500" style="background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop');"></div>
+              <div class="relative z-10 w-16 h-16 rounded-full bg-white/90 text-brand-800 flex items-center justify-center text-xl shadow-xl group-hover:bg-brand-600 group-hover:text-white transition">
+                ▶
+              </div>
+              <div class="absolute bottom-3 left-3 right-3 text-white text-[11px] bg-slate-900/80 backdrop-blur-sm p-2 rounded-xl flex justify-between items-center">
+                <span>Tutorial: 4 Menit Cepat Olah Nilai Ulangan</span>
+                <span class="text-brand-300 font-bold">HD 1080p</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 text-[11px] text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100">
+            💡 <b>Tips Guru:</b> Anda dapat langsung meng-copy data nama dan nilai dari file Excel leger lama Anda ke dalam template kami.
+          </div>
+        </div>
+
+        <!-- Contoh Data yang Sudah Jadi (Live Demo Preview) -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <h4 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                <span>📊</span> Contoh Data Hasil Jadi (Live Demo)
+              </h4>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">32 Siswa Aktif</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">Berikut adalah ringkasan hasil analisis dari contoh data 32 siswa yang sedang dimuat:</p>
+
+            <div class="grid grid-cols-2 gap-3 text-center my-3">
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] text-slate-400 font-bold block uppercase">Rata-Rata Kelas</span>
+                <span class="text-2xl font-black text-brand-700">71.8</span>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] text-slate-400 font-bold block uppercase">Ketuntasan</span>
+                <span class="text-2xl font-black text-blue-600">59%</span>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] text-slate-400 font-bold block uppercase">Siswa Tuntas</span>
+                <span class="text-2xl font-black text-emerald-600">19 Siswa</span>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] text-slate-400 font-bold block uppercase">Siswa Remedial</span>
+                <span class="text-2xl font-black text-rose-600">13 Siswa</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 pt-2">
+            <button onclick="switchTab('siswa')" class="flex-1 py-2.5 rounded-xl bg-brand-700 text-white text-xs font-bold hover:bg-brand-800 transition text-center shadow-sm">
+              Lihat Leger Nilai & Ranking →
+            </button>
+            <button onclick="switchTab('ketuntasan')" class="py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition">
+              Buka Grafik
+            </button>
+          </div>
+        </div>
+
       </div>
-    </div>
+
+    </section>
 
     <!-- ================= 1. TAB: DATA SISWA & NILAI ================= -->
-    <section id="panel-siswa" class="tab-panel space-y-6">
+    <section id="panel-siswa" class="tab-panel hidden space-y-6">
       
       <!-- Toolbar & Pencarian -->
       <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -159,7 +388,7 @@
           <button onclick="setFilterSiswa('remedial')" id="btn-f-remed" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">Remedial (<span id="cnt-f-remed">0</span>)</button>
         </div>
 
-        <!-- Search & Print Tab Button -->
+        <!-- Search & Action -->
         <div class="flex items-center gap-2 w-full md:w-auto">
           <div class="relative flex-1 md:w-64">
             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
@@ -189,7 +418,7 @@
               </tr>
             </thead>
             <tbody id="tbody-siswa" class="divide-y divide-slate-100">
-              <!-- Render otomatis via JS -->
+              <!-- Render otomatis -->
             </tbody>
           </table>
         </div>
@@ -199,32 +428,27 @@
 
     <!-- ================= 2. TAB: ANALISIS BUTIR SOAL ================= -->
     <section id="panel-butir" class="tab-panel hidden space-y-6">
-      
-      <!-- Header & Aksi Cetak -->
       <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center">
         <div>
           <h3 class="text-base font-bold text-slate-800">Analisis Kualitas Butir Soal Evaluasi</h3>
-          <p class="text-xs text-slate-500">Mengukur Tingkat Kesukaran (P), Daya Pembeda (DP), serta Efektivitas Soal.</p>
+          <p class="text-xs text-slate-500">Mengukur Tingkat Kesukaran (P), Daya Pembeda (DP), serta Rekomendasi Mutu Soal.</p>
         </div>
         <button onclick="window.print()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1.5">
           🖨️ Cetak Butir Soal
         </button>
       </div>
 
-      <!-- Grafik Mutu Butir Soal -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Bar Chart Tingkat Kesukaran -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-2">
           <div class="flex justify-between items-center mb-3">
             <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Tingkat Kesukaran per Butir Soal (P)</h4>
-            <span class="text-[11px] text-slate-400">Rentang 0.00 (Sukar) s.d 1.00 (Mudah)</span>
+            <span class="text-[11px] text-slate-400">Rentang 0.00 s.d 1.00</span>
           </div>
           <div class="h-60">
             <canvas id="chartButirKesukaran"></canvas>
           </div>
         </div>
 
-        <!-- Donut Proporsi Kelayakan Soal -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
           <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Kelayakan Kualitas Soal</h4>
           <div class="h-44 relative flex items-center justify-center">
@@ -238,7 +462,6 @@
         </div>
       </div>
 
-      <!-- Tabel Detail Analisis Butir Soal -->
       <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs border-collapse">
@@ -254,57 +477,51 @@
               </tr>
             </thead>
             <tbody id="tbody-butir" class="divide-y divide-slate-100">
-              <!-- Auto generated -->
+              <!-- Render otomatis -->
             </tbody>
           </table>
         </div>
       </div>
-
     </section>
 
     <!-- ================= 3. TAB: KETUNTASAN & DAYA SERAP ================= -->
     <section id="panel-ketuntasan" class="tab-panel hidden space-y-6">
-      
-      <!-- Top Metric Highlight Cards -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Rata-rata Kelas</span>
-          <h4 id="stat-avg" class="text-3xl font-extrabold text-slate-800 mt-1">0</h4>
-          <span class="text-[11px] text-slate-400 mt-1 block">Dari <span id="stat-total-siswa">0</span> peserta didik</span>
+          <h4 id="stat-avg" class="text-3xl font-extrabold text-slate-800 mt-1">71.8</h4>
+          <span class="text-[11px] text-slate-400 mt-1 block">Dari <span id="stat-total-siswa">32</span> peserta didik</span>
         </div>
 
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
           <span class="text-[10px] font-bold text-brand-700 uppercase tracking-wider block">Ketuntasan Klasikal</span>
-          <h4 id="stat-persen-tuntas" class="text-3xl font-extrabold text-brand-600 mt-1">0%</h4>
-          <span class="text-[11px] text-brand-700 mt-1 block font-semibold" id="stat-label-tuntas">Belum Memenuhi Target</span>
+          <h4 id="stat-persen-tuntas" class="text-3xl font-extrabold text-brand-600 mt-1">59%</h4>
+          <span class="text-[11px] text-amber-700 mt-1 block font-semibold" id="stat-label-tuntas">Target Klasikal: ≥ 85%</span>
         </div>
 
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Tertinggi / Terendah</span>
           <h4 class="text-2xl font-extrabold text-slate-800 mt-1">
-            <span id="stat-max" class="text-emerald-600">0</span> <span class="text-slate-300">/</span> <span id="stat-min" class="text-rose-600">0</span>
+            <span id="stat-max" class="text-emerald-600">97</span> <span class="text-slate-300">/</span> <span id="stat-min" class="text-rose-600">0</span>
           </h4>
           <span class="text-[11px] text-slate-400 mt-1 block">Rentang sebaran nilai</span>
         </div>
 
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Standar Deviasi</span>
-          <h4 id="stat-stdev" class="text-3xl font-extrabold text-slate-800 mt-1">0.0</h4>
-          <span class="text-[11px] text-slate-400 mt-1 block">Homogenitas kemampuan</span>
+          <h4 id="stat-stdev" class="text-3xl font-extrabold text-slate-800 mt-1">21.4</h4>
+          <span class="text-[11px] text-slate-400 mt-1 block">Sebaran variasi nilai</span>
         </div>
       </div>
 
-      <!-- Grafik & Analisis Distribusi -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Donut Proporsi Tuntas vs Belum -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-          <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Persentase Ketuntasan (KKM: <span class="lbl-kkm">75</span>)</h4>
+          <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Ketuntasan Belajar (KKM: 75)</h4>
           <div class="h-56 relative flex items-center justify-center">
             <canvas id="chartKetuntasanDonut"></canvas>
           </div>
         </div>
 
-        <!-- Bar Distribusi Rentang Nilai -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-2">
           <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Distribusi Frekuensi Rentang Nilai Siswa</h4>
           <div class="h-56">
@@ -313,7 +530,6 @@
         </div>
       </div>
 
-      <!-- Narasi Kesimpulan & Rekomendasi Resmi -->
       <div class="bg-white p-6 rounded-2xl border border-brand-200 bg-gradient-to-br from-white to-brand-50/30 shadow-sm">
         <h4 class="text-sm font-extrabold text-brand-900 mb-2 flex items-center gap-2">
           <span>📑</span> Kesimpulan Hasil Evaluasi & Daya Serap
@@ -322,97 +538,76 @@
           Memuat kesimpulan data...
         </p>
       </div>
-
     </section>
 
     <!-- ================= 4. TAB: REMEDIAL & PENGAYAAN ================= -->
     <section id="panel-remedial" class="tab-panel hidden space-y-6">
-      
-      <!-- Top Action Bar -->
       <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center">
         <div>
           <h3 class="text-base font-bold text-slate-800">Program Tindak Lanjut: Remedial & Pengayaan</h3>
-          <p class="text-xs text-slate-500">Rencana perbaikan bagi siswa belum tuntas dan pengayaan bagi siswa yang tuntas.</p>
+          <p class="text-xs text-slate-500">Rencana bimbingan perbaikan bagi siswa belum tuntas dan pendalaman materi bagi siswa tuntas.</p>
         </div>
         <button onclick="window.print()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1.5">
-          🖨️ Cetak Format Tindak Lanjut
+          🖨️ Cetak Tindak Lanjut
         </button>
       </div>
 
-      <!-- Side by Side Program Lists -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        <!-- Kartu Program Remedial -->
+        <!-- Remedial -->
         <div class="bg-white p-6 rounded-2xl border border-rose-200/90 shadow-sm flex flex-col justify-between">
           <div>
             <div class="flex justify-between items-center border-b border-rose-100 pb-3 mb-4">
               <h4 class="text-sm font-extrabold text-rose-800 flex items-center gap-2">
                 <span>✏️</span> Program Remedial Belajar
               </h4>
-              <span id="badge-total-remed" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800">0 Siswa</span>
+              <span id="badge-total-remed" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800">13 Siswa</span>
             </div>
-            
-            <p class="text-[11px] text-slate-500 mb-3">Siswa dengan perolehan nilai di bawah KKM (<span class="lbl-kkm">75</span>):</p>
-            
-            <div id="list-remedial-box" class="space-y-2.5 max-h-96 overflow-y-auto pr-1">
-              <!-- Render otomatis -->
-            </div>
+            <p class="text-[11px] text-slate-500 mb-3">Siswa dengan perolehan nilai di bawah KKM (75):</p>
+            <div id="list-remedial-box" class="space-y-2.5 max-h-96 overflow-y-auto pr-1"></div>
           </div>
-
           <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-600 bg-rose-50/50 p-3 rounded-xl">
-            <b>Rencana Tindakan:</b> Pembelajaran ulang materi esensial, bimbingan tutor sebaya, dan tes perbaikan.
+            <b>Rencana Tindakan:</b> Pembelajaran ulang materi kompetensi dasar yang belum tercapai dan tes remedial.
           </div>
         </div>
 
-        <!-- Kartu Program Pengayaan -->
+        <!-- Pengayaan -->
         <div class="bg-white p-6 rounded-2xl border border-emerald-200/90 shadow-sm flex flex-col justify-between">
           <div>
             <div class="flex justify-between items-center border-b border-emerald-100 pb-3 mb-4">
               <h4 class="text-sm font-extrabold text-emerald-800 flex items-center gap-2">
                 <span>⭐</span> Program Pengayaan Belajar
               </h4>
-              <span id="badge-total-pengayaan" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">0 Siswa</span>
+              <span id="badge-total-pengayaan" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">19 Siswa</span>
             </div>
-
-            <p class="text-[11px] text-slate-500 mb-3">Siswa yang telah melampaui standar KKM (<span class="lbl-kkm">75</span>):</p>
-            
-            <div id="list-pengayaan-box" class="space-y-2.5 max-h-96 overflow-y-auto pr-1">
-              <!-- Render otomatis -->
-            </div>
+            <p class="text-[11px] text-slate-500 mb-3">Siswa yang telah melampaui standar KKM (75):</p>
+            <div id="list-pengayaan-box" class="space-y-2.5 max-h-96 overflow-y-auto pr-1"></div>
           </div>
-
           <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-600 bg-emerald-50/50 p-3 rounded-xl">
-            <b>Rencana Tindakan:</b> Pendalaman materi HOTS, penugasan studi kasus terapan, atau ditugaskan sebagai tutor sebaya.
+            <b>Rencana Tindakan:</b> Penugasan studi literasi lanjutan atau menjadi tutor sebaya bagi rekan sekelas.
           </div>
         </div>
-
       </div>
-
     </section>
 
-    <!-- ================= HALAMAN CETAK RESMI (PRINT ONLY) ================= -->
+    <!-- ================= HALAMAN CETAK RESMI A4 (PRINT ONLY) ================= -->
     <div class="hidden print:block text-slate-900">
-      
-      <!-- KOP RESMI -->
       <div class="text-center border-b-2 border-slate-900 pb-3 mb-4">
         <h3 class="text-xs font-bold uppercase tracking-wider">KEMENTERIAN AGAMA REPUBLIK INDONESIA</h3>
         <h2 id="p-sekolah" class="text-base font-extrabold uppercase">MADRASAH TSANAWIYAH NEGERI 1 KOTA</h2>
-        <p class="text-[10px] text-slate-600">LAPORAN RESMI HASIL EVALUASI PEMBELAJARAN & ANALISIS BUTIR SOAL</p>
+        <p class="text-[10px] text-slate-600">LAPORAN HASIL EVALUASI PEMBELAJARAN & ANALISIS BUTIR SOAL</p>
       </div>
 
-      <!-- Identitas Dokumen -->
       <div class="grid grid-cols-2 gap-4 text-[10px] mb-3">
         <div>
           <p>Mata Pelajaran: <b id="p-mapel">Bahasa Arab</b></p>
-          <p>Kelas / Semester: <b id="p-kelas">VII A / Ganjil</b></p>
+          <p>Tahun Pelajaran: <b id="p-tp">2026/2027</b></p>
         </div>
         <div class="text-right">
-          <p>Batas KKM: <b id="p-kkm">75</b></p>
+          <p>Batas KKM: <b>75</b></p>
           <p>Guru Pengampu: <b id="p-guru">Ahmad Fauzi, S.Pd.I</b></p>
         </div>
       </div>
 
-      <!-- Ringkasan Statistik -->
       <table class="w-full text-center text-[10px] mb-4">
         <tr class="bg-slate-100 font-bold">
           <th>Total Siswa</th>
@@ -424,17 +619,16 @@
           <th>% Ketuntasan</th>
         </tr>
         <tr class="font-bold">
-          <td id="p-stat-total">0</td>
-          <td id="p-stat-avg">0</td>
-          <td id="p-stat-max">0</td>
+          <td id="p-stat-total">32</td>
+          <td id="p-stat-avg">71.8</td>
+          <td id="p-stat-max">97</td>
           <td id="p-stat-min">0</td>
-          <td id="p-stat-tuntas" class="text-emerald-800">0</td>
-          <td id="p-stat-remed" class="text-rose-800">0</td>
-          <td id="p-stat-persen">0%</td>
+          <td id="p-stat-tuntas" class="text-emerald-800">19</td>
+          <td id="p-stat-remed" class="text-rose-800">13</td>
+          <td id="p-stat-persen">59%</td>
         </tr>
       </table>
 
-      <!-- Tabel Lengkap Siswa -->
       <table class="w-full text-[9px] mb-6">
         <thead>
           <tr class="bg-slate-100 font-bold">
@@ -446,11 +640,9 @@
             <th class="w-28 text-center">Tindak Lanjut</th>
           </tr>
         </thead>
-        <tbody id="p-tbody-siswa">
-        </tbody>
+        <tbody id="p-tbody-siswa"></tbody>
       </table>
 
-      <!-- Tanda Tangan Pengesahan -->
       <div class="grid grid-cols-2 text-center text-[10px] pt-4">
         <div>
           <p>Mengetahui,</p>
@@ -467,24 +659,25 @@
           <p class="text-slate-500">NIP. 19870415 201101 1 003</p>
         </div>
       </div>
-
     </div>
 
   </main>
 
   <!-- ================= SCRIPT LOGIKA UTAMA ================= -->
   <script>
-    // State Aplikasi
-    let config = {
+    // State Pengguna & Madrasah
+    let userProfile = {
+      isLoggedIn: false,
+      email: "guru@kemenag.go.id",
+      namaGuru: "Ahmad Fauzi, S.Pd.I",
+      namaMadrasah: "MTs Negeri 1 Kota",
+      tahunPelajaran: "2026/2027",
       mapel: "Bahasa Arab",
-      kelas: "VII A",
       kkm: 75,
-      guru: "Ahmad Fauzi, S.Pd.I",
-      sekolah: "MTs Negeri 1 Kota",
       jmlSoal: 10
     };
 
-    // Data Awal (Disesuaikan dengan file Excel Anda)
+    // Data Siswa Riil Sesuai File Excel Anda
     let dataSiswa = [
       { nama: "AEESHA KIREY UFAIRAH", nilai: 91 },
       { nama: "AJENG FITRI AZIZIYAH", nilai: 79 },
@@ -520,18 +713,117 @@
       { nama: "ZAHRA ASHIDQIA HASIBUAN", nilai: 48 }
     ];
 
+    let authMode = 'signup'; // 'signup' atau 'signin'
     let filterAktif = 'semua';
     let sortAsc = false;
 
-    // Instance Chart
+    // Charts
     let chartDonutKetuntasan = null;
     let chartBarDistribusi = null;
     let chartBarKesukaran = null;
     let chartPieKelayakan = null;
 
+    // Inisialisasi Saat Buka Halaman
     window.addEventListener('DOMContentLoaded', () => {
+      cekStatusLogin();
       renderSemua();
     });
+
+    // --- CEK LOCALSTORAGE UNTUK POP-UP LOGIN ---
+    function cekStatusLogin() {
+      const savedUser = localStorage.getItem('madrasah_analisis_user');
+      if (savedUser) {
+        try {
+          userProfile = JSON.parse(savedUser);
+          applyUserProfile();
+        } catch (e) {
+          showAuthModal('signup');
+        }
+      } else {
+        // Tampilkan pop-up modal pertama kali
+        showAuthModal('signup');
+      }
+    }
+
+    function showAuthModal(mode) {
+      authMode = mode;
+      toggleAuthMode(mode);
+      document.getElementById('authModal').classList.remove('hidden');
+    }
+
+    function toggleAuthMode(mode) {
+      authMode = mode;
+      const tabSignUp = document.getElementById('tabBtnSignUp');
+      const tabSignIn = document.getElementById('tabBtnSignIn');
+      const signUpFields = document.getElementById('signUpFields');
+      const btnSubmit = document.getElementById('btnSubmitAuth');
+      const title = document.getElementById('authModalTitle');
+      const subtitle = document.getElementById('authModalSubtitle');
+
+      if (mode === 'signup') {
+        tabSignUp.className = "flex-1 py-3 border-b-2 border-brand-700 text-brand-800 transition font-bold";
+        tabSignIn.className = "flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition font-medium";
+        signUpFields.classList.remove('hidden');
+        btnSubmit.textContent = "Daftar & Masuk ke Aplikasi";
+        title.textContent = "Selamat Datang di Portal Madrasah";
+        subtitle.textContent = "Silakan daftarkan akun pendidik & madrasah Anda";
+      } else {
+        tabSignIn.className = "flex-1 py-3 border-b-2 border-brand-700 text-brand-800 transition font-bold";
+        tabSignUp.className = "flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition font-medium";
+        signUpFields.classList.add('hidden');
+        btnSubmit.textContent = "Masuk (Sign In)";
+        title.textContent = "Masuk ke Akun Anda";
+        subtitle.textContent = "Gunakan email & password yang telah didaftarkan";
+      }
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value.trim();
+
+      if (authMode === 'signup') {
+        userProfile.email = email;
+        userProfile.namaGuru = document.getElementById('authNamaGuru').value.trim() || userProfile.namaGuru;
+        userProfile.namaMadrasah = document.getElementById('authNamaMadrasah').value.trim() || userProfile.namaMadrasah;
+        userProfile.mapel = document.getElementById('authMapel').value.trim() || userProfile.mapel;
+        userProfile.tahunPelajaran = document.getElementById('authTahunPelajaran').value.trim() || userProfile.tahunPelajaran;
+      }
+
+      userProfile.isLoggedIn = true;
+      localStorage.setItem('madrasah_analisis_user', JSON.stringify(userProfile));
+
+      applyUserProfile();
+      document.getElementById('authModal').classList.add('hidden');
+      alert(`Selamat datang, ${userProfile.namaGuru}! Akun Anda telah siap.`);
+    }
+
+    function applyUserProfile() {
+      document.getElementById('nav-guru-nama').textContent = userProfile.namaGuru;
+      document.getElementById('nav-madrasah').textContent = userProfile.namaMadrasah;
+      document.getElementById('nav-mapel-tp').textContent = `${userProfile.mapel} • ${userProfile.tahunPelajaran}`;
+
+      document.getElementById('banner-guru').textContent = userProfile.namaGuru;
+      document.getElementById('banner-madrasah').textContent = userProfile.namaMadrasah;
+      document.getElementById('banner-mapel').textContent = userProfile.mapel;
+      document.getElementById('banner-tp').textContent = userProfile.tahunPelajaran;
+
+      document.getElementById('p-sekolah').textContent = userProfile.namaMadrasah;
+      document.getElementById('p-mapel').textContent = userProfile.mapel;
+      document.getElementById('p-tp').textContent = userProfile.tahunPelajaran;
+      document.getElementById('p-guru').textContent = userProfile.namaGuru;
+      document.getElementById('p-ttd-guru').textContent = userProfile.namaGuru;
+    }
+
+    function openProfileModal() {
+      document.getElementById('authEmail').value = userProfile.email;
+      document.getElementById('authNamaGuru').value = userProfile.namaGuru;
+      document.getElementById('authNamaMadrasah').value = userProfile.namaMadrasah;
+      document.getElementById('authMapel').value = userProfile.mapel;
+      document.getElementById('authTahunPelajaran').value = userProfile.tahunPelajaran;
+      showAuthModal('signup');
+      document.getElementById('authModalTitle').textContent = "Ubah Profil Pendidik & Madrasah";
+      document.getElementById('btnSubmitAuth').textContent = "Simpan Perubahan";
+    }
 
     // --- TAB SWITCHER ---
     function switchTab(tabKey) {
@@ -549,18 +841,9 @@
         targetBtn.classList.add('text-brand-800', 'bg-brand-50/80', 'border-brand-200');
       }
 
-      // Re-render chart jika tab butir atau ketuntasan dibuka
       if (tabKey === 'ketuntasan' || tabKey === 'butir') {
         renderCharts();
       }
-    }
-
-    function updateConfig() {
-      config.mapel = document.getElementById('cfg-mapel').value;
-      config.kelas = document.getElementById('cfg-kelas').value;
-      config.kkm = parseFloat(document.getElementById('cfg-kkm').value) || 75;
-      config.guru = document.getElementById('cfg-guru').value;
-      renderSemua();
     }
 
     // --- FITUR IMPORT EXCEL ANTI-TERTUKAR ---
@@ -585,7 +868,6 @@
           let colNilai = -1;
           let headerIdx = -1;
 
-          // Cari judul kolom
           for (let r = 0; r < Math.min(10, rows.length); r++) {
             const row = rows[r];
             if (!row) continue;
@@ -600,7 +882,6 @@
             }
           }
 
-          // Fallback: A=No, B=Nama, C=Nilai
           if (colNama === -1 || colNilai === -1) {
             colNama = 1;
             colNilai = 2;
@@ -623,6 +904,7 @@
             dataSiswa = parsed;
             renderSemua();
             alert(`Berhasil mengimpor ${parsed.length} siswa secara akurat!`);
+            switchTab('siswa');
           } else {
             alert('Kolom nama siswa dan nilai tidak ditemukan.');
           }
@@ -634,12 +916,8 @@
       event.target.value = '';
     }
 
-    // --- LOGIKA UTAMA RENDER SEMUA DATA ---
+    // --- RENDER SEMUA PERHITUNGAN & STATISTIK ---
     function renderSemua() {
-      // Perbarui label KKM
-      document.querySelectorAll('.lbl-kkm').forEach(el => el.textContent = config.kkm);
-
-      // Hitung Peringkat (Ranking)
       dataSiswa.sort((a, b) => b.nilai - a.nilai);
       dataSiswa.forEach((s, idx) => s.rank = idx + 1);
 
@@ -653,48 +931,33 @@
       const avg = nilaiArr.reduce((a, b) => a + b, 0) / total;
       const max = Math.max(...nilaiArr);
       const min = Math.min(...nilaiArr);
-      const tuntasArr = dataSiswa.filter(s => s.nilai >= config.kkm);
-      const remedArr = dataSiswa.filter(s => s.nilai < config.kkm);
+      const tuntasArr = dataSiswa.filter(s => s.nilai >= userProfile.kkm);
+      const remedArr = dataSiswa.filter(s => s.nilai < userProfile.kkm);
       const tuntasCount = tuntasArr.length;
       const remedCount = remedArr.length;
       const tuntasPersen = ((tuntasCount / total) * 100).toFixed(0);
 
-      // Standar Deviasi
       const varians = nilaiArr.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / total;
-      const stdev = Math.sqrt(varians).toFixed(2);
+      const stdev = Math.sqrt(varians).toFixed(1);
 
-      // Update Filter Counter
       document.getElementById('cnt-f-all').textContent = total;
       document.getElementById('cnt-f-tuntas').textContent = tuntasCount;
       document.getElementById('cnt-f-remed').textContent = remedCount;
       document.getElementById('badge-remed-count').textContent = remedCount;
 
-      // Update Metric Highlights
       document.getElementById('stat-avg').textContent = avg.toFixed(1);
       document.getElementById('stat-persen-tuntas').textContent = tuntasPersen + "%";
       document.getElementById('stat-max').textContent = max;
       document.getElementById('stat-min').textContent = min;
       document.getElementById('stat-stdev').textContent = stdev;
-      
-      const labelTuntas = document.getElementById('stat-label-tuntas');
-      if (tuntasPersen >= 85) {
-        labelTuntas.textContent = "✓ Tuntas Klasikal (Target ≥ 85%)";
-        labelTuntas.className = "text-[11px] text-emerald-700 mt-1 block font-semibold";
-      } else {
-        labelTuntas.textContent = "⚠ Belum Tuntas Klasikal (Target ≥ 85%)";
-        labelTuntas.className = "text-[11px] text-amber-700 mt-1 block font-semibold";
-      }
 
-      // Narasi Otomatis
       document.getElementById('narasi-kesimpulan').innerHTML = `
-        Berdasarkan hasil analisis evaluasi ulangan pada mata pelajaran <b>${config.mapel}</b> kelas <b>${config.kelas}</b> 
-        dengan batas KKM <b>${config.kkm}</b>, diperoleh nilai rata-rata kelas sebesar <b>${avg.toFixed(1)}</b>. 
+        Berdasarkan hasil analisis evaluasi ulangan pada mata pelajaran <b>${userProfile.mapel}</b> 
+        dengan batas KKM <b>${userProfile.kkm}</b>, diperoleh nilai rata-rata kelas sebesar <b>${avg.toFixed(1)}</b>. 
         Dari total <b>${total}</b> siswa, sebanyak <b>${tuntasCount} siswa (${tuntasPersen}%)</b> dinyatakan <b>Tuntas</b>, 
-        sedangkan <b>${remedCount} siswa (${(100 - tuntasPersen).toFixed(0)}%)</b> memerlukan program <b>Remedial</b>. 
-        ${tuntasPersen >= 85 ? 'Secara keseluruhan ketuntasan belajar klasikal telah <b>tercapai dengan sangat baik</b>.' : 'Secara klasikal ketuntasan belajar <b>belum tercapai</b> dan membutuhkan penguatan pada indikator kompetensi dasar yang diujikan.'}
+        sedangkan <b>${remedCount} siswa (${(100 - tuntasPersen).toFixed(0)}%)</b> memerlukan bimbingan <b>Remedial</b>.
       `;
 
-      // Render Masing-Masing Modul
       renderTabelSiswa();
       renderButirSoal(total);
       renderRemedialPengayaan(tuntasArr, remedArr);
@@ -702,7 +965,7 @@
       renderCharts(tuntasCount, remedCount);
     }
 
-    // --- 1. RENDER TABEL SISWA & NILAI ---
+    // --- TABEL SISWA ---
     function setFilterSiswa(f) {
       filterAktif = f;
       ['semua', 'tuntas', 'remedial'].forEach(k => {
@@ -728,33 +991,33 @@
 
       let filtered = dataSiswa.filter(s => {
         const matchNama = s.nama.toLowerCase().includes(keyword);
-        if (filterAktif === 'tuntas') return matchNama && s.nilai >= config.kkm;
-        if (filterAktif === 'remedial') return matchNama && s.nilai < config.kkm;
+        if (filterAktif === 'tuntas') return matchNama && s.nilai >= userProfile.kkm;
+        if (filterAktif === 'remedial') return matchNama && s.nilai < userProfile.kkm;
         return matchNama;
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Tidak ada data siswa yang cocok.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Tidak ada data siswa.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = filtered.map((s, idx) => {
-        const isTuntas = s.nilai >= config.kkm;
+        const isTuntas = s.nilai >= userProfile.kkm;
         return `
           <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-            <td class="p-3 text-center font-extrabold text-slate-400">#${s.rank}</td>
-            <td class="p-3 text-center text-slate-500">${idx + 1}</td>
-            <td class="p-3 font-semibold text-slate-800">${s.nama}</td>
-            <td class="p-3 text-center font-black text-sm ${isTuntas ? 'text-emerald-700' : 'text-rose-600'}">${s.nilai}</td>
-            <td class="p-3 text-center">
+            <td class="p-3.5 text-center font-extrabold text-slate-400">#${s.rank}</td>
+            <td class="p-3.5 text-center text-slate-500">${idx + 1}</td>
+            <td class="p-3.5 font-semibold text-slate-800">${s.nama}</td>
+            <td class="p-3.5 text-center font-black text-sm ${isTuntas ? 'text-emerald-700' : 'text-rose-600'}">${s.nilai}</td>
+            <td class="p-3.5 text-center">
               <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wide ${isTuntas ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
                 ${isTuntas ? 'TUNTAS' : 'REMEDIAL'}
               </span>
             </td>
-            <td class="p-3 text-center text-slate-600 font-medium">
+            <td class="p-3.5 text-center text-slate-600 font-medium">
               ${isTuntas ? '⭐ Pengayaan' : '✏️ Remedial Wajib'}
             </td>
-            <td class="p-3 text-center no-print">
+            <td class="p-3.5 text-center no-print">
               <button onclick="hapusSatuSiswa('${s.nama}')" class="text-slate-400 hover:text-rose-600 p-1">✕</button>
             </td>
           </tr>
@@ -767,15 +1030,14 @@
       renderSemua();
     }
 
-    // --- 2. RENDER ANALISIS BUTIR SOAL ---
+    // --- BUTIR SOAL ---
     function renderButirSoal(total) {
       const tbody = document.getElementById('tbody-butir');
       let html = '';
       let baikCount = 0, revisiCount = 0, buangCount = 0;
       let kesukaranData = [];
 
-      for (let i = 1; i <= config.jmlSoal; i++) {
-        // Simulasi rasio butir soal berdasarkan pola distribusi riil
+      for (let i = 1; i <= userProfile.jmlSoal; i++) {
         const seed = (i * 11) % 9;
         const benar = Math.max(2, Math.min(total, Math.round(total * (0.42 + (seed * 0.06)))));
         const p = parseFloat((benar / total).toFixed(2));
@@ -826,50 +1088,36 @@
       renderChartsButir(kesukaranData, baikCount, revisiCount, buangCount);
     }
 
-    // --- 3. RENDER REMEDIAL & PENGAYAAN ---
+    // --- REMEDIAL & PENGAYAAN ---
     function renderRemedialPengayaan(tuntasArr, remedArr) {
       document.getElementById('badge-total-remed').textContent = remedArr.length + " Siswa";
       document.getElementById('badge-total-pengayaan').textContent = tuntasArr.length + " Siswa";
 
       const boxRemed = document.getElementById('list-remedial-box');
-      if (remedArr.length === 0) {
-        boxRemed.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">Tidak ada siswa yang remedial.</div>`;
-      } else {
-        boxRemed.innerHTML = remedArr.map((s, idx) => `
-          <div class="p-3 rounded-xl border border-rose-100 bg-rose-50/40 flex justify-between items-center text-xs">
-            <div>
-              <p class="font-bold text-slate-800">${idx + 1}. ${s.nama}</p>
-              <p class="text-[10px] text-slate-500">Nilai Awal: <b class="text-rose-600">${s.nilai}</b> (Kurang ${(config.kkm - s.nilai).toFixed(0)} poin)</p>
-            </div>
-            <span class="text-[10px] font-bold text-rose-700 bg-rose-100 px-2 py-1 rounded-md">Bimbingan Khusus</span>
+      boxRemed.innerHTML = remedArr.map((s, idx) => `
+        <div class="p-3 rounded-xl border border-rose-100 bg-rose-50/40 flex justify-between items-center text-xs">
+          <div>
+            <p class="font-bold text-slate-800">${idx + 1}. ${s.nama}</p>
+            <p class="text-[10px] text-slate-500">Nilai: <b class="text-rose-600">${s.nilai}</b> (Kurang ${(userProfile.kkm - s.nilai).toFixed(0)} poin)</p>
           </div>
-        `).join('');
-      }
+          <span class="text-[10px] font-bold text-rose-700 bg-rose-100 px-2 py-1 rounded-md">Bimbingan Khusus</span>
+        </div>
+      `).join('');
 
       const boxPengayaan = document.getElementById('list-pengayaan-box');
-      if (tuntasArr.length === 0) {
-        boxPengayaan.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">Belum ada siswa yang tuntas.</div>`;
-      } else {
-        boxPengayaan.innerHTML = tuntasArr.map((s, idx) => `
-          <div class="p-3 rounded-xl border border-emerald-100 bg-emerald-50/40 flex justify-between items-center text-xs">
-            <div>
-              <p class="font-bold text-slate-800">${idx + 1}. ${s.nama}</p>
-              <p class="text-[10px] text-slate-500">Nilai Akhir: <b class="text-emerald-700">${s.nilai}</b> (Tuntas)</p>
-            </div>
-            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded-md">Materi Lanjutan</span>
+      boxPengayaan.innerHTML = tuntasArr.map((s, idx) => `
+        <div class="p-3 rounded-xl border border-emerald-100 bg-emerald-50/40 flex justify-between items-center text-xs">
+          <div>
+            <p class="font-bold text-slate-800">${idx + 1}. ${s.nama}</p>
+            <p class="text-[10px] text-slate-500">Nilai: <b class="text-emerald-700">${s.nilai}</b> (Tuntas)</p>
           </div>
-        `).join('');
-      }
+          <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded-md">Materi Lanjutan</span>
+        </div>
+      `).join('');
     }
 
-    // --- 4. RENDER TEMPLATE CETAK A4 ---
+    // --- CETAK A4 ---
     function renderPrintTemplate(total, avg, max, min, tuntas, remed, persen) {
-      document.getElementById('p-mapel').textContent = config.mapel;
-      document.getElementById('p-kelas').textContent = config.kelas;
-      document.getElementById('p-kkm').textContent = config.kkm;
-      document.getElementById('p-guru').textContent = config.guru;
-      document.getElementById('p-ttd-guru').textContent = config.guru;
-
       document.getElementById('p-stat-total').textContent = total;
       document.getElementById('p-stat-avg').textContent = avg.toFixed(1);
       document.getElementById('p-stat-max').textContent = max;
@@ -887,17 +1135,16 @@
           <td class="text-center">${idx + 1}</td>
           <td class="font-semibold">${s.nama}</td>
           <td class="text-center font-bold">${s.nilai}</td>
-          <td class="text-center font-bold ${s.nilai >= config.kkm ? 'text-emerald-800' : 'text-rose-800'}">
-            ${s.nilai >= config.kkm ? 'TUNTAS' : 'REMEDIAL'}
+          <td class="text-center font-bold ${s.nilai >= userProfile.kkm ? 'text-emerald-800' : 'text-rose-800'}">
+            ${s.nilai >= userProfile.kkm ? 'TUNTAS' : 'REMEDIAL'}
           </td>
-          <td class="text-center">${s.nilai >= config.kkm ? 'Pengayaan' : 'Remedial Wajib'}</td>
+          <td class="text-center">${s.nilai >= userProfile.kkm ? 'Pengayaan' : 'Remedial Wajib'}</td>
         </tr>
       `).join('');
     }
 
-    // --- 5. RENDER GRAFIK CHART.JS MENAWAN ---
+    // --- CHART.JS ---
     function renderCharts(tuntas = 0, remed = 0) {
-      // Donut Chart Ketuntasan
       const ctxDonut = document.getElementById('chartKetuntasanDonut')?.getContext('2d');
       if (ctxDonut) {
         if (chartDonutKetuntasan) chartDonutKetuntasan.destroy();
@@ -915,27 +1162,24 @@
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-              legend: { position: 'bottom', labels: { font: { family: 'Plus Jakarta Sans', size: 11 } } }
-            },
+            plugins: { legend: { position: 'bottom' } },
             cutout: '72%'
           }
         });
       }
 
-      // Bar Chart Distribusi Nilai
       const ctxBar = document.getElementById('chartDistribusiBar')?.getContext('2d');
       if (ctxBar) {
         const r1 = dataSiswa.filter(s => s.nilai < 60).length;
-        const r2 = dataSiswa.filter(s => s.nilai >= 60 && s.nilai < config.kkm).length;
-        const r3 = dataSiswa.filter(s => s.nilai >= config.kkm && s.nilai < 85).length;
+        const r2 = dataSiswa.filter(s => s.nilai >= 60 && s.nilai < userProfile.kkm).length;
+        const r3 = dataSiswa.filter(s => s.nilai >= userProfile.kkm && s.nilai < 85).length;
         const r4 = dataSiswa.filter(s => s.nilai >= 85).length;
 
         if (chartBarDistribusi) chartBarDistribusi.destroy();
         chartBarDistribusi = new Chart(ctxBar, {
           type: 'bar',
           data: {
-            labels: ['< 60 (Sangat Kurang)', `60 - ${config.kkm - 1} (Kurang)`, `${config.kkm} - 84 (Cukup/Baik)`, '85 - 100 (Sangat Baik)'],
+            labels: ['< 60', `60 - ${userProfile.kkm - 1}`, `${userProfile.kkm} - 84`, '85 - 100'],
             datasets: [{
               data: [r1, r2, r3, r4],
               backgroundColor: ['#f43f5e', '#fbbf24', '#0284c7', '#059669'],
@@ -946,16 +1190,13 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: {
-              y: { beginAtZero: true, ticks: { stepSize: 2 } }
-            }
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 2 } } }
           }
         });
       }
     }
 
     function renderChartsButir(kesukaranData, baik, revisi, buang) {
-      // Bar Chart Kesukaran Soal
       const ctxKesukaran = document.getElementById('chartButirKesukaran')?.getContext('2d');
       if (ctxKesukaran) {
         if (chartBarKesukaran) chartBarKesukaran.destroy();
@@ -978,7 +1219,6 @@
         });
       }
 
-      // Donut Chart Kelayakan Soal
       const ctxKelayakan = document.getElementById('chartButirKelayakan')?.getContext('2d');
       if (ctxKelayakan) {
         if (chartPieKelayakan) chartPieKelayakan.destroy();
@@ -1002,23 +1242,18 @@
       }
     }
 
-    function cetakLaporanLengkap() {
-      window.print();
-    }
-
     function downloadTemplateExcel() {
       const template = [
         ["No", "Nama Siswa", "Nilai"],
-        [1, "Ahmad Zaki", 85],
-        [2, "Fatimah Azzahra", 72],
-        [3, "Muhammad Al-Fatih", 90],
-        [4, "Nurul Hidayah", 68],
-        [5, "Umar Bin Khattab", 78]
+        [1, "AEESHA KIREY UFAIRAH", 91],
+        [2, "AJENG FITRI AZIZIYAH", 79],
+        [3, "ALIIFAH NADYA SHAFWAH", 81],
+        [4, "AMANDA KHAIRA ASYIFA", 54]
       ];
       const ws = XLSX.utils.aoa_to_sheet(template);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Nilai_Siswa");
-      XLSX.writeFile(wb, `Template_Nilai_${config.mapel}.xlsx`);
+      XLSX.writeFile(wb, `Template_Nilai_${userProfile.mapel}.xlsx`);
     }
   </script>
 </body>
