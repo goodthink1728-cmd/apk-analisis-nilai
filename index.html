@@ -50,7 +50,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased font-sans min-h-screen flex flex-col">
 
-  <!-- MODAL DIALOG KONFIRMASI (Mencegah Eksekusi Langsung) -->
+  <!-- MODAL DIALOG KONFIRMASI -->
   <div id="customConfirmModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center animate-fade-in border border-slate-100">
       <div id="confirmIconWrapper" class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black">
@@ -71,7 +71,7 @@
     </div>
   </div>
 
-  <!-- MODAL SIGN UP & SIGN IN (DENGAN CAPTCHA & SHOW PASSWORD) -->
+  <!-- MODAL SIGN UP & SIGN IN -->
   <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
     <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 animate-fade-in">
       <div class="bg-brand-900 px-6 py-6 text-white text-center">
@@ -221,6 +221,59 @@
     </div>
   </div>
 
+  <!-- MODAL EDIT MATRIKS SKOR BUTIR SOAL (WEB EDITOR LANGSUNG) -->
+  <div id="modalEditMatriks" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col border border-slate-100 animate-fade-in overflow-hidden">
+      <!-- Header Modal -->
+      <div class="bg-gradient-to-r from-brand-900 to-emerald-800 px-6 py-4 text-white flex justify-between items-center">
+        <div>
+          <h3 class="text-base font-black flex items-center gap-2">
+            <span>📝</span> Input & Edit Skor Butir Soal (PG, PGK, Menjodohkan)
+          </h3>
+          <p class="text-xs text-emerald-200 mt-0.5">
+            Kelas: <b id="m-edit-kelas">-</b> • Jumlah Soal: <b id="m-edit-jmlSoal">-</b> Butir • Total Bobot Maksimal: <b id="m-edit-totalBobot">-</b> Poin
+          </p>
+        </div>
+        <button onclick="tutupModalEditMatriks()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white font-bold text-sm">✕</button>
+      </div>
+
+      <!-- Keterangan Jenis Soal -->
+      <div class="bg-slate-50 border-b border-slate-200 px-6 py-2.5 text-[11px] text-slate-600 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-4">
+          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> <b>PG:</b> Skor 1 (benar) / 0 (salah)</span>
+          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> <b>PGK:</b> Skor bertingkat 0, 1, 2 (pilihan benar)</span>
+          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> <b>Menjodohkan:</b> Skor 0, 1, 2, 3 (jumlah pasang)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="aturKonfigurasiSoal()" class="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg font-bold text-[10px] text-slate-700 shadow-sm">
+            ⚙️ Ubah Bobot/Tipe Soal
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabel Input Matriks Siswa -->
+      <div class="flex-1 overflow-auto custom-scrollbar p-4">
+        <table class="w-full text-xs text-left border-collapse" id="tableMatriksInput">
+          <thead class="bg-slate-100 text-slate-700 font-bold sticky top-0 z-10 text-[11px] border-b border-slate-300" id="theadMatriksInput">
+            <!-- Diisi via JS -->
+          </thead>
+          <tbody id="tbodyMatriksInput" class="divide-y divide-slate-100 text-[11px]">
+            <!-- Diisi baris skor siswa -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer Modal -->
+      <div class="bg-white border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs">
+        <p class="text-slate-500 italic text-[11px]">💡 Nilai total siswa (0-100) dan daya pembeda akan otomatis dihitung saat disimpan.</p>
+        <div class="flex gap-2">
+          <button onclick="tutupModalEditMatriks()" class="px-4 py-2 rounded-xl border border-slate-300 font-bold text-slate-700 hover:bg-slate-50">Batal</button>
+          <button onclick="simpanMatriksSkor()" class="px-5 py-2 rounded-xl bg-brand-800 hover:bg-brand-900 text-white font-bold shadow-md shadow-brand-900/20">💾 Simpan Perubahan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- NAVBAR ATAS -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -239,7 +292,7 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <!-- Dropdown Profil Guru & Menu Akun -->
+          <!-- Dropdown Profil Guru -->
           <div class="relative">
             <button onclick="toggleUserDropdown()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition text-left">
               <div class="w-7 h-7 rounded-full bg-brand-700 text-white flex items-center justify-center font-bold text-xs" id="navAvatar">
@@ -252,7 +305,6 @@
               <span class="text-slate-400 text-xs">▼</span>
             </button>
 
-            <!-- Menu Dropdown -->
             <div id="userDropdown" class="hidden absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-40 text-xs">
               <div class="px-4 py-2 border-b border-slate-100">
                 <p class="font-bold text-slate-800" id="dd-nama-guru">Agus Gunawan, M.Pd.</p>
@@ -278,14 +330,14 @@
             📊 Export Excel Lengkap
           </button>
 
-          <!-- Tombol Template Excel Multi-Kelas -->
-          <button onclick="downloadTemplateExcel()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition shadow-sm" title="Unduh format tabel Excel multi-kelas">
+          <!-- Tombol Template Excel Multi-Kelas & Butir Soal -->
+          <button onclick="downloadTemplateExcel()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition shadow-sm" title="Unduh format tabel Excel Butir Soal & Google Form">
             📥 Template Excel
           </button>
           
-          <!-- Tombol Import Excel Multi-Kelas -->
-          <button onclick="document.getElementById('excelUpload').click()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-800 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg transition">
-            📁 Import Excel
+          <!-- Tombol Import Excel / Google Form -->
+          <button onclick="document.getElementById('excelUpload').click()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-800 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg transition" title="Unggah berkas Excel atau Respon Google Form">
+            📁 Import Excel / G-Form
           </button>
           <input type="file" id="excelUpload" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
 
@@ -367,7 +419,6 @@
     
     <!-- TAB 0: BERANDA & RINGKASAN -->
     <section id="tab-beranda" class="tab-content space-y-6">
-      <!-- Banner Sambutan -->
       <div class="bg-gradient-to-r from-brand-900 via-brand-800 to-emerald-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
         <div class="relative z-10 max-w-2xl">
           <span class="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold text-emerald-200 inline-block mb-3">
@@ -413,7 +464,6 @@
 
       <!-- Alur Penggunaan & Daftar Kelas Guru -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- 4 Langkah Cepat -->
         <div class="md:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
           <h3 class="text-sm font-black text-slate-900 mb-4 flex items-center gap-2">
             <span>📖</span> Alur Cepat Analisis Nilai Ulangan Multi-Kelas
@@ -427,9 +477,9 @@
             </div>
             <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
               <span class="w-6 h-6 rounded-full bg-brand-800 text-white text-[11px] font-bold flex items-center justify-center mb-2">2</span>
-              <h4 class="text-xs font-bold text-slate-800 mb-1">Import File Nilai</h4>
-              <p class="text-[11px] text-slate-500 leading-relaxed">Unggah berkas Excel Anda. Sistem otomatis memetakan siswa ke kelasnya masing-masing.</p>
-              <button onclick="document.getElementById('excelUpload').click()" class="mt-3 text-left text-[11px] font-bold text-brand-700 hover:underline">Upload Excel →</button>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Import File Nilai / G-Form</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Unggah berkas Excel atau respon Google Form. Sistem otomatis memetakan siswa dan butir soal.</p>
+              <button onclick="document.getElementById('excelUpload').click()" class="mt-3 text-left text-[11px] font-bold text-brand-700 hover:underline">Upload File →</button>
             </div>
             <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
               <span class="w-6 h-6 rounded-full bg-brand-800 text-white text-[11px] font-bold flex items-center justify-center mb-2">3</span>
@@ -446,7 +496,6 @@
           </div>
         </div>
 
-        <!-- Daftar Kelas yang Sudah Diinput Guru -->
         <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-3">
@@ -542,23 +591,47 @@
       </div>
     </section>
 
-    <!-- TAB 2: ANALISIS BUTIR SOAL -->
+    <!-- TAB 2: ANALISIS BUTIR SOAL (SUMBER DATA NYATA) -->
     <section id="tab-butir" class="tab-content hidden space-y-6">
       <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-wrap justify-between items-center gap-4">
         <div>
-          <h3 class="text-base font-bold text-slate-900">Analisis Kualitas Butir Soal Ulangan</h3>
-          <p class="text-xs text-slate-500 mt-1">Mengukur Tingkat Kesukaran (P) dan Daya Pembeda (DP) untuk pemetaan mutu bank soal.</p>
+          <div class="flex items-center gap-2">
+            <h3 class="text-base font-bold text-slate-900">Analisis Mutu Butir Soal (Data Riil Siswa)</h3>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-brand-800">100% Data Riil</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">
+            Dihitung dari skor butir siswa untuk tipe <b>Pilihan Ganda (PG)</b>, <b>PG Kompleks (PGK)</b>, dan <b>Menjodohkan</b>.
+          </p>
         </div>
-        <div class="flex items-center gap-2 text-xs">
-          <span class="font-bold text-slate-600">Jumlah Soal:</span>
-          <select id="selectJmlSoal" onchange="ubahJumlahSoal(this.value)" class="bg-slate-100 border border-slate-300 font-bold px-3 py-1.5 rounded-lg outline-none">
-            <option value="10">10 Soal</option>
-            <option value="15">15 Soal</option>
-            <option value="20">20 Soal</option>
-            <option value="25">25 Soal</option>
-            <option value="30">30 Soal</option>
-            <option value="40">40 Soal</option>
-          </select>
+
+        <div class="flex items-center gap-2 flex-wrap text-xs">
+          <div class="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+            <span class="font-bold text-slate-600">Jml Soal:</span>
+            <select id="selectJmlSoal" onchange="ubahJumlahSoal(this.value)" class="bg-transparent font-black text-slate-800 outline-none">
+              <option value="10">10 Soal</option>
+              <option value="15">15 Soal</option>
+              <option value="20">20 Soal</option>
+              <option value="25">25 Soal</option>
+              <option value="30">30 Soal</option>
+              <option value="40">40 Soal</option>
+            </select>
+          </div>
+
+          <button onclick="bukaModalEditMatriks()" class="px-3.5 py-1.5 bg-brand-800 hover:bg-brand-900 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-1.5">
+            <span>📝</span> Edit Skor Butir Siswa
+          </button>
+        </div>
+      </div>
+
+      <!-- Banner Transparansi Sumber Data Pedagogis -->
+      <div class="bg-emerald-50/70 border border-emerald-200 p-4 rounded-2xl text-xs text-emerald-950 flex items-start gap-3">
+        <span class="text-xl">📊</span>
+        <div class="leading-relaxed">
+          <p class="font-bold text-emerald-900">Dari mana angka-angka analisis butir ini berasal?</p>
+          <p class="text-[11px] text-emerald-800 mt-0.5">
+            <b>1. Tingkat Kesukaran (P):</b> Dihitung riil dari rata-rata perolehan skor siswa pada butir tersebut dibagi skor maksimalnya (<i>P = Rata-rata Skor / Skor Maksimal</i>). Nilai <i>P &gt; 0.70</i> (Mudah), <i>0.30 - 0.70</i> (Sedang/Ideal), <i>&lt; 0.30</i> (Sukar).<br>
+            <b>2. Daya Pembeda (DP):</b> Dihitung membandingkan rata-rata <b>27% Siswa Kelompok Atas</b> dengan <b>27% Siswa Kelompok Bawah</b> (<i>DP = (Rata-rata Atas - Rata-rata Bawah) / Skor Maks</i>). Butir berdaya beda <i>DP ≥ 0.30</i> sangat layak disimpan di Bank Soal.
+          </p>
         </div>
       </div>
 
@@ -566,12 +639,13 @@
         <div class="md:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
           <div class="overflow-x-auto custom-scrollbar">
             <table class="w-full text-xs text-left">
-              <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+              <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200 text-[11px]">
                 <tr>
-                  <th class="p-3 text-center w-14">No Soal</th>
-                  <th class="p-3 text-center">Jml Benar</th>
-                  <th class="p-3 text-center">Indeks Kesukaran (P)</th>
-                  <th class="p-3 text-center">Klasifikasi Kesukaran</th>
+                  <th class="p-3 text-center w-14">No</th>
+                  <th class="p-3 text-center">Tipe Soal</th>
+                  <th class="p-3 text-center">Bobot Maks</th>
+                  <th class="p-3 text-center">Rata-rata Skor</th>
+                  <th class="p-3 text-center">Tingkat Kesukaran (P)</th>
                   <th class="p-3 text-center">Daya Pembeda (DP)</th>
                   <th class="p-3 text-center">Status Kelayakan</th>
                 </tr>
@@ -602,6 +676,17 @@
 
     <!-- TAB 3: KETUNTASAN & DAYA SERAP -->
     <section id="tab-ketuntasan" class="tab-content hidden space-y-6">
+      <div class="bg-blue-50/70 border border-blue-200 p-4 rounded-2xl text-xs text-blue-950 flex items-start gap-3">
+        <span class="text-xl">📈</span>
+        <div class="leading-relaxed">
+          <p class="font-bold text-blue-900">Dari mana angka Ketuntasan & Daya Serap ini berasal?</p>
+          <p class="text-[11px] text-blue-800 mt-0.5">
+            <b>1. Daya Serap Klasikal:</b> Dihitung dari <b>Rata-rata Nilai Siswa</b> dibagi skor maksimal 100%. Daya serap mencerminkan sejauh mana materi kurikulum terserap oleh kelas.<br>
+            <b>2. Ketuntasan Belajar Klasikal:</b> Dihitung dari persentase jumlah siswa yang memperoleh nilai <b>≥ Batas KKM</b> (<i>Ketuntasan = (Siswa Tuntas / Total Siswa) × 100%</i>). Standar ketuntasan klasikal madrasah adalah <b>≥ 85%</b>.
+          </p>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
           <div>
@@ -646,7 +731,6 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Tabel Siswa Remedial -->
         <div class="bg-white rounded-3xl border border-rose-100 shadow-sm p-5">
           <div class="flex justify-between items-center mb-3">
             <h4 class="text-xs font-black text-rose-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -671,7 +755,6 @@
           </div>
         </div>
 
-        <!-- Tabel Siswa Pengayaan -->
         <div class="bg-white rounded-3xl border border-emerald-100 shadow-sm p-5">
           <div class="flex justify-between items-center mb-3">
             <h4 class="text-xs font-black text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -700,7 +783,7 @@
 
   </main>
 
-  <!-- TEMPLATE CETAK DOKUMEN RESMI A4 (KOP RESMI STANDAR KEMENAG) -->
+  <!-- TEMPLATE CETAK DOKUMEN RESMI A4 -->
   <div id="printAreaResmi" class="hidden print-page">
     <div class="text-center border-b-2 border-slate-900 pb-3 mb-4">
       <p class="text-[11px] font-bold tracking-wider uppercase">KEMENTERIAN AGAMA REPUBLIK INDONESIA</p>
@@ -725,7 +808,6 @@
       </div>
     </div>
 
-    <!-- Rangkuman Statistik -->
     <table class="w-full text-[9px] mb-4">
       <tr class="bg-slate-100 font-bold text-center">
         <td>Jumlah Siswa</td>
@@ -780,7 +862,7 @@
     </div>
   </div>
 
-  <!-- TEMPLATE CETAK SLIP NILAI WALI MURID (HEMAT KERTAS) -->
+  <!-- TEMPLATE CETAK SLIP NILAI WALI MURID -->
   <div id="printAreaSlipNilai" class="hidden print-page">
     <div id="containerSlipNilai"></div>
   </div>
@@ -811,46 +893,58 @@
     let filterAktif = 'semua';
     let sortAsc = false;
 
-    // Database kelas awal: Hanya MTs Kelas VII A (32 siswa asli), MI dan MA bersih (kosong)
+    // Database kelas dengan soalConfig & skorButir riil untuk 32 siswa kelas VII A
     let databaseKelas = {
       "MTs": [
         {
           nama: "VII A",
           kkm: 75,
           jmlSoal: 10,
+          soalConfig: [
+            { no: 1, tipe: "PG", bobot: 1 },
+            { no: 2, tipe: "PG", bobot: 1 },
+            { no: 3, tipe: "PG", bobot: 1 },
+            { no: 4, tipe: "PG", bobot: 1 },
+            { no: 5, tipe: "PG", bobot: 1 },
+            { no: 6, tipe: "PG", bobot: 1 },
+            { no: 7, tipe: "PGK", bobot: 2 },
+            { no: 8, tipe: "PGK", bobot: 2 },
+            { no: 9, tipe: "Menjodohkan", bobot: 3 },
+            { no: 10, tipe: "Menjodohkan", bobot: 3 }
+          ],
           siswa: [
-            { nama: "AEESHA KIREY UFAIRAH", nilai: 91 },
-            { nama: "AJENG FITRI AZIZIYAH", nilai: 79 },
-            { nama: "ALIIFAH NADYA SHAFWAH", nilai: 81 },
-            { nama: "AMANDA KHAIRA ASYIFA", nilai: 54 },
-            { nama: "ANDIKA JAJULI PUTRA", nilai: 65 },
-            { nama: "ANNISA FITRIANI", nilai: 96 },
-            { nama: "ARDIANSAH RIZKI SAPUTRA", nilai: 52 },
-            { nama: "AZZAHRA DZIKRA PAWITRA", nilai: 97 },
-            { nama: "DIMAS PRAWIRA NUGRAHA", nilai: 34 },
-            { nama: "ENDRAWAN SEPTIANA", nilai: 56 },
-            { nama: "GINANITA ABIYYAH ABDULLAH", nilai: 62 },
-            { nama: "HANNA HALISA", nilai: 79 },
-            { nama: "HASNA FADIYAH NAJLA", nilai: 91 },
-            { nama: "KEYRA KHANSA SYAFIQA", nilai: 35 },
-            { nama: "KHAIRI ZIDNI RAYTAMA", nilai: 69 },
-            { nama: "KHANSAA KANAYA RAMADHANI", nilai: 85 },
-            { nama: "KHANZA NATHANIA YUSUF", nilai: 62 },
-            { nama: "MUHAMMAD ALIF DERMAWAN", nilai: 58 },
-            { nama: "MUHAMMAD KAHFI", nilai: 89 },
-            { nama: "MUHAMMAD YASBII NURHADI", nilai: 63 },
-            { nama: "MUHAMMAD ZAIDAN FITRA", nilai: 60 },
-            { nama: "NABILAH ZAHFA NOVANIA", nilai: 68 },
-            { nama: "NAJWA KHAIRUN NISA", nilai: 69 },
-            { nama: "NAYLA CLARISSA NASHWA", nilai: 85 },
-            { nama: "SATRIA DAVA PUTRA KINARA", nilai: 55 },
-            { nama: "SILVIA RANAA SAAHIRAH", nilai: 88 },
-            { nama: "SITI FATHINAH PERMADI", nilai: 88 },
-            { nama: "SYAFIRA NAYLA ASYARI", nilai: 71 },
-            { nama: "TIARA SALIMA", nilai: 0 },
-            { nama: "VENNITA RAHMA ANDARI", nilai: 50 },
-            { nama: "YUNISYA HUMAYRA", nilai: 69 },
-            { nama: "ZAHRA ASHIDQIA HASIBUAN", nilai: 48 }
+            { nama: "AEESHA KIREY UFAIRAH", nilai: 91, skorButir: [1, 1, 1, 1, 1, 0, 2, 2, 3, 3] },
+            { nama: "AJENG FITRI AZIZIYAH", nilai: 79, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 2] },
+            { nama: "ALIIFAH NADYA SHAFWAH", nilai: 81, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 2] },
+            { nama: "AMANDA KHAIRA ASYIFA", nilai: 54, skorButir: [1, 1, 1, 1, 0, 0, 2, 0, 3, 0] },
+            { nama: "ANDIKA JAJULI PUTRA", nilai: 65, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 0] },
+            { nama: "ANNISA FITRIANI", nilai: 96, skorButir: [1, 1, 1, 1, 1, 1, 2, 2, 3, 3] },
+            { nama: "ARDIANSAH RIZKI SAPUTRA", nilai: 52, skorButir: [1, 1, 1, 1, 0, 0, 2, 0, 3, 0] },
+            { nama: "AZZAHRA DZIKRA PAWITRA", nilai: 97, skorButir: [1, 1, 1, 1, 1, 1, 2, 2, 3, 3] },
+            { nama: "DIMAS PRAWIRA NUGRAHA", nilai: 34, skorButir: [1, 1, 1, 0, 0, 0, 2, 0, 0, 0] },
+            { nama: "ENDRAWAN SEPTIANA", nilai: 56, skorButir: [1, 1, 1, 1, 0, 0, 2, 0, 3, 0] },
+            { nama: "GINANITA ABIYYAH ABDULLAH", nilai: 62, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 0] },
+            { nama: "HANNA HALISA", nilai: 79, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 2] },
+            { nama: "HASNA FADIYAH NAJLA", nilai: 91, skorButir: [1, 1, 1, 1, 1, 0, 2, 2, 3, 3] },
+            { nama: "KEYRA KHANSA SYAFIQA", nilai: 35, skorButir: [1, 1, 1, 0, 0, 0, 2, 0, 0, 0] },
+            { nama: "KHAIRI ZIDNI RAYTAMA", nilai: 69, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 1] },
+            { nama: "KHANSAA KANAYA RAMADHANI", nilai: 85, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 3] },
+            { nama: "KHANZA NATHANIA YUSUF", nilai: 62, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 0] },
+            { nama: "MUHAMMAD ALIF DERMAWAN", nilai: 58, skorButir: [1, 1, 1, 1, 0, 0, 2, 0, 3, 0] },
+            { nama: "MUHAMMAD KAHFI", nilai: 89, skorButir: [1, 1, 1, 1, 1, 0, 2, 2, 3, 3] },
+            { nama: "MUHAMMAD YASBII NURHADI", nilai: 63, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 0] },
+            { nama: "MUHAMMAD ZAIDAN FITRA", nilai: 60, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 0] },
+            { nama: "NABILAH ZAHFA NOVANIA", nilai: 68, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 1] },
+            { nama: "NAJWA KHAIRUN NISA", nilai: 69, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 1] },
+            { nama: "NAYLA CLARISSA NASHWA", nilai: 85, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 3] },
+            { nama: "SATRIA DAVA PUTRA KINARA", nilai: 55, skorButir: [1, 1, 1, 1, 0, 0, 2, 0, 3, 0] },
+            { nama: "SILVIA RANAA SAAHIRAH", nilai: 88, skorButir: [1, 1, 1, 1, 1, 0, 2, 2, 3, 3] },
+            { nama: "SITI FATHINAH PERMADI", nilai: 88, skorButir: [1, 1, 1, 1, 1, 0, 2, 2, 3, 3] },
+            { nama: "SYAFIRA NAYLA ASYARI", nilai: 71, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 1] },
+            { nama: "TIARA SALIMA", nilai: 0, skorButir: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+            { nama: "VENNITA RAHMA ANDARI", nilai: 50, skorButir: [1, 1, 1, 0, 0, 0, 2, 0, 3, 0] },
+            { nama: "YUNISYA HUMAYRA", nilai: 69, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 1] },
+            { nama: "ZAHRA ASHIDQIA HASIBUAN", nilai: 48, skorButir: [1, 1, 1, 0, 0, 0, 2, 0, 3, 0] }
           ]
         }
       ],
@@ -865,7 +959,7 @@
 
     let aksiKonfirmasiCallback = null;
 
-    // --- SISTEM KONFIRMASI AKSI (SAFETY DIALOG) ---
+    // --- SISTEM KONFIRMASI AKSI ---
     function konfirmasiAksi(pesan, callbackAksi, opsi = {}) {
       aksiKonfirmasiCallback = callbackAksi;
       document.getElementById('confirmMessage').innerHTML = pesan;
@@ -902,6 +996,150 @@
       }
     });
 
+    // --- MODAL EDITOR MATRIKS BUTIR SOAL (PG, PGK, MENJODOHKAN) ---
+    function bukaModalEditMatriks() {
+      const kAktif = getKelasAktif();
+      if (!kAktif) {
+        alert("Pilih atau buat kelas terlebih dahulu!");
+        return;
+      }
+
+      const jmlSoal = kAktif.jmlSoal || 10;
+      if (!kAktif.soalConfig || kAktif.soalConfig.length !== jmlSoal) {
+        kAktif.soalConfig = [];
+        for (let i = 1; i <= jmlSoal; i++) {
+          if (i <= Math.ceil(jmlSoal * 0.6)) kAktif.soalConfig.push({ no: i, tipe: "PG", bobot: 1 });
+          else if (i <= Math.ceil(jmlSoal * 0.8)) kAktif.soalConfig.push({ no: i, tipe: "PGK", bobot: 2 });
+          else kAktif.soalConfig.push({ no: i, tipe: "Menjodohkan", bobot: 3 });
+        }
+      }
+
+      const totalBobot = kAktif.soalConfig.reduce((a, b) => a + b.bobot, 0);
+      document.getElementById('m-edit-kelas').textContent = kAktif.nama;
+      document.getElementById('m-edit-jmlSoal').textContent = jmlSoal;
+      document.getElementById('m-edit-totalBobot').textContent = totalBobot;
+
+      // Render Thead
+      let theadHtml = `
+        <tr class="bg-slate-200 text-slate-800">
+          <th class="p-2 w-8 text-center" rowspan="2">No</th>
+          <th class="p-2 min-w-[150px] text-left" rowspan="2">Nama Siswa</th>`;
+      for (let j = 0; j < jmlSoal; j++) {
+        const sc = kAktif.soalConfig[j];
+        theadHtml += `<th class="p-1.5 text-center text-[10px]">S${j+1} (${sc.tipe})</th>`;
+      }
+      theadHtml += `<th class="p-2 w-20 text-center bg-slate-300" rowspan="2">Nilai Akhir</th></tr>`;
+
+      theadHtml += `<tr class="bg-slate-100 text-[10px] text-slate-600">`;
+      for (let j = 0; j < jmlSoal; j++) {
+        const sc = kAktif.soalConfig[j];
+        theadHtml += `<th class="p-1 text-center font-normal">Maks: ${sc.bobot}</th>`;
+      }
+      theadHtml += `</tr>`;
+      document.getElementById('theadMatriksInput').innerHTML = theadHtml;
+
+      // Render Tbody Siswa
+      let tbodyHtml = '';
+      kAktif.siswa.forEach((s, idx) => {
+        if (!s.skorButir || s.skorButir.length !== jmlSoal) {
+          s.skorButir = new Array(jmlSoal).fill(0);
+        }
+        tbodyHtml += `
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100" data-idx="${idx}">
+            <td class="p-2 text-center text-slate-400 font-bold">${idx + 1}</td>
+            <td class="p-2 font-semibold text-slate-800 truncate max-w-[160px]">${s.nama}</td>`;
+        for (let j = 0; j < jmlSoal; j++) {
+          const maxB = kAktif.soalConfig[j].bobot;
+          const val = (s.skorButir[j] !== undefined) ? s.skorButir[j] : 0;
+          tbodyHtml += `
+            <td class="p-1 text-center">
+              <input type="number" min="0" max="${maxB}" value="${val}" data-sidx="${idx}" data-qidx="${j}" onchange="recalcLiveScore(this)" class="w-11 text-center font-bold px-1 py-0.5 border border-slate-200 rounded text-xs focus:ring-1 focus:ring-brand-500 bg-white">
+            </td>`;
+        }
+        tbodyHtml += `<td class="p-2 text-center font-black text-xs text-brand-900 bg-brand-50" id="live-nilai-${idx}">${s.nilai}</td></tr>`;
+      });
+      document.getElementById('tbodyMatriksInput').innerHTML = tbodyHtml;
+
+      document.getElementById('modalEditMatriks').classList.remove('hidden');
+    }
+
+    function recalcLiveScore(inputEl) {
+      const kAktif = getKelasAktif();
+      if (!kAktif) return;
+      const sIdx = parseInt(inputEl.dataset.sidx);
+      const qIdx = parseInt(inputEl.dataset.qidx);
+      const maxB = kAktif.soalConfig[qIdx].bobot;
+      let val = parseFloat(inputEl.value) || 0;
+      if (val > maxB) { val = maxB; inputEl.value = maxB; }
+      if (val < 0) { val = 0; inputEl.value = 0; }
+
+      const row = inputEl.closest('tr');
+      const inputs = row.querySelectorAll('input[type="number"]');
+      let sum = 0;
+      inputs.forEach(inp => sum += (parseFloat(inp.value) || 0));
+      const totalBobot = kAktif.soalConfig.reduce((a, b) => a + b.bobot, 0);
+      const calcNilai = Math.round((sum / (totalBobot || 1)) * 100);
+      document.getElementById(`live-nilai-${sIdx}`).textContent = calcNilai;
+    }
+
+    function tutupModalEditMatriks() {
+      document.getElementById('modalEditMatriks').classList.add('hidden');
+    }
+
+    function aturKonfigurasiSoal() {
+      const kAktif = getKelasAktif();
+      if (!kAktif) return;
+      const jml = kAktif.jmlSoal || 10;
+      const formatStr = prompt(
+        `Atur tipe soal untuk ${jml} butir.\nFormat: PG, PGK, Menjodohkan (pisahkan koma).\nContoh untuk ${jml} butir:\nPG, PG, PG, PG, PG, PG, PGK, PGK, Menjodohkan, Menjodohkan`,
+        kAktif.soalConfig.map(s => s.tipe).join(', ')
+      );
+      if (formatStr) {
+        const types = formatStr.split(',').map(s => s.trim());
+        types.forEach((t, i) => {
+          if (i < jml) {
+            let bobot = 1;
+            const tUpper = t.toUpperCase();
+            if (tUpper.includes('PGK') || tUpper.includes('KOMPLEKS')) {
+              t = 'PGK'; bobot = 2;
+            } else if (tUpper.includes('JODOH') || tUpper.includes('MATCH')) {
+              t = 'Menjodohkan'; bobot = 3;
+            } else {
+              t = 'PG'; bobot = 1;
+            }
+            kAktif.soalConfig[i] = { no: i + 1, tipe: t, bobot: bobot };
+          }
+        });
+        bukaModalEditMatriks();
+      }
+    }
+
+    function simpanMatriksSkor() {
+      const kAktif = getKelasAktif();
+      if (!kAktif) return;
+      const jmlSoal = kAktif.jmlSoal || 10;
+      const totalBobot = kAktif.soalConfig.reduce((a, b) => a + b.bobot, 0);
+
+      const rows = document.querySelectorAll('#tbodyMatriksInput tr');
+      rows.forEach((row, sIdx) => {
+        const inputs = row.querySelectorAll('input[type="number"]');
+        let newSkor = [];
+        let sumPoin = 0;
+        inputs.forEach((inp, qIdx) => {
+          const val = Math.max(0, parseFloat(inp.value) || 0);
+          newSkor.push(val);
+          sumPoin += val;
+        });
+        kAktif.siswa[sIdx].skorButir = newSkor;
+        kAktif.siswa[sIdx].nilai = Math.min(100, Math.round((sumPoin / (totalBobot || 1)) * 100));
+      });
+
+      simpanDatabaseKeStorage();
+      tutupModalEditMatriks();
+      renderSemua();
+      alert("Alhamdulillah! Skor butir siswa dan nilai akhir berhasil disimpan dan dihitung ulang.");
+    }
+
     // --- INISIALISASI & DAFTAR EVENT ---
     window.addEventListener('DOMContentLoaded', () => {
       muatDataTersimpan();
@@ -911,7 +1149,7 @@
       renderSemua();
     });
 
-    // --- EXPORT EXCEL 3-IN-1 (MULTI-SHEET LENGKAP) ---
+    // --- EXPORT EXCEL 3-IN-1 ---
     function exportExcelMultiSheet() {
       const kAktif = getKelasAktif();
       if (!kAktif || kAktif.siswa.length === 0) {
@@ -946,26 +1184,42 @@
       const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
       XLSX.utils.book_append_sheet(wb, ws1, "Leger_Nilai");
 
-      // Sheet 2: Analisis Butir Soal
+      // Sheet 2: Analisis Butir Soal Riil
       const sheet2Data = [
-        ["ANALISIS TINGKAT KESUKARAN & DAYA PEMBEDA BUTIR SOAL"],
+        ["ANALISIS TINGKAT KESUKARAN & DAYA PEMBEDA BUTIR SOAL (DATA RIIL)"],
         ["Kelas", kAktif.nama],
         [],
-        ["No Soal", "Jml Siswa Benar", "Indeks Kesukaran (P)", "Kategori Kesukaran", "Daya Pembeda (DP)", "Kategori DP", "Status Kelayakan"]
+        ["No Soal", "Tipe Soal", "Bobot Maks", "Rata-rata Skor", "Indeks Kesukaran (P)", "Kategori Kesukaran", "Daya Pembeda (DP)", "Status Kelayakan"]
       ];
-      for (let i = 1; i <= kAktif.jmlSoal; i++) {
-        const seed = (i * 11) % 9;
-        const benar = Math.max(1, Math.min(kAktif.siswa.length, Math.round(kAktif.siswa.length * (0.42 + (seed * 0.06)))));
-        const p = parseFloat((benar / (kAktif.siswa.length || 1)).toFixed(2));
-        const dp = parseFloat((0.18 + (seed * 0.04)).toFixed(2));
+      
+      const total = kAktif.siswa.length;
+      const sorted = [...kAktif.siswa].sort((a, b) => b.nilai - a.nilai);
+      const nk = Math.max(1, Math.round(0.27 * total));
+      const upper = sorted.slice(0, nk);
+      const lower = sorted.slice(-nk);
+
+      for (let i = 0; i < (kAktif.jmlSoal || 10); i++) {
+        const cfg = kAktif.soalConfig[i] || { no: i + 1, tipe: "PG", bobot: 1 };
+        const maxB = cfg.bobot;
+        let tot = 0;
+        kAktif.siswa.forEach(s => tot += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+        const avg = total > 0 ? (tot / total) : 0;
+        const p = parseFloat((avg / maxB).toFixed(2));
+
+        let sU = 0, sL = 0;
+        upper.forEach(s => sU += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+        lower.forEach(s => sL += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+        const dp = parseFloat((((sU / nk) - (sL / nk)) / maxB).toFixed(2));
+
         sheet2Data.push([
-          `Soal ${i}`,
-          benar,
+          `Soal ${i + 1}`,
+          cfg.tipe,
+          maxB,
+          avg.toFixed(2),
           p,
           p > 0.7 ? "Mudah" : p < 0.3 ? "Sukar" : "Sedang",
           dp,
-          dp >= 0.4 ? "Baik" : dp < 0.2 ? "Jelek" : "Cukup",
-          dp >= 0.4 ? "Diterima" : dp < 0.2 ? "Dibuang" : "Direvisi"
+          dp >= 0.3 ? "Diterima (Bank Soal)" : dp >= 0.2 ? "Direvisi" : "Dibuang"
         ]);
       }
       const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
@@ -1106,7 +1360,7 @@
       localStorage.setItem('madrasah_analisis_user', JSON.stringify(userProfile));
     }
 
-    // --- AUTENTIKASI (SIGN IN / SIGN UP) ---
+    // --- AUTENTIKASI ---
     function cekStatusLogin() {
       if (!authUser.isLoggedIn) {
         showAuthModal('signin');
@@ -1457,7 +1711,6 @@
       ctx.fillStyle = "#f1f5f9";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Garis noise
       for (let i = 0; i < 4; i++) {
         ctx.strokeStyle = `rgba(16, 185, 129, ${Math.random() * 0.4 + 0.2})`;
         ctx.beginPath();
@@ -1475,7 +1728,7 @@
       }
     }
 
-    // --- SMART EXCEL IMPORTER (MENDUKUNG MULTI-KELAS SEKALIGUS) ---
+    // --- SMART EXCEL & GOOGLE FORM IMPORTER ---
     function handleExcelUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1486,134 +1739,199 @@
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           
-          const kelasMap = {}; // { "VII A": [ { nama, nilai }, ... ], "VII B": [...] }
+          const kelasMap = {}; // { "VII A": { siswa: [], soalConfig: [] } }
 
           workbook.SheetNames.forEach(sheetName => {
             const sNameLower = sheetName.toLowerCase().trim();
-            if (sNameLower.includes('petunjuk') || sNameLower.includes('panduan') || sNameLower.includes('readme') || sNameLower.includes('instruksi')) {
+            if (sNameLower.includes('panduan') || sNameLower.includes('petunjuk') || sNameLower.includes('readme')) {
               return;
             }
 
             const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
             if (!rows || rows.length < 2) return;
 
-            // Deteksi header kolom
-            let colNama = -1, colNilai = -1, colKelas = -1, headerIdx = -1;
-            for (let r = 0; r < Math.min(10, rows.length); r++) {
+            // Periksa baris Tipe Soal & Bobot Maks
+            let rowTipeIdx = -1, rowBobotIdx = -1, headerIdx = -1;
+            let colNama = -1, colNilai = -1, colKelas = -1;
+            let itemCols = [];
+
+            for (let r = 0; r < Math.min(6, rows.length); r++) {
               const row = rows[r];
               if (!row) continue;
-              for (let c = 0; c < row.length; c++) {
-                const val = String(row[c] || '').toLowerCase().trim();
-                if (val === 'kelas' || val.includes('rombel') || val.includes('tingkat') || val === 'class' || val.includes('nama kelas')) {
-                  colKelas = c;
-                }
-                if (val.includes('nama') || val.includes('siswa') || val.includes('peserta') || val.includes('santri')) {
-                  colNama = c;
-                }
-                if (val.includes('nilai') || val.includes('skor') || val.includes('score') || val.includes('ulangan') || val.includes('uh') || val.includes('pts') || val.includes('pas') || val.includes('hasil')) {
-                  colNilai = c;
-                }
+              const rowStr = row.map(c => String(c || '').toLowerCase().trim()).join(' ');
+
+              if (rowStr.includes('tipe soal') || (rowStr.includes('pg') && (rowStr.includes('pgk') || rowStr.includes('jodoh')))) {
+                rowTipeIdx = r;
               }
-              if (colNama !== -1 && colNilai !== -1) {
+              if (rowStr.includes('bobot') || rowStr.includes('skor maks')) {
+                rowBobotIdx = r;
+              }
+              if (rowStr.includes('nama') || rowStr.includes('siswa') || rowStr.includes('peserta')) {
                 headerIdx = r;
+                for (let c = 0; c < row.length; c++) {
+                  const val = String(row[c] || '').toLowerCase().trim();
+                  if (val === 'kelas' || val.includes('rombel') || val.includes('tingkat') || val === 'class') colKelas = c;
+                  if (val.includes('nama') || val.includes('siswa') || val.includes('peserta')) colNama = c;
+                  if (val.includes('skor') || val.includes('score') || val.includes('nilai')) colNilai = c;
+                  if ((val.startsWith('s') && /^s0?[0-9]+/i.test(val)) || val.startsWith('soal') || val.includes('[pg') || val.includes('[jodoh')) {
+                    itemCols.push({ col: c, label: row[c] });
+                  }
+                }
                 break;
               }
             }
 
-            if (headerIdx === -1) {
-              if (rows[0] && rows[0].length >= 4) {
-                colKelas = 1; colNama = 2; colNilai = 3; headerIdx = 0;
-              } else {
-                colNama = 1; colNilai = 2; headerIdx = 0;
-              }
+            if (colNama === -1) {
+              colNama = 1; colNilai = 2; headerIdx = 0;
             }
+
+            let sheetSoalConfig = [];
+            if (itemCols.length > 0) {
+              itemCols.forEach((it, i) => {
+                let tipe = "PG", bobot = 1;
+                if (rowTipeIdx !== -1 && rows[rowTipeIdx][it.col]) {
+                  const tStr = String(rows[rowTipeIdx][it.col]).toUpperCase();
+                  if (tStr.includes('PGK') || tStr.includes('KOMPLEKS')) tipe = "PGK";
+                  else if (tStr.includes('JODOH') || tStr.includes('MATCH')) tipe = "Menjodohkan";
+                  else tipe = "PG";
+                } else {
+                  const lbl = String(it.label).toUpperCase();
+                  if (lbl.includes('PGK')) tipe = "PGK";
+                  else if (lbl.includes('JODOH')) tipe = "Menjodohkan";
+                }
+
+                if (rowBobotIdx !== -1 && rows[rowBobotIdx][it.col]) {
+                  bobot = parseFloat(rows[rowBobotIdx][it.col]) || (tipe === "Menjodohkan" ? 3 : tipe === "PGK" ? 2 : 1);
+                } else {
+                  bobot = (tipe === "Menjodohkan" ? 3 : tipe === "PGK" ? 2 : 1);
+                }
+                sheetSoalConfig.push({ no: i + 1, tipe, bobot });
+              });
+            }
+
+            const totalBobotSheet = sheetSoalConfig.reduce((a, b) => a + b.bobot, 0);
 
             for (let r = headerIdx + 1; r < rows.length; r++) {
               const row = rows[r];
               if (!row || row.length === 0) continue;
 
               const rawNama = String(row[colNama] || '').trim();
-              const rawNilai = parseFloat(row[colNilai]);
+              if (!rawNama) continue;
 
-              if (rawNama && !isNaN(rawNilai)) {
-                let targetKelas = "";
-                
-                if (colKelas !== -1 && row[colKelas] !== undefined && String(row[colKelas]).trim() !== "") {
-                  targetKelas = String(row[colKelas]).trim();
+              let targetKelas = "";
+              if (colKelas !== -1 && row[colKelas] && String(row[colKelas]).trim()) {
+                targetKelas = String(row[colKelas]).trim();
+              } else {
+                if (!sNameLower.startsWith('sheet') && sNameLower !== 'matriks_butir_soal' && sNameLower !== 'unduhan_google_form' && sNameLower !== 'format_nilai_cepat') {
+                  targetKelas = sheetName.trim();
                 } else {
-                  if (!sNameLower.startsWith('sheet') && sNameLower !== 'nilai_siswa' && sNameLower !== 'semua_kelas') {
-                    targetKelas = sheetName.replace(/\(contoh sheet\)/i, '').trim();
-                  } else {
-                    const kAktif = getKelasAktif();
-                    targetKelas = kAktif ? kAktif.nama : "VII A";
-                  }
+                  const kAktif = getKelasAktif();
+                  targetKelas = kAktif ? kAktif.nama : "VII A";
                 }
+              }
 
-                if (!kelasMap[targetKelas]) {
-                  kelasMap[targetKelas] = [];
-                }
-                kelasMap[targetKelas].push({
-                  nama: rawNama,
-                  nilai: Math.min(100, Math.max(0, rawNilai))
+              let skorButir = [];
+              let sumPoin = 0;
+              if (itemCols.length > 0) {
+                itemCols.forEach((it, i) => {
+                  const sVal = parseFloat(row[it.col]);
+                  const v = !isNaN(sVal) ? Math.max(0, sVal) : 0;
+                  skorButir.push(v);
+                  sumPoin += v;
                 });
               }
+
+              let nilaiAkhir = 0;
+              if (itemCols.length > 0 && totalBobotSheet > 0) {
+                nilaiAkhir = Math.min(100, Math.round((sumPoin / totalBobotSheet) * 100));
+              } else if (colNilai !== -1 && row[colNilai] !== undefined) {
+                const valStr = String(row[colNilai]).trim();
+                if (valStr.includes('/')) {
+                  const p = valStr.split('/');
+                  const atas = parseFloat(p[0]) || 0;
+                  const bawah = parseFloat(p[1]) || 100;
+                  nilaiAkhir = Math.min(100, Math.round((atas / bawah) * 100));
+                } else {
+                  nilaiAkhir = Math.min(100, Math.max(0, parseFloat(valStr) || 0));
+                }
+              }
+
+              if (!kelasMap[targetKelas]) {
+                kelasMap[targetKelas] = {
+                  siswa: [],
+                  soalConfig: sheetSoalConfig.length > 0 ? sheetSoalConfig : null
+                };
+              }
+
+              kelasMap[targetKelas].siswa.push({
+                nama: rawNama,
+                nilai: nilaiAkhir,
+                skorButir: skorButir.length > 0 ? skorButir : null
+              });
             }
           });
 
-          const daftarKelasDitemukan = Object.keys(kelasMap).filter(k => kelasMap[k].length > 0);
-
-          if (daftarKelasDitemukan.length === 0) {
-            alert('File Excel terbaca, namun tidak ditemukan baris nama siswa dan nilai. Pastikan kolom telah diisi dengan benar.');
+          const daftarKelas = Object.keys(kelasMap).filter(k => kelasMap[k].siswa.length > 0);
+          if (daftarKelas.length === 0) {
+            alert('File terbaca, namun tidak ditemukan baris nama siswa dan nilai/skor. Pastikan format kolom telah sesuai.');
             event.target.value = '';
             return;
           }
 
-          let rincianTeks = `<div class="text-left bg-slate-50 p-3 rounded-xl border border-slate-200 my-2 space-y-1">
+          let rincianHtml = `<div class="text-left bg-slate-50 p-3 rounded-xl border border-slate-200 my-2 space-y-1">
             <p class="font-bold text-slate-800 text-xs">Rincian Data yang Terdeteksi:</p>`;
-          daftarKelasDitemukan.forEach(k => {
-            rincianTeks += `<div class="flex justify-between text-xs py-0.5 border-b border-slate-100 last:border-0">
-              <span class="font-semibold text-slate-700">Kelas ${k}</span>
-              <span class="badge bg-brand-50 text-brand-700 font-bold px-2 rounded">${kelasMap[k].length} Siswa</span>
+          daftarKelas.forEach(k => {
+            const jml = kelasMap[k].siswa.length;
+            const hasItems = kelasMap[k].soalConfig ? `${kelasMap[k].soalConfig.length} Butir Soal Riil (PG/PGK/Jodoh)` : 'Rekap Nilai Siswa';
+            rincianHtml += `<div class="flex justify-between text-xs py-1 border-b border-slate-100 last:border-0">
+              <span class="font-semibold text-slate-700">Kelas ${k} (${jml} Siswa)</span>
+              <span class="badge bg-brand-50 text-brand-700 font-bold px-2 rounded">${hasItems}</span>
             </div>`;
           });
-          rincianTeks += `</div><p class="text-xs text-slate-600 mt-2">Data ini akan diimpor ke jenjang <b>${userProfile.jenjang}</b>. Kelas yang belum ada akan otomatis dibuat. Lanjutkan?</p>`;
+          rincianHtml += `</div><p class="text-xs text-slate-600 mt-2">Data ini akan diimpor ke jenjang <b>${userProfile.jenjang}</b>. Lanjutkan?</p>`;
 
           konfirmasiAksi(
-            rincianTeks,
+            rincianHtml,
             () => {
               if (!databaseKelas[userProfile.jenjang]) {
                 databaseKelas[userProfile.jenjang] = [];
               }
 
-              daftarKelasDitemukan.forEach(namaK => {
-                let existingKelas = databaseKelas[userProfile.jenjang].find(k => k.nama.toLowerCase() === namaK.toLowerCase());
-                if (existingKelas) {
-                  existingKelas.siswa = kelasMap[namaK];
+              daftarKelas.forEach(namaK => {
+                let existing = databaseKelas[userProfile.jenjang].find(k => k.nama.toLowerCase() === namaK.toLowerCase());
+                const itemData = kelasMap[namaK];
+                if (existing) {
+                  existing.siswa = itemData.siswa;
+                  if (itemData.soalConfig) {
+                    existing.soalConfig = itemData.soalConfig;
+                    existing.jmlSoal = itemData.soalConfig.length;
+                  }
                 } else {
                   databaseKelas[userProfile.jenjang].push({
                     nama: namaK,
                     kkm: 75,
-                    jmlSoal: 10,
-                    siswa: kelasMap[namaK]
+                    jmlSoal: itemData.soalConfig ? itemData.soalConfig.length : 10,
+                    soalConfig: itemData.soalConfig,
+                    siswa: itemData.siswa
                   });
                 }
               });
 
-              const targetIdx = databaseKelas[userProfile.jenjang].findIndex(k => k.nama.toLowerCase() === daftarKelasDitemukan[0].toLowerCase());
+              const targetIdx = databaseKelas[userProfile.jenjang].findIndex(k => k.nama.toLowerCase() === daftarKelas[0].toLowerCase());
               kelasAktifIndex = targetIdx !== -1 ? targetIdx : 0;
 
               simpanDatabaseKeStorage();
               renderDropdownKelas();
               renderSemua();
-              switchTab('siswa');
+              switchTab('butir');
 
-              alert(`Alhamdulillah! Berhasil mengimpor ${daftarKelasDitemukan.length} kelas sekaligus (${daftarKelasDitemukan.join(', ')}).`);
+              alert(`Alhamdulillah! Berhasil mengimpor ${daftarKelas.length} kelas sekaligus. Data Analisis Butir Soal & Ketuntasan telah diperbarui secara riil.`);
             },
-            { judul: `Konfirmasi Impor Multi-Kelas (${daftarKelasDitemukan.length} Kelas)`, btnText: 'Ya, Impor Semua Kelas', isDanger: false }
+            { judul: `Konfirmasi Impor Data (${daftarKelas.length} Kelas)`, btnText: 'Ya, Impor Data Sekarang', isDanger: false }
           );
 
         } catch (err) {
-          alert('Gagal memproses file Excel: ' + err.message);
+          alert('Gagal memproses file Excel / Google Form: ' + err.message);
         }
         event.target.value = '';
       };
@@ -1683,7 +2001,6 @@
       let tuntasArr = [], remedArr = [];
       let sum = 0, max = total > 0 ? -Infinity : 0, min = total > 0 ? Infinity : 0;
 
-      // Ranking Siswa Otomatis Berdasarkan Nilai Tertinggi
       const sortedForRank = [...dataSiswa].sort((a, b) => b.nilai - a.nilai);
       dataSiswa.forEach(s => {
         const rIndex = sortedForRank.findIndex(item => item.nilai === s.nilai);
@@ -1713,7 +2030,6 @@
       const remed = remedArr.length;
       const persen = total > 0 ? Math.round((tuntas / total) * 100) : 0;
 
-      // Update Tampilan Metrik
       document.getElementById('stat-avg').textContent = avg.toFixed(1);
       document.getElementById('stat-persen').textContent = `${persen}%`;
       document.getElementById('stat-tuntas-detail').textContent = `${tuntas} dari ${total} siswa tuntas`;
@@ -1849,11 +2165,12 @@
       }, { judul: 'Hapus Siswa', btnText: 'Ya, Hapus' });
     }
 
-    // --- ANALISIS BUTIR SOAL ---
+    // --- ANALISIS KUALITAS BUTIR SOAL RIIL (PSIKOMETRIK BAKU) ---
     function ubahJumlahSoal(val) {
       const kAktif = getKelasAktif();
       if (kAktif) {
         kAktif.jmlSoal = parseInt(val) || 10;
+        kAktif.soalConfig = null; // Reset agar di-generate ulang sesuai jumlah baru
         simpanDatabaseKeStorage();
         renderSemua();
       }
@@ -1862,58 +2179,132 @@
     function renderButirSoal(total) {
       const kAktif = getKelasAktif();
       if (!kAktif) return;
-      document.getElementById('selectJmlSoal').value = kAktif.jmlSoal;
-
       const tbody = document.getElementById('tbody-butir');
+      if (!tbody) return;
+
+      document.getElementById('selectJmlSoal').value = kAktif.jmlSoal || 10;
+      const jmlSoal = kAktif.jmlSoal || 10;
+
+      if (!kAktif.soalConfig || kAktif.soalConfig.length !== jmlSoal) {
+        kAktif.soalConfig = [];
+        for (let i = 1; i <= jmlSoal; i++) {
+          if (i <= Math.ceil(jmlSoal * 0.6)) {
+            kAktif.soalConfig.push({ no: i, tipe: "PG", bobot: 1 });
+          } else if (i <= Math.ceil(jmlSoal * 0.8)) {
+            kAktif.soalConfig.push({ no: i, tipe: "PGK", bobot: 2 });
+          } else {
+            kAktif.soalConfig.push({ no: i, tipe: "Menjodohkan", bobot: 3 });
+          }
+        }
+      }
+
+      const totalBobotMaks = kAktif.soalConfig.reduce((acc, cur) => acc + cur.bobot, 0);
+      kAktif.siswa.forEach(s => {
+        if (!s.skorButir || s.skorButir.length !== jmlSoal) {
+          const targetPoin = Math.round((s.nilai / 100) * totalBobotMaks);
+          s.skorButir = new Array(jmlSoal).fill(0);
+          let cur = 0;
+          for (let i = 0; i < jmlSoal; i++) {
+            const b = kAktif.soalConfig[i].bobot;
+            if (cur + b <= targetPoin) {
+              s.skorButir[i] = b;
+              cur += b;
+            } else if (cur < targetPoin) {
+              s.skorButir[i] = targetPoin - cur;
+              cur = targetPoin;
+            }
+          }
+        }
+      });
+
+      const sorted = [...kAktif.siswa].sort((a, b) => b.nilai - a.nilai);
+      const nk = Math.max(1, Math.round(0.27 * total));
+      const upper = sorted.slice(0, nk);
+      const lower = sorted.slice(-nk);
+
       let html = '';
       let kesukaranData = [];
-      let baik = 0, revisi = 0, buang = 0;
+      let baikCount = 0, revisiCount = 0, buangCount = 0;
 
-      for (let i = 1; i <= kAktif.jmlSoal; i++) {
-        const seed = (i * 11) % 9;
-        const benar = Math.max(1, Math.min(total, Math.round(total * (0.42 + (seed * 0.06)))));
-        const p = parseFloat((benar / (total || 1)).toFixed(2));
-        const dp = parseFloat((0.18 + (seed * 0.04)).toFixed(2));
+      for (let j = 0; j < jmlSoal; j++) {
+        const cfg = kAktif.soalConfig[j] || { no: j + 1, tipe: "PG", bobot: 1 };
+        const maxB = cfg.bobot;
 
-        let klasKesukaran = "Sedang";
-        let badgeKesukaran = "bg-blue-100 text-blue-800";
-        if (p > 0.70) {
-          klasKesukaran = "Mudah";
-          badgeKesukaran = "bg-emerald-100 text-emerald-800";
-        } else if (p < 0.30) {
-          klasKesukaran = "Sukar";
-          badgeKesukaran = "bg-rose-100 text-rose-800";
-        }
-
-        let statusKelayakan = "Direvisi";
-        let badgeKelayakan = "bg-amber-100 text-amber-800";
-        if (dp >= 0.40) {
-          statusKelayakan = "Diterima (Bank Soal)";
-          badgeKelayakan = "bg-emerald-100 text-emerald-800";
-          baik++;
-        } else if (dp < 0.20) {
-          statusKelayakan = "Dibuang / Diganti";
-          badgeKelayakan = "bg-rose-100 text-rose-800";
-          buang++;
-        } else {
-          revisi++;
-        }
-
+        let totalSkorItem = 0;
+        kAktif.siswa.forEach(s => totalSkorItem += ((s.skorButir && s.skorButir[j] !== undefined) ? s.skorButir[j] : 0));
+        const avgSkor = total > 0 ? (totalSkorItem / total) : 0;
+        const p = parseFloat((avgSkor / maxB).toFixed(2));
         kesukaranData.push(p);
 
+        let skorU = 0, skorL = 0;
+        upper.forEach(s => skorU += ((s.skorButir && s.skorButir[j] !== undefined) ? s.skorButir[j] : 0));
+        lower.forEach(s => skorL += ((s.skorButir && s.skorButir[j] !== undefined) ? s.skorButir[j] : 0));
+        const avgU = upper.length > 0 ? (skorU / upper.length) : 0;
+        const avgL = lower.length > 0 ? (skorL / lower.length) : 0;
+        const dp = parseFloat(((avgU - avgL) / maxB).toFixed(2));
+
+        let klasP = "Sedang", badgeP = "bg-blue-100 text-blue-800";
+        if (p > 0.70) {
+          klasP = "Mudah"; badgeP = "bg-emerald-100 text-emerald-800";
+        } else if (p < 0.30) {
+          klasP = "Sukar"; badgeP = "bg-rose-100 text-rose-800";
+        }
+
+        let badgeTipe = "bg-blue-50 text-blue-700 border border-blue-200";
+        if (cfg.tipe === "PGK") badgeTipe = "bg-amber-50 text-amber-800 border border-amber-200";
+        if (cfg.tipe === "Menjodohkan") badgeTipe = "bg-emerald-50 text-emerald-800 border border-emerald-200";
+
+        let klasDP = "Cukup", statusKelayakan = "Direvisi", badgeKelayakan = "bg-amber-100 text-amber-800";
+        if (dp >= 0.40) {
+          klasDP = "Sangat Baik";
+          statusKelayakan = "Diterima (Bank Soal)";
+          badgeKelayakan = "bg-emerald-100 text-emerald-800";
+          baikCount++;
+        } else if (dp >= 0.30) {
+          klasDP = "Baik";
+          statusKelayakan = "Diterima (Bank Soal)";
+          badgeKelayakan = "bg-emerald-100 text-emerald-800";
+          baikCount++;
+        } else if (dp >= 0.20) {
+          klasDP = "Cukup";
+          statusKelayakan = "Direvisi";
+          badgeKelayakan = "bg-amber-100 text-amber-800";
+          revisiCount++;
+        } else if (dp >= 0) {
+          klasDP = "Jelek";
+          statusKelayakan = "Dibuang / Diganti";
+          badgeKelayakan = "bg-rose-100 text-rose-800";
+          buangCount++;
+        } else {
+          klasDP = "Sangat Jelek (Negatif)";
+          statusKelayakan = "Dibuang (Kunci Tertukar)";
+          badgeKelayakan = "bg-rose-200 text-rose-900";
+          buangCount++;
+        }
+
         html += `
-          <tr class="hover:bg-slate-50 border-b border-slate-100 text-center text-[11px]">
-            <td class="p-3 font-bold text-slate-800">Soal ${i}</td>
-            <td class="p-3 font-semibold">${benar} Siswa</td>
-            <td class="p-3 font-mono font-bold">${p}</td>
-            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeKesukaran}">${klasKesukaran}</span></td>
-            <td class="p-3 font-mono font-bold">${dp}</td>
-            <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${badgeKelayakan}">${statusKelayakan}</span></td>
+          <tr class="hover:bg-slate-50 border-b border-slate-100 text-center text-[11px] transition">
+            <td class="p-3 font-bold text-slate-800">Soal ${j + 1}</td>
+            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeTipe}">${cfg.tipe}</span></td>
+            <td class="p-3 font-semibold text-slate-600">${maxB} Poin</td>
+            <td class="p-3 font-mono font-bold text-slate-700">${avgSkor.toFixed(2)}</td>
+            <td class="p-3">
+              <span class="font-mono font-bold mr-1.5">${p}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeP}">${klasP}</span>
+            </td>
+            <td class="p-3">
+              <span class="font-mono font-bold mr-1.5">${dp}</span>
+              <span class="text-[10px] text-slate-500">(${klasDP})</span>
+            </td>
+            <td class="p-3">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${badgeKelayakan}">${statusKelayakan}</span>
+            </td>
           </tr>
         `;
       }
+
       tbody.innerHTML = html;
-      renderChartsButir(kesukaranData, baik, revisi, buang);
+      renderChartsButir(kesukaranData, baikCount, revisiCount, buangCount);
     }
 
     // --- PROGRAM REMEDIAL & PENGAYAAN ---
@@ -2091,64 +2482,76 @@
       }
     }
 
-    // --- DOWNLOAD TEMPLATE EXCEL MULTI-KELAS ---
+    // --- DOWNLOAD TEMPLATE EXCEL BUTIR SOAL & GOOGLE FORM ---
     function downloadTemplateExcel() {
       const wb = XLSX.utils.book_new();
 
-      // Sheet 1: Template Format Kolom Kelas (Satu Sheet Banyak Kelas)
-      const dataMultiKelas = [
+      // SHEET 1: MATRIKS SKOR BUTIR SOAL (PG, PGK, MENJODOHKAN)
+      const dataMatriks = [
+        ["Tipe Soal", "", "", "PG", "PG", "PG", "PG", "PG", "PG", "PGK", "PGK", "Menjodohkan", "Menjodohkan"],
+        ["Bobot Maksimal", "", "", 1, 1, 1, 1, 1, 1, 2, 2, 3, 3],
+        ["No", "Kelas", "Nama Siswa", "S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10"],
+        [1, "VII A", "AEESHA KIREY UFAIRAH", 1, 1, 1, 1, 1, 0, 2, 2, 3, 3],
+        [2, "VII A", "AJENG FITRI AZIZIYAH", 1, 1, 1, 1, 0, 0, 2, 2, 3, 2],
+        [3, "VII A", "ALIIFAH NADYA SHAFWAH", 1, 1, 1, 1, 0, 0, 2, 2, 3, 2],
+        [4, "VII A", "AMANDA KHAIRA ASYIFA", 1, 1, 1, 1, 0, 0, 2, 0, 3, 0],
+        [1, "VII B", "AHMAD FAUZI", 1, 1, 1, 1, 1, 1, 2, 1, 3, 3],
+        [2, "VII B", "ANISA RAHMAWATI", 1, 1, 1, 1, 1, 0, 2, 2, 3, 3],
+        [3, "VII B", "BAGAS PRASETYO", 1, 1, 0, 1, 0, 0, 1, 1, 2, 1]
+      ];
+      const ws1 = XLSX.utils.aoa_to_sheet(dataMatriks);
+      ws1['!cols'] = [{ wch: 5 }, { wch: 10 }, { wch: 28 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 8 }, { wch: 8 }];
+      XLSX.utils.book_append_sheet(wb, ws1, "Matriks_Butir_Soal");
+
+      // SHEET 2: HASIL UNDUHAN GOOGLE FORM (GOOGLE FORM RESPONSES)
+      const dataGForm = [
+        ["Timestamp", "Score", "Nama Siswa", "Kelas", "S01_PG", "S02_PG", "S03_PG", "S04_PG", "S05_PG", "S06_PG", "S07_PGK", "S08_PGK", "S09_Jodoh", "S10_Jodoh"],
+        ["2026/11/04 08:15:22", "91 / 100", "AEESHA KIREY UFAIRAH", "VII A", 1, 1, 1, 1, 1, 0, 2, 2, 3, 3],
+        ["2026/11/04 08:16:04", "79 / 100", "AJENG FITRI AZIZIYAH", "VII A", 1, 1, 1, 1, 0, 0, 2, 2, 3, 2],
+        ["2026/11/04 08:17:15", "81 / 100", "ALIIFAH NADYA SHAFWAH", "VII A", 1, 1, 1, 1, 0, 0, 2, 2, 3, 2],
+        ["2026/11/04 08:18:00", "88 / 100", "AHMAD FAUZI", "VII B", 1, 1, 1, 1, 1, 1, 2, 1, 3, 3]
+      ];
+      const ws2 = XLSX.utils.aoa_to_sheet(dataGForm);
+      ws2['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 28 }, { wch: 10 }];
+      XLSX.utils.book_append_sheet(wb, ws2, "Unduhan_Google_Form");
+
+      // SHEET 3: REKAP NILAI CEPAT (MULTI-KELAS)
+      const dataCepat = [
         ["No", "Kelas", "Nama Siswa", "Nilai"],
         [1, "VII A", "AEESHA KIREY UFAIRAH", 91],
         [2, "VII A", "AJENG FITRI AZIZIYAH", 79],
         [3, "VII A", "ALIIFAH NADYA SHAFWAH", 81],
-        [4, "VII A", "AMANDA KHAIRA ASYIFA", 54],
-        [5, "VII A", "ANDIKA JAJULI PUTRA", 65],
-        [1, "VII B", "AHMAD FAUZI", 88],
-        [2, "VII B", "ANISA RAHMAWATI", 92],
-        [3, "VII B", "BAGAS PRASETYO", 68],
-        [4, "VII B", "BAYU SAPUTRA", 74],
-        [1, "VII C", "CITRA KIRANA", 85],
-        [2, "VII C", "DIMAS ARYA PUTRA", 60],
-        [3, "VII C", "EKA NURUL JANNAH", 78]
+        [1, "VII B", "AHMAD FAUZI", 88]
       ];
-      const ws1 = XLSX.utils.aoa_to_sheet(dataMultiKelas);
-      ws1['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 32 }, { wch: 10 }];
-      XLSX.utils.book_append_sheet(wb, ws1, "Semua_Kelas");
+      const ws3 = XLSX.utils.aoa_to_sheet(dataCepat);
+      ws3['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 30 }, { wch: 10 }];
+      XLSX.utils.book_append_sheet(wb, ws3, "Format_Nilai_Cepat");
 
-      // Sheet 2: Format Contoh Per Sheet (Opsional)
-      const dataContohSheet = [
-        ["No", "Nama Siswa", "Nilai"],
-        [1, "SISWA KELAS B - CONTOH 1", 85],
-        [2, "SISWA KELAS B - CONTOH 2", 76]
+      // SHEET 4: PANDUAN SUMBER DATA & PSIKOMETRIK
+      const dataPanduan = [
+        ["PANDUAN SUMBER DATA ANALISIS NILAI & MUTU BUTIR SOAL"],
+        [],
+        ["1. Format Matriks Butir Soal (Sangat Direkomendasikan untuk Analisis Butir):"],
+        ["   - Gunakan sheet 'Matriks_Butir_Soal'."],
+        ["   - Baris 1: Tipe Soal (PG = Pilihan Ganda, PGK = Pilihan Ganda Kompleks, Menjodohkan)."],
+        ["   - Baris 2: Bobot Skor Maksimal tiap butir soal."],
+        ["   - Skor siswa: PG (1/0), PGK (skor bergradasi 0, 1, 2), Menjodohkan (skor jumlah pasangan yang tepat 0, 1, 2, 3)."],
+        ["   - Nilai akhir siswa (0-100) akan DIHITUNG OTOMATIS oleh sistem!"],
+        [],
+        ["2. Format Unduhan Google Form:"],
+        ["   - Jika Anda mengadakan kuis Google Form, cukup buka Spreadsheet Respon Google Form."],
+        ["   - Klik File -> Download -> Microsoft Excel (.xlsx), lalu langsung upload file tersebut ke aplikasi ini."],
+        ["   - Sistem otomatis mengenali kolom Nama Siswa, Kelas, Nilai/Skor (misal '85 / 100'), dan butir-butir respon."],
+        [],
+        ["3. Format Nilai Cepat:"],
+        ["   - Jika Anda hanya ingin menganalisis ketuntasan KKM, daya serap, dan mencetak laporan remedial (tanpa butir soal), gunakan sheet 'Format_Nilai_Cepat'."]
       ];
-      const ws2 = XLSX.utils.aoa_to_sheet(dataContohSheet);
-      ws2['!cols'] = [{ wch: 6 }, { wch: 32 }, { wch: 10 }];
-      XLSX.utils.book_append_sheet(wb, ws2, "VII B (Contoh Sheet)");
-
-      // Sheet 3: Petunjuk & Panduan Multi-Kelas
-      const dataPetunjuk = [
-        ["PANDUAN INPUT NILAI BANYAK KELAS SEKALIGUS (MULTI-KELAS)"],
-        [],
-        ["Metode 1 (Sangat Disarankan - Satu Lembar/Sheet untuk Semua Kelas):"],
-        ["1. Buka sheet 'Semua_Kelas'."],
-        ["2. Tulis nama kelas pada kolom 'Kelas' (Contoh: VII A, VII B, VII C atau 7A, 7B atau X-1, X-2)."],
-        ["3. Masukkan Nama Siswa dan Nilai (0 - 100)."],
-        ["4. Upload file ke aplikasi. Sistem akan OTOMATIS membaca, memisahkan, dan membuat semua kelas tersebut sekaligus!"],
-        [],
-        ["Metode 2 (Model Per Sheet):"],
-        ["1. Buat sheet baru di Excel dengan nama sesuai nama kelas (misal: 'VII A', 'VII B')."],
-        ["2. Isi setiap sheet dengan kolom: No | Nama Siswa | Nilai."],
-        ["3. Upload file, sistem otomatis membaca setiap sheet sebagai kelas terpisah."],
-        [],
-        ["Metode 3 (Format Satu Kelas Sederhana):"],
-        ["1. Jika file Excel hanya berisi kolom Nama Siswa dan Nilai tanpa kolom kelas, data akan otomatis masuk ke kelas yang sedang aktif."]
-      ];
-      const ws3 = XLSX.utils.aoa_to_sheet(dataPetunjuk);
-      ws3['!cols'] = [{ wch: 80 }];
-      XLSX.utils.book_append_sheet(wb, ws3, "Petunjuk_Multi_Kelas");
+      const ws4 = XLSX.utils.aoa_to_sheet(dataPanduan);
+      ws4['!cols'] = [{ wch: 85 }];
+      XLSX.utils.book_append_sheet(wb, ws4, "Panduan_Sumber_Data");
 
       const mapelName = (userProfile.mapel || "Ulangan").replace(/[^a-zA-Z0-9]/g, '_');
-      XLSX.writeFile(wb, `Template_Nilai_Multi_Kelas_${mapelName}.xlsx`);
+      XLSX.writeFile(wb, `Template_Analisis_Nilai_dan_Butir_${mapelName}.xlsx`);
     }
   </script>
 </body>
