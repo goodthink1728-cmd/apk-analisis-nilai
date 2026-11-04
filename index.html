@@ -47,46 +47,39 @@
 </head>
 <body class="bg-slate-50/70 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
 
-  <!-- ================= POP-UP MODAL AUTH (DILENGKAPI MATA PASSWORD & CAPTCHA) ================= -->
+  <!-- ================= POP-UP MODAL AUTH (SIGN UP & SIGN IN) ================= -->
   <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm hidden no-print">
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in duration-200">
       
-      <!-- Header Modal -->
       <div class="bg-gradient-to-r from-brand-900 to-brand-800 p-6 text-white text-center relative">
         <div class="w-12 h-12 mx-auto rounded-2xl bg-white/10 flex items-center justify-center text-2xl mb-2 backdrop-blur-md">
           🕌
         </div>
-        <h3 class="text-lg font-black tracking-tight" id="authModalTitle">Selamat Datang di Portal Madrasah</h3>
-        <p class="text-xs text-brand-100 mt-1" id="authModalSubtitle">Silakan daftarkan akun pendidik & madrasah Anda</p>
+        <h3 class="text-lg font-black tracking-tight" id="authModalTitle">Portal Penilaian Madrasah</h3>
+        <p class="text-xs text-brand-100 mt-1" id="authModalSubtitle">Masuk atau daftarkan akun pendidik Anda</p>
       </div>
 
-      <!-- Tab Switcher Modal (Sign Up vs Sign In) -->
       <div class="flex border-b border-slate-100 text-xs font-bold text-center bg-slate-50/50">
-        <button onclick="toggleAuthMode('signup')" id="tabBtnSignUp" class="flex-1 py-3 border-b-2 border-brand-700 text-brand-800 transition">
+        <button onclick="toggleAuthMode('signin')" id="tabBtnSignIn" class="flex-1 py-3 border-b-2 border-brand-700 text-brand-800 transition">
+          Masuk (Sign In)
+        </button>
+        <button onclick="toggleAuthMode('signup')" id="tabBtnSignUp" class="flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition">
           Daftar Baru (Sign Up)
         </button>
-        <button onclick="toggleAuthMode('signin')" id="tabBtnSignIn" class="flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition">
-          Sudah Punya Akun (Sign In)
-        </button>
       </div>
 
-      <!-- Form Body -->
       <form id="authForm" onsubmit="handleAuthSubmit(event)" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-        
-        <!-- Field Email -->
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Email Guru / Akun Madrasah</label>
           <input type="email" id="authEmail" required placeholder="nama.guru@kemenag.go.id" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
         </div>
 
-        <!-- Field Password dengan Ikon Mata (Show/Hide) -->
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
           <div class="relative">
             <input type="password" id="authPassword" required placeholder="Minimal 6 karakter" class="w-full text-xs border border-slate-200 rounded-xl pl-3.5 pr-10 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
-            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1" title="Lihat / Sembunyikan Password">
-              <span id="eyeIcon">
-                <!-- Ikon Mata Tertutup Default -->
+            <button type="button" onclick="togglePasswordVisibility('authPassword', 'eyeIconAuth')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1">
+              <span id="eyeIconAuth">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -96,51 +89,129 @@
           </div>
         </div>
 
-        <!-- Bagian Input Profil (Hanya Muncul saat Sign Up) -->
-        <div id="signUpFields" class="space-y-3 pt-2 border-t border-slate-100">
+        <!-- Field Tambahan Khusus Sign Up -->
+        <div id="signUpFields" class="space-y-3 pt-2 border-t border-slate-100 hidden">
           <p class="text-[11px] font-extrabold text-brand-800 uppercase tracking-wider">Identitas Pembelajaran</p>
           
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap Guru (dengan Gelar)</label>
-            <input type="text" id="authNamaGuru" placeholder="Contoh: Ahmad Fauzi, S.Pd.I" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
+            <input type="text" id="authNamaGuru" placeholder="Contoh: Agus Gunawan, M.Pd." class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Madrasah / Satuan Pendidikan</label>
-            <input type="text" id="authNamaMadrasah" placeholder="Contoh: MTs Negeri 1 Kota" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Madrasah / Sekolah</label>
+            <input type="text" id="authNamaMadrasah" placeholder="Contoh: MTs Negeri Kota Cimahi" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1">Mata Pelajaran</label>
-              <input type="text" id="authMapel" placeholder="Contoh: Bahasa Arab" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Tingkat Jenjang</label>
+              <select id="authJenjang" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none bg-white">
+                <option value="MI">MI / SD</option>
+                <option value="MTs" selected>MTs / SMP</option>
+                <option value="MA">MA / SMA / SMK</option>
+              </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1">Tahun Pelajaran</label>
-              <input type="text" id="authTahunPelajaran" placeholder="Contoh: 2026/2027" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Mata Pelajaran</label>
+              <input type="text" id="authMapel" placeholder="Contoh: Bahasa Arab" class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
             </div>
           </div>
         </div>
 
-        <!-- ================= BAGIAN CAPTCHA KEAMANAN ================= -->
+        <!-- Captcha -->
         <div class="pt-2 border-t border-slate-100">
           <label class="block text-xs font-bold text-slate-700 mb-1">Kode Keamanan (Captcha)</label>
           <div class="flex items-center gap-3 mb-2">
-            <!-- Canvas Gambar Captcha -->
-            <canvas id="captchaCanvas" width="130" height="40" class="rounded-xl border border-slate-200 bg-slate-100 select-none shadow-inner cursor-pointer" title="Klik untuk ganti kode" onclick="generateCaptcha()"></canvas>
-            
-            <button type="button" onclick="generateCaptcha()" class="px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-semibold flex items-center gap-1.5 transition" title="Ganti Kode Baru">
+            <canvas id="captchaCanvas" width="130" height="40" class="rounded-xl border border-slate-200 bg-slate-100 select-none shadow-inner cursor-pointer" title="Klik untuk refresh" onclick="generateCaptcha()"></canvas>
+            <button type="button" onclick="generateCaptcha()" class="px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-semibold flex items-center gap-1.5 transition">
               🔄 <span>Refresh</span>
             </button>
           </div>
           <input type="text" id="authCaptchaInput" required placeholder="Ketik 5 kode di atas..." class="w-full text-xs border border-slate-200 rounded-xl px-3.5 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none uppercase font-mono tracking-widest font-bold">
         </div>
 
-        <!-- Tombol Submit -->
         <button type="submit" id="btnSubmitAuth" class="w-full py-3 bg-brand-700 hover:bg-brand-800 text-white rounded-xl text-xs font-bold shadow-lg shadow-brand-700/20 transition">
-          Daftar & Masuk ke Aplikasi
+          Masuk ke Aplikasi
         </button>
+      </form>
+    </div>
+  </div>
 
+  <!-- ================= MODAL GANTI PASSWORD ================= -->
+  <div id="modalGantiPassword" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden no-print">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="text-sm font-extrabold text-slate-800">🔒 Ganti Password Akun</h3>
+        <button onclick="tutupModalPassword()" class="text-slate-400 hover:text-slate-600 text-sm">✕</button>
+      </div>
+
+      <form onsubmit="handleGantiPassword(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Password Saat Ini</label>
+          <input type="password" id="oldPassword" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Password Baru</label>
+          <input type="password" id="newPassword" required minlength="6" placeholder="Minimal 6 karakter" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Konfirmasi Password Baru</label>
+          <input type="password" id="confirmNewPassword" required minlength="6" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="tutupModalPassword()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition">Batal</button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-brand-700 text-white font-bold hover:bg-brand-800 transition">Simpan Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL EDIT PROFIL GURU & MADRASAH ================= -->
+  <div id="modalEditProfil" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden no-print">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="text-sm font-extrabold text-slate-800">⚙️ Pengaturan Profil Guru & Madrasah</h3>
+        <button onclick="tutupModalProfil()" class="text-slate-400 hover:text-slate-600 text-sm">✕</button>
+      </div>
+
+      <form onsubmit="handleSimpanProfil(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Guru</label>
+          <input type="text" id="editNamaGuru" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">NIP Guru</label>
+          <input type="text" id="editNipGuru" placeholder="Contoh: 19870415 201101 1 003" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nama Madrasah / Satuan Pendidikan</label>
+          <input type="text" id="editNamaMadrasah" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nama Kepala Madrasah</label>
+            <input type="text" id="editNamaKamad" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">NIP Kepala Madrasah</label>
+            <input type="text" id="editNipKamad" class="w-full border border-slate-200 rounded-xl px-3.5 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mata Pelajaran</label>
+            <input type="text" id="editMapel" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tahun Pelajaran</label>
+            <input type="text" id="editTahunPelajaran" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+        </div>
+        <div class="flex gap-2 pt-3">
+          <button type="button" onclick="tutupModalProfil()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition">Batal</button>
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-brand-700 text-white font-bold hover:bg-brand-800 transition">Simpan Profil</button>
+        </div>
       </form>
     </div>
   </div>
@@ -157,20 +228,42 @@
           <div>
             <div class="flex items-center gap-2">
               <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200">KEMENAG RI</span>
-              <span id="nav-madrasah" class="text-xs text-slate-500 font-bold hidden sm:inline">MTs Negeri 1 Kota</span>
+              <span id="nav-madrasah" class="text-xs text-slate-500 font-bold hidden sm:inline">MTs Negeri Kota Cimahi</span>
             </div>
             <h1 class="text-sm sm:text-base font-extrabold text-slate-800 leading-tight">Analisis Nilai & Mutu Soal</h1>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <button onclick="openProfileModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-medium transition">
-            <span class="w-6 h-6 rounded-full bg-brand-700 text-white text-[10px] flex items-center justify-center font-bold">👤</span>
-            <div class="text-left hidden md:block">
-              <p id="nav-guru-nama" class="text-[11px] font-bold text-slate-800 leading-none">Ahmad Fauzi, S.Pd.I</p>
-              <p id="nav-mapel-tp" class="text-[9px] text-slate-400 mt-0.5">Bahasa Arab • 2026/2027</p>
+        <div class="flex items-center gap-2 relative">
+          <!-- Dropdown Profil Guru & Sign Out -->
+          <div class="relative">
+            <button onclick="toggleUserDropdown()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-medium transition">
+              <span class="w-6 h-6 rounded-full bg-brand-700 text-white text-[10px] flex items-center justify-center font-bold">👤</span>
+              <div class="text-left hidden md:block">
+                <p id="nav-guru-nama" class="text-[11px] font-bold text-slate-800 leading-none">Agus Gunawan, M.Pd.</p>
+                <p id="nav-mapel-tp" class="text-[9px] text-slate-400 mt-0.5">Bahasa Arab • 2026/2027</p>
+              </div>
+              <span class="text-slate-400 text-[10px]">▼</span>
+            </button>
+
+            <!-- Dropdown Menu Item -->
+            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-40 text-xs">
+              <div class="px-4 py-2 border-b border-slate-100">
+                <p class="font-bold text-slate-800" id="dd-nama-guru">Agus Gunawan, M.Pd.</p>
+                <p class="text-[10px] text-slate-400 truncate" id="dd-email">guru@kemenag.go.id</p>
+              </div>
+              <button onclick="bukaModalProfil()" class="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 transition">
+                <span>⚙️</span> Ubah Profil & Madrasah
+              </button>
+              <button onclick="bukaModalPassword()" class="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 transition">
+                <span>🔒</span> Ganti Password
+              </button>
+              <hr class="my-1 border-slate-100">
+              <button onclick="handleSignOut()" class="w-full px-4 py-2 text-left hover:bg-rose-50 text-rose-600 font-bold flex items-center gap-2 transition">
+                <span>🚪</span> Sign Out (Keluar)
+              </button>
             </div>
-          </button>
+          </div>
 
           <button onclick="downloadTemplateExcel()" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-800 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg transition">
             📥 Template Excel
@@ -189,6 +282,44 @@
       </div>
     </div>
   </header>
+
+  <!-- ================= SUB-HEADER: PENGATURAN JENJANG & MULTI-KELAS ================= -->
+  <div class="bg-slate-100 border-b border-slate-200 py-2.5 px-4 sm:px-6 lg:px-8 no-print">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
+      
+      <!-- Selector Jenjang & Kelas -->
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-slate-500 font-semibold text-[11px]">Tingkat Jenjang:</span>
+        <select id="pilihJenjang" onchange="gantiJenjang(this.value)" class="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
+          <option value="MI">MI / SD (Kelas 1 - 6)</option>
+          <option value="MTs" selected>MTs / SMP (Kelas 7 - 9)</option>
+          <option value="MA">MA / SMA / SMK (Kelas 10 - 12)</option>
+        </select>
+
+        <span class="text-slate-500 font-semibold text-[11px] ml-2">Pilih Rombel / Kelas:</span>
+        <div class="flex items-center gap-1.5">
+          <select id="selectKelasAktif" onchange="pilihKelas(this.value)" class="bg-brand-50 border border-brand-300 text-brand-900 rounded-lg px-3 py-1.5 text-xs font-extrabold outline-none focus:ring-2 focus:ring-brand-500">
+            <!-- Diisi otomatis via JS -->
+          </select>
+          <button onclick="tambahKelasBaru()" class="px-2.5 py-1.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg text-xs font-semibold transition" title="Tambah Kelas Baru">
+            + Tambah Kelas
+          </button>
+        </div>
+      </div>
+
+      <!-- KKM & Mapel Kelas Aktif -->
+      <div class="flex items-center gap-4 text-xs">
+        <div>
+          <span class="text-slate-400 text-[10px] uppercase font-bold mr-1">KKM Kelas:</span>
+          <input type="number" id="inputKKMKelas" value="75" onchange="ubahKKMKelas(this.value)" class="w-12 text-center font-bold text-brand-800 border-b border-brand-400 bg-transparent outline-none">
+        </div>
+        <div class="text-slate-500 text-[11px]">
+          Jumlah Siswa: <b id="info-count-siswa" class="text-slate-800">32</b>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <!-- ================= TAB BAR MENU ================= -->
   <nav class="bg-white border-b border-slate-200 shadow-sm no-print sticky top-16 z-20">
@@ -231,34 +362,36 @@
 
     <!-- TAB 0: BERANDA & PANDUAN PENGGUNAAN -->
     <section id="panel-beranda" class="tab-panel space-y-6">
+      
+      <!-- Banner Sambutan Akun Guru -->
       <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-900 via-brand-800 to-teal-800 p-6 sm:p-8 text-white shadow-xl">
         <div class="relative z-10 max-w-3xl">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 backdrop-blur-md border border-white/20 mb-3">
             <span>✨ Sistem Evaluasi Pembelajaran Digital Madrasah</span>
           </div>
           <h2 class="text-2xl sm:text-3xl font-black tracking-tight leading-snug">
-            Ahlan wa Sahlan, <span id="banner-guru" class="text-brand-200">Ahmad Fauzi, S.Pd.I</span>!
+            Ahlan wa Sahlan, <span id="banner-guru" class="text-brand-200">Agus Gunawan, M.Pd.</span>!
           </h2>
           <p class="mt-2 text-xs sm:text-sm text-brand-100 leading-relaxed">
-            Aplikasi analisis nilai ulangan ini dirancang khusus untuk mempermudah Bapak/Ibu guru di lingkungan Kementerian Agama dalam mengolah daya serap siswa, tingkat kesukaran soal, serta menyusun administrasi kurikulum madrasah secara otomatis.
+            Kelola evaluasi pembelajaran, analisis butir soal, dan program tindak lanjut untuk seluruh kelas yang Anda ampu di <b><span id="banner-madrasah">MTs Negeri Kota Cimahi</span></b>.
           </p>
 
           <div class="mt-5 flex flex-wrap items-center gap-2 text-xs">
-            <span class="px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">Madrasah: <b id="banner-madrasah">MTs Negeri 1 Kota</b></span>
+            <span class="px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">Jenjang: <b id="banner-jenjang">MTs / SMP</b></span>
+            <span class="px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">Kelas Aktif: <b id="banner-kelas-aktif">VII A</b></span>
             <span class="px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">Mapel: <b id="banner-mapel">Bahasa Arab</b></span>
             <span class="px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">Tahun Pelajaran: <b id="banner-tp">2026/2027</b></span>
-            <span class="px-3 py-1 rounded-xl bg-white/10 backdrop-blur-md border border-white/10">KKM: <b>75</b></span>
           </div>
         </div>
       </div>
 
-      <!-- 4 Langkah Alur Kerja -->
+      <!-- 4 Langkah Alur Kerja Singkat -->
       <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
         <div>
           <h3 class="text-base font-extrabold text-slate-800 flex items-center gap-2">
             <span>📖</span> Petunjuk Singkat Penggunaan Aplikasi
           </h3>
-          <p class="text-xs text-slate-500">Ikuti 4 langkah mudah berikut untuk menyelesaikan analisis ulangan Anda dalam hitungan detik:</p>
+          <p class="text-xs text-slate-500">Ikuti 4 langkah mudah berikut untuk menyelesaikan analisis ulangan kelas Anda:</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
@@ -266,7 +399,7 @@
             <div>
               <div class="w-10 h-10 rounded-xl bg-brand-100 text-brand-800 flex items-center justify-center font-black text-sm mb-3">1</div>
               <h4 class="text-xs font-bold text-slate-800 mb-1">Unduh Template Excel</h4>
-              <p class="text-[11px] text-slate-500 leading-relaxed">Klik tombol <b>Template Excel</b> di bagian atas untuk mendapatkan format tabel baku nama dan nilai.</p>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Download template tabel nama dan nilai untuk kelas yang aktif.</p>
             </div>
             <button onclick="downloadTemplateExcel()" class="mt-3 text-left text-[11px] font-bold text-brand-700 hover:underline">Download Template →</button>
           </div>
@@ -275,7 +408,7 @@
             <div>
               <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-black text-sm mb-3">2</div>
               <h4 class="text-xs font-bold text-slate-800 mb-1">Import File Nilai</h4>
-              <p class="text-[11px] text-slate-500 leading-relaxed">Klik tombol <b>Import Excel</b> untuk mengunggah file nilai Anda. Sistem membaca nama & nilai secara instan.</p>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Unggah file Excel nilai siswa. Sistem mendeteksi nama & nilai secara instan.</p>
             </div>
             <button onclick="document.getElementById('excelUpload').click()" class="mt-3 text-left text-[11px] font-bold text-blue-700 hover:underline">Pilih File Excel →</button>
           </div>
@@ -284,7 +417,7 @@
             <div>
               <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-black text-sm mb-3">3</div>
               <h4 class="text-xs font-bold text-slate-800 mb-1">Periksa Grafik & Butir</h4>
-              <p class="text-[11px] text-slate-500 leading-relaxed">Buka tab <b>Analisis Butir Soal</b> dan <b>Ketuntasan</b> untuk melihat grafik persentase serta kualitas soal.</p>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Cek persentase ketuntasan KKM, daya pembeda, dan mutu kesukaran butir soal.</p>
             </div>
             <button onclick="switchTab('ketuntasan')" class="mt-3 text-left text-[11px] font-bold text-amber-700 hover:underline">Buka Analisis →</button>
           </div>
@@ -293,64 +426,67 @@
             <div>
               <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-sm mb-3">4</div>
               <h4 class="text-xs font-bold text-slate-800 mb-1">Cetak Laporan Resmi</h4>
-              <p class="text-[11px] text-slate-500 leading-relaxed">Klik <b>Cetak Dokumen</b> untuk mencetak bundel laporan A4 lengkap dengan Kop & Tanda Tangan pengesahan.</p>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Cetak lembar bundel evaluasi resmi A4 dengan tanda tangan pengesahan.</p>
             </div>
             <button onclick="window.print()" class="mt-3 text-left text-[11px] font-bold text-emerald-700 hover:underline">Cetak Dokumen →</button>
           </div>
         </div>
       </div>
 
-      <!-- Tutorial Interaktif & Contoh Data Jadi -->
+      <!-- KONTEN BARU: PENGGANTI VIDEO TUTORIAL -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-          <div>
-            <h4 class="text-sm font-extrabold text-slate-800 mb-1 flex items-center gap-2"><span>🎥</span> Video Panduan Analisis Nilai</h4>
-            <p class="text-xs text-slate-500 mb-3">Simak tutorial visual interaktif cara menggunakan aplikasi ini:</p>
-            <div class="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 shadow-inner flex items-center justify-center group cursor-pointer">
-              <div class="absolute inset-0 bg-cover bg-center opacity-60 group-hover:scale-105 transition duration-500" style="background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop');"></div>
-              <div class="relative z-10 w-16 h-16 rounded-full bg-white/90 text-brand-800 flex items-center justify-center text-xl shadow-xl group-hover:bg-brand-600 group-hover:text-white transition">▶</div>
-              <div class="absolute bottom-3 left-3 right-3 text-white text-[11px] bg-slate-900/80 backdrop-blur-sm p-2 rounded-xl flex justify-between items-center">
-                <span>Tutorial: 4 Menit Cepat Olah Nilai Ulangan</span>
-                <span class="text-brand-300 font-bold">HD 1080p</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        
+        <!-- 1. Rekapitulasi Seluruh Kelas yang Diampu -->
         <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
           <div>
             <div class="flex justify-between items-center mb-1">
-              <h4 class="text-sm font-extrabold text-slate-800 flex items-center gap-2"><span>📊</span> Contoh Data Hasil Jadi (Live Demo)</h4>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">32 Siswa Aktif</span>
+              <h4 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                <span>📚</span> Daftar Seluruh Rombel / Kelas yang Diampu
+              </h4>
+              <button onclick="tambahKelasBaru()" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-50 text-brand-700 hover:bg-brand-100 transition">+ Tambah</button>
             </div>
-            <p class="text-xs text-slate-500 mb-3">Ringkasan hasil analisis dari contoh data 32 siswa yang sedang dimuat:</p>
+            <p class="text-xs text-slate-500 mb-4">Klik kelas untuk langsung beralih dan mengolah nilainya:</p>
 
-            <div class="grid grid-cols-2 gap-3 text-center my-3">
-              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span class="text-[10px] text-slate-400 font-bold block uppercase">Rata-Rata Kelas</span>
-                <span class="text-2xl font-black text-brand-700">71.8</span>
-              </div>
-              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span class="text-[10px] text-slate-400 font-bold block uppercase">Ketuntasan</span>
-                <span class="text-2xl font-black text-blue-600">59%</span>
-              </div>
-              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span class="text-[10px] text-slate-400 font-bold block uppercase">Siswa Tuntas</span>
-                <span class="text-2xl font-black text-emerald-600">19 Siswa</span>
-              </div>
-              <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <span class="text-[10px] text-slate-400 font-bold block uppercase">Siswa Remedial</span>
-                <span class="text-2xl font-black text-rose-600">13 Siswa</span>
-              </div>
+            <div id="daftar-semua-kelas-box" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+              <!-- Render otomatis via JS -->
             </div>
-          </div>
-
-          <div class="flex gap-2 pt-2">
-            <button onclick="switchTab('siswa')" class="flex-1 py-2.5 rounded-xl bg-brand-700 text-white text-xs font-bold hover:bg-brand-800 transition text-center shadow-sm">Lihat Leger Nilai & Ranking →</button>
-            <button onclick="switchTab('ketuntasan')" class="py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition">Buka Grafik</button>
           </div>
         </div>
+
+        <!-- 2. Pedoman Interval KKM & Predikat Nilai Standar Kemenag -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <h4 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                <span>📋</span> Pedoman Interval Predikat Standar Kemenag
+              </h4>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-100 text-brand-800">KKM: <span id="pedoman-kkm-val">75</span></span>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">Penetapan predikat capaian kompetensi peserta didik:</p>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
+                <thead class="bg-slate-100 text-slate-700 font-bold">
+                  <tr>
+                    <th class="p-2.5 text-center">Predikat</th>
+                    <th class="p-2.5 text-center">Rentang Nilai</th>
+                    <th class="p-2.5">Keterangan Capaian</th>
+                  </tr>
+                </thead>
+                <tbody id="tabel-predikat-body" class="divide-y divide-slate-100 text-slate-700">
+                  <!-- Generated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="mt-4 text-[11px] text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100">
+            📌 <b>Rumus Baku:</b> Panjang Interval = (100 - KKM) / 3. Nilai di bawah KKM otomatis masuk predikat <b>D (Perlu Bimbingan / Remedial)</b>.
+          </div>
+        </div>
+
       </div>
+
     </section>
 
     <!-- TAB 1: DATA SISWA & NILAI -->
@@ -381,6 +517,7 @@
                 <th class="p-3.5 w-12 text-center">No</th>
                 <th class="p-3.5">Nama Siswa</th>
                 <th class="p-3.5 w-24 text-center cursor-pointer hover:text-brand-700" onclick="toggleSortNilai()">Nilai ⇅</th>
+                <th class="p-3.5 w-24 text-center">Predikat</th>
                 <th class="p-3.5 w-32 text-center">Status KKM</th>
                 <th class="p-3.5 w-40 text-center">Rekomendasi</th>
                 <th class="p-3.5 w-16 text-center no-print">Aksi</th>
@@ -396,7 +533,7 @@
     <section id="panel-butir" class="tab-panel hidden space-y-6">
       <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center">
         <div>
-          <h3 class="text-base font-bold text-slate-800">Analisis Kualitas Butir Soal Evaluasi</h3>
+          <h3 class="text-base font-bold text-slate-800">Analisis Kualitas Butir Soal Evaluasi (<span class="lbl-kelas-aktif">VII A</span>)</h3>
           <p class="text-xs text-slate-500">Tingkat Kesukaran (P), Daya Pembeda (DP), serta Rekomendasi Mutu Soal.</p>
         </div>
         <button onclick="window.print()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1.5">🖨️ Cetak Butir Soal</button>
@@ -472,7 +609,7 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-          <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Ketuntasan Belajar (KKM: 75)</h4>
+          <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Ketuntasan Belajar (KKM: <span class="lbl-kkm">75</span>)</h4>
           <div class="h-56 relative flex items-center justify-center"><canvas id="chartKetuntasanDonut"></canvas></div>
         </div>
 
@@ -492,8 +629,8 @@
     <section id="panel-remedial" class="tab-panel hidden space-y-6">
       <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center">
         <div>
-          <h3 class="text-base font-bold text-slate-800">Program Tindak Lanjut: Remedial & Pengayaan</h3>
-          <p class="text-xs text-slate-500">Rencana bimbingan perbaikan bagi siswa belum tuntas dan pendalaman materi bagi siswa tuntas.</p>
+          <h3 class="text-base font-bold text-slate-800">Program Tindak Lanjut: Remedial & Pengayaan (<span class="lbl-kelas-aktif">VII A</span>)</h3>
+          <p class="text-xs text-slate-500">Rencana perbaikan bagi siswa belum tuntas dan pendalaman materi bagi siswa tuntas.</p>
         </div>
         <button onclick="window.print()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1.5">🖨️ Cetak Tindak Lanjut</button>
       </div>
@@ -505,7 +642,7 @@
               <h4 class="text-sm font-extrabold text-rose-800 flex items-center gap-2"><span>✏️</span> Program Remedial Belajar</h4>
               <span id="badge-total-remed" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800">13 Siswa</span>
             </div>
-            <p class="text-[11px] text-slate-500 mb-3">Siswa dengan perolehan nilai di bawah KKM (75):</p>
+            <p class="text-[11px] text-slate-500 mb-3">Siswa dengan perolehan nilai di bawah KKM (<span class="lbl-kkm">75</span>):</p>
             <div id="list-remedial-box" class="space-y-2.5 max-h-96 overflow-y-auto pr-1"></div>
           </div>
           <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-600 bg-rose-50/50 p-3 rounded-xl">
@@ -519,7 +656,7 @@
               <h4 class="text-sm font-extrabold text-emerald-800 flex items-center gap-2"><span>⭐</span> Program Pengayaan Belajar</h4>
               <span id="badge-total-pengayaan" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">19 Siswa</span>
             </div>
-            <p class="text-[11px] text-slate-500 mb-3">Siswa yang telah melampaui standar KKM (75):</p>
+            <p class="text-[11px] text-slate-500 mb-3">Siswa yang telah melampaui standar KKM (<span class="lbl-kkm">75</span>):</p>
             <div id="list-pengayaan-box" class="space-y-2.5 max-h-96 overflow-y-auto pr-1"></div>
           </div>
           <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-600 bg-emerald-50/50 p-3 rounded-xl">
@@ -533,18 +670,19 @@
     <div class="hidden print:block text-slate-900">
       <div class="text-center border-b-2 border-slate-900 pb-3 mb-4">
         <h3 class="text-xs font-bold uppercase tracking-wider">KEMENTERIAN AGAMA REPUBLIK INDONESIA</h3>
-        <h2 id="p-sekolah" class="text-base font-extrabold uppercase">MADRASAH TSANAWIYAH NEGERI 1 KOTA</h2>
+        <h2 id="p-sekolah" class="text-base font-extrabold uppercase">MADRASAH TSANAWIYAH NEGERI KOTA CIMAHI</h2>
         <p class="text-[10px] text-slate-600">LAPORAN HASIL EVALUASI PEMBELAJARAN & ANALISIS BUTIR SOAL</p>
       </div>
 
       <div class="grid grid-cols-2 gap-4 text-[10px] mb-3">
         <div>
           <p>Mata Pelajaran: <b id="p-mapel">Bahasa Arab</b></p>
+          <p>Kelas / Rombel: <b id="p-kelas">VII A</b></p>
           <p>Tahun Pelajaran: <b id="p-tp">2026/2027</b></p>
         </div>
         <div class="text-right">
-          <p>Batas KKM: <b>75</b></p>
-          <p>Guru Pengampu: <b id="p-guru">Ahmad Fauzi, S.Pd.I</b></p>
+          <p>Batas KKM: <b id="p-kkm">75</b></p>
+          <p>Guru Pengampu: <b id="p-guru">Agus Gunawan, M.Pd.</b></p>
         </div>
       </div>
 
@@ -570,6 +708,7 @@
             <th class="w-8 text-center">No</th>
             <th class="text-left">Nama Lengkap Siswa</th>
             <th class="w-16 text-center">Nilai</th>
+            <th class="w-16 text-center">Predikat</th>
             <th class="w-20 text-center">Status</th>
             <th class="w-28 text-center">Tindak Lanjut</th>
           </tr>
@@ -582,15 +721,15 @@
           <p>Mengetahui,</p>
           <p class="font-bold">Kepala Madrasah</p>
           <div class="h-14"></div>
-          <p class="font-bold underline">Drs. H. Muhammad Ilyas, M.Ag</p>
-          <p class="text-slate-500">NIP. 19730812 199903 1 002</p>
+          <p id="p-kamad" class="font-bold underline">Drs. H. Muhammad Ilyas, M.Ag</p>
+          <p id="p-kamad-nip" class="text-slate-500">NIP. 19730812 199903 1 002</p>
         </div>
         <div>
-          <p id="p-tgl-cetak">Jakarta, ..................... 2026</p>
+          <p id="p-tgl-cetak">Cimahi, ..................... 2026</p>
           <p class="font-bold">Guru Mata Pelajaran</p>
           <div class="h-14"></div>
-          <p id="p-ttd-guru" class="font-bold underline">Ahmad Fauzi, S.Pd.I</p>
-          <p class="text-slate-500">NIP. 19870415 201101 1 003</p>
+          <p id="p-ttd-guru" class="font-bold underline">Agus Gunawan, M.Pd.</p>
+          <p id="p-guru-nip" class="text-slate-500">NIP. 19870415 201101 1 003</p>
         </div>
       </div>
     </div>
@@ -599,146 +738,174 @@
 
   <!-- ================= SCRIPT LOGIKA UTAMA ================= -->
   <script>
+    // State Pengguna
     let userProfile = {
       isLoggedIn: false,
       email: "guru@kemenag.go.id",
-      namaGuru: "Ahmad Fauzi, S.Pd.I",
-      namaMadrasah: "MTs Negeri 1 Kota",
+      password: "password123",
+      namaGuru: "Agus Gunawan, M.Pd.",
+      nipGuru: "19870415 201101 1 003",
+      namaMadrasah: "MTs Negeri Kota Cimahi",
+      namaKamad: "Drs. H. Muhammad Ilyas, M.Ag",
+      nipKamad: "19730812 199903 1 002",
       tahunPelajaran: "2026/2027",
-      mapel: "Bahasa Arab",
-      kkm: 75,
-      jmlSoal: 10
+      jenjang: "MTs", // MI, MTs, MA
+      mapel: "Bahasa Arab"
     };
 
-    let dataSiswa = [
-      { nama: "AEESHA KIREY UFAIRAH", nilai: 91 },
-      { nama: "AJENG FITRI AZIZIYAH", nilai: 79 },
-      { nama: "ALIIFAH NADYA SHAFWAH", nilai: 81 },
-      { nama: "AMANDA KHAIRA ASYIFA", nilai: 54 },
-      { nama: "ANDIKA JAJULI PUTRA", nilai: 65 },
-      { nama: "ANNISA FITRIANI", nilai: 96 },
-      { nama: "ARDIANSAH RIZKI SAPUTRA", nilai: 52 },
-      { nama: "AZZAHRA DZIKRA PAWITRA", nilai: 97 },
-      { nama: "DIMAS PRAWIRA NUGRAHA", nilai: 34 },
-      { nama: "ENDRAWAN SEPTIANA", nilai: 56 },
-      { nama: "GINANITA ABIYYAH ABDULLAH", nilai: 62 },
-      { nama: "HANNA HALISA", nilai: 79 },
-      { nama: "HASNA FADIYAH NAJLA", nilai: 91 },
-      { nama: "KEYRA KHANSA SYAFIQA", nilai: 35 },
-      { nama: "KHAIRI ZIDNI RAYTAMA", nilai: 69 },
-      { nama: "KHANSAA KANAYA RAMADHANI", nilai: 85 },
-      { nama: "KHANZA NATHANIA YUSUF", nilai: 62 },
-      { nama: "MUHAMMAD ALIF DERMAWAN", nilai: 58 },
-      { nama: "MUHAMMAD KAHFI", nilai: 89 },
-      { nama: "MUHAMMAD YASBII NURHADI", nilai: 63 },
-      { nama: "MUHAMMAD ZAIDAN FITRA", nilai: 60 },
-      { nama: "NABILAH ZAHFA NOVANIA", nilai: 68 },
-      { nama: "NAJWA KHAIRUN NISA", nilai: 69 },
-      { nama: "NAYLA CLARISSA NASHWA", nilai: 85 },
-      { nama: "SATRIA DAVA PUTRA KINARA", nilai: 55 },
-      { nama: "SILVIA RANAA SAAHIRAH", nilai: 88 },
-      { nama: "SITI FATHINAH PERMADI", nilai: 88 },
-      { nama: "SYAFIRA NAYLA ASYARI", nilai: 71 },
-      { nama: "TIARA SALIMA", nilai: 0 },
-      { nama: "VENNITA RAHMA ANDARI", nilai: 50 },
-      { nama: "YUNISYA HUMAYRA", nilai: 69 },
-      { nama: "ZAHRA ASHIDQIA HASIBUAN", nilai: 48 }
-    ];
+    // Database Multi-Kelas per Jenjang
+    let databaseKelas = {
+      "MTs": [
+        {
+          nama: "VII A",
+          kkm: 75,
+          jmlSoal: 10,
+          siswa: [
+            { nama: "AEESHA KIREY UFAIRAH", nilai: 91 },
+            { nama: "AJENG FITRI AZIZIYAH", nilai: 79 },
+            { nama: "ALIIFAH NADYA SHAFWAH", nilai: 81 },
+            { nama: "AMANDA KHAIRA ASYIFA", nilai: 54 },
+            { nama: "ANDIKA JAJULI PUTRA", nilai: 65 },
+            { nama: "ANNISA FITRIANI", nilai: 96 },
+            { nama: "ARDIANSAH RIZKI SAPUTRA", nilai: 52 },
+            { nama: "AZZAHRA DZIKRA PAWITRA", nilai: 97 },
+            { nama: "DIMAS PRAWIRA NUGRAHA", nilai: 34 },
+            { nama: "ENDRAWAN SEPTIANA", nilai: 56 },
+            { nama: "GINANITA ABIYYAH ABDULLAH", nilai: 62 },
+            { nama: "HANNA HALISA", nilai: 79 },
+            { nama: "HASNA FADIYAH NAJLA", nilai: 91 },
+            { nama: "KEYRA KHANSA SYAFIQA", nilai: 35 },
+            { nama: "KHAIRI ZIDNI RAYTAMA", nilai: 69 },
+            { nama: "KHANSAA KANAYA RAMADHANI", nilai: 85 },
+            { nama: "KHANZA NATHANIA YUSUF", nilai: 62 },
+            { nama: "MUHAMMAD ALIF DERMAWAN", nilai: 58 },
+            { nama: "MUHAMMAD KAHFI", nilai: 89 },
+            { nama: "MUHAMMAD YASBII NURHADI", nilai: 63 },
+            { nama: "MUHAMMAD ZAIDAN FITRA", nilai: 60 },
+            { nama: "NABILAH ZAHFA NOVANIA", nilai: 68 },
+            { nama: "NAJWA KHAIRUN NISA", nilai: 69 },
+            { nama: "NAYLA CLARISSA NASHWA", nilai: 85 },
+            { nama: "SATRIA DAVA PUTRA KINARA", nilai: 55 },
+            { nama: "SILVIA RANAA SAAHIRAH", nilai: 88 },
+            { nama: "SITI FATHINAH PERMADI", nilai: 88 },
+            { nama: "SYAFIRA NAYLA ASYARI", nilai: 71 },
+            { nama: "TIARA SALIMA", nilai: 0 },
+            { nama: "VENNITA RAHMA ANDARI", nilai: 50 },
+            { nama: "YUNISYA HUMAYRA", nilai: 69 },
+            { nama: "ZAHRA ASHIDQIA HASIBUAN", nilai: 48 }
+          ]
+        },
+        {
+          nama: "VII B",
+          kkm: 75,
+          jmlSoal: 10,
+          siswa: [
+            { nama: "ADAM MALIK", nilai: 82 },
+            { nama: "AISYAH PUTRI", nilai: 88 },
+            { nama: "BAGAS PRATAMA", nilai: 74 },
+            { nama: "DINI AMALIA", nilai: 90 },
+            { nama: "FAJAR SHODIQ", nilai: 65 }
+          ]
+        },
+        {
+          nama: "VIII A",
+          kkm: 78,
+          jmlSoal: 10,
+          siswa: [
+            { nama: "FARHAN MAULANA", nilai: 85 },
+            { nama: "HIDAYATULLAH", nilai: 80 },
+            { nama: "LUTHFI ZAKARIA", nilai: 78 },
+            { nama: "SALMA NABILA", nilai: 92 }
+          ]
+        }
+      ],
+      "MI": [
+        {
+          nama: "Kelas 4 A",
+          kkm: 70,
+          jmlSoal: 10,
+          siswa: [
+            { nama: "ALI BIN ABI THALIB", nilai: 85 },
+            { nama: "HASAN BASRI", nilai: 75 },
+            { nama: "MARYAM AZZAHRA", nilai: 90 }
+          ]
+        },
+        {
+          nama: "Kelas 6 B",
+          kkm: 75,
+          jmlSoal: 10,
+          siswa: [
+            { nama: "BILAL BIN RABAH", nilai: 88 },
+            { nama: "HAMZAH ASADULLAH", nilai: 95 }
+          ]
+        }
+      ],
+      "MA": [
+        {
+          nama: "X Agama",
+          kkm: 78,
+          jmlSoal: 10,
+          siswa: [
+            { nama: "ABDULLAH IBNU MAS'UD", nilai: 92 },
+            { nama: "ZAID BIN TSABIT", nilai: 95 },
+            { nama: "MU'ADZ BIN JABAL", nilai: 88 }
+          ]
+        },
+        {
+          nama: "XI IPA 1",
+          kkm: 75,
+          jmlSoal: 10,
+          siswa: [
+            { nama: "IBNU SINA", nilai: 98 },
+            { nama: "AL-KHAWARIZMI", nilai: 96 }
+          ]
+        }
+      ]
+    };
 
-    let authMode = 'signup';
+    let kelasAktifIndex = 0;
+    let authMode = 'signin';
     let filterAktif = 'semua';
     let sortAsc = false;
     let currentCaptcha = "";
 
-    // Charts
+    // Chart instances
     let chartDonutKetuntasan = null;
     let chartBarDistribusi = null;
     let chartBarKesukaran = null;
     let chartPieKelayakan = null;
 
     window.addEventListener('DOMContentLoaded', () => {
+      muatDataTersimpan();
       cekStatusLogin();
       generateCaptcha();
+      inisialisasiKelasUI();
       renderSemua();
     });
 
-    // --- FITUR SHOW / HIDE PASSWORD (MATA) ---
-    function togglePasswordVisibility() {
-      const pwdInput = document.getElementById('authPassword');
-      const eyeIcon = document.getElementById('eyeIcon');
-      
-      if (pwdInput.type === 'password') {
-        pwdInput.type = 'text';
-        // Ikon Mata Terbuka (Active)
-        eyeIcon.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-brand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
-          </svg>
-        `;
-      } else {
-        pwdInput.type = 'password';
-        // Ikon Mata Standar
-        eyeIcon.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-        `;
-      }
-    }
-
-    // --- FITUR GENERATE CAPTCHA CANVAS ---
-    function generateCaptcha() {
-      const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"; // Menghindari karakter mirip (0, O, 1, I)
-      let code = "";
-      for (let i = 0; i < 5; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      currentCaptcha = code;
-
-      const canvas = document.getElementById('captchaCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Background
-      ctx.fillStyle = "#f1f5f9";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Garis Noise
-      for (let i = 0; i < 4; i++) {
-        ctx.strokeStyle = ['#cbd5e1', '#94a3b8', '#a7f3d0', '#fbcfe8'][i % 4];
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
-        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
-        ctx.stroke();
-      }
-
-      // Teks Captcha
-      ctx.font = "bold 20px 'Courier New', monospace";
-      ctx.fillStyle = "#064e3b";
-      for (let i = 0; i < code.length; i++) {
-        ctx.save();
-        ctx.translate(16 + i * 22, 27);
-        ctx.rotate((Math.random() - 0.5) * 0.35);
-        ctx.fillText(code[i], 0, 0);
-        ctx.restore();
-      }
-    }
-
-    // --- CEK STATUS LOGIN ---
-    function cekStatusLogin() {
+    // --- LOCAL STORAGE DATA SYNC ---
+    function muatDataTersimpan() {
       const savedUser = localStorage.getItem('madrasah_analisis_user');
       if (savedUser) {
-        try {
-          userProfile = JSON.parse(savedUser);
-          applyUserProfile();
-        } catch (e) {
-          showAuthModal('signup');
-        }
+        try { userProfile = { ...userProfile, ...JSON.parse(savedUser) }; } catch (e) {}
+      }
+      const savedDb = localStorage.getItem('madrasah_database_kelas');
+      if (savedDb) {
+        try { databaseKelas = JSON.parse(savedDb); } catch (e) {}
+      }
+    }
+
+    function simpanDatabaseKeStorage() {
+      localStorage.setItem('madrasah_database_kelas', JSON.stringify(databaseKelas));
+      localStorage.setItem('madrasah_analisis_user', JSON.stringify(userProfile));
+    }
+
+    // --- CEK LOGIN & DROPDOWN ---
+    function cekStatusLogin() {
+      if (!userProfile.isLoggedIn) {
+        showAuthModal('signin');
       } else {
-        showAuthModal('signup');
+        applyUserProfile();
       }
     }
 
@@ -752,8 +919,8 @@
 
     function toggleAuthMode(mode) {
       authMode = mode;
-      const tabSignUp = document.getElementById('tabBtnSignUp');
       const tabSignIn = document.getElementById('tabBtnSignIn');
+      const tabSignUp = document.getElementById('tabBtnSignUp');
       const signUpFields = document.getElementById('signUpFields');
       const btnSubmit = document.getElementById('btnSubmitAuth');
       const title = document.getElementById('authModalTitle');
@@ -764,48 +931,143 @@
         tabSignIn.className = "flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition font-medium";
         signUpFields.classList.remove('hidden');
         btnSubmit.textContent = "Daftar & Masuk ke Aplikasi";
-        title.textContent = "Selamat Datang di Portal Madrasah";
-        subtitle.textContent = "Silakan daftarkan akun pendidik & madrasah Anda";
+        title.textContent = "Daftar Akun Pendidik";
+        subtitle.textContent = "Lengkapi identitas guru dan satuan pendidikan";
       } else {
         tabSignIn.className = "flex-1 py-3 border-b-2 border-brand-700 text-brand-800 transition font-bold";
         tabSignUp.className = "flex-1 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition font-medium";
         signUpFields.classList.add('hidden');
         btnSubmit.textContent = "Masuk (Sign In)";
-        title.textContent = "Masuk ke Akun Anda";
-        subtitle.textContent = "Gunakan email & password yang telah didaftarkan";
+        title.textContent = "Portal Penilaian Madrasah";
+        subtitle.textContent = "Gunakan email & password untuk melanjutkan";
       }
       generateCaptcha();
     }
 
     function handleAuthSubmit(e) {
       e.preventDefault();
-
-      // Validasi Captcha
       const inputCaptcha = document.getElementById('authCaptchaInput').value.trim().toUpperCase();
       if (inputCaptcha !== currentCaptcha) {
-        alert('Kode Captcha salah! Silakan periksa kembali karakter kode.');
+        alert('Kode Captcha salah! Silakan coba lagi.');
         generateCaptcha();
         document.getElementById('authCaptchaInput').value = '';
-        document.getElementById('authCaptchaInput').focus();
         return;
       }
 
       const email = document.getElementById('authEmail').value.trim();
+      const pass = document.getElementById('authPassword').value;
 
       if (authMode === 'signup') {
         userProfile.email = email;
+        userProfile.password = pass;
         userProfile.namaGuru = document.getElementById('authNamaGuru').value.trim() || userProfile.namaGuru;
         userProfile.namaMadrasah = document.getElementById('authNamaMadrasah').value.trim() || userProfile.namaMadrasah;
+        userProfile.jenjang = document.getElementById('authJenjang').value || userProfile.jenjang;
         userProfile.mapel = document.getElementById('authMapel').value.trim() || userProfile.mapel;
-        userProfile.tahunPelajaran = document.getElementById('authTahunPelajaran').value.trim() || userProfile.tahunPelajaran;
+      } else {
+        // Sign In verification
+        if (userProfile.email && email !== userProfile.email) {
+          // Bolehkan sign in jika pengguna baru memasukkan email
+          userProfile.email = email;
+        }
+        if (pass !== userProfile.password && userProfile.password) {
+          alert('Password yang Anda masukkan salah!');
+          return;
+        }
       }
 
       userProfile.isLoggedIn = true;
-      localStorage.setItem('madrasah_analisis_user', JSON.stringify(userProfile));
-
+      simpanDatabaseKeStorage();
       applyUserProfile();
       document.getElementById('authModal').classList.add('hidden');
-      alert(`Verifikasi berhasil! Selamat datang, ${userProfile.namaGuru}.`);
+      alert(`Selamat datang kembali, ${userProfile.namaGuru}!`);
+    }
+
+    function toggleUserDropdown() {
+      const dd = document.getElementById('userDropdown');
+      dd.classList.toggle('hidden');
+    }
+
+    // Tutup dropdown jika klik di luar
+    window.addEventListener('click', (e) => {
+      if (!e.target.closest('#userDropdown') && !e.target.closest('button[onclick="toggleUserDropdown()"]')) {
+        document.getElementById('userDropdown')?.classList.add('hidden');
+      }
+    });
+
+    function handleSignOut() {
+      if (confirm('Apakah Anda yakin ingin keluar (Sign Out)?')) {
+        userProfile.isLoggedIn = false;
+        simpanDatabaseKeStorage();
+        document.getElementById('userDropdown').classList.add('hidden');
+        showAuthModal('signin');
+      }
+    }
+
+    function bukaModalPassword() {
+      document.getElementById('userDropdown').classList.add('hidden');
+      document.getElementById('oldPassword').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmNewPassword').value = '';
+      document.getElementById('modalGantiPassword').classList.remove('hidden');
+    }
+
+    function tutupModalPassword() {
+      document.getElementById('modalGantiPassword').classList.add('hidden');
+    }
+
+    function handleGantiPassword(e) {
+      e.preventDefault();
+      const oldP = document.getElementById('oldPassword').value;
+      const newP = document.getElementById('newPassword').value;
+      const confP = document.getElementById('confirmNewPassword').value;
+
+      if (oldP !== userProfile.password) {
+        alert('Password saat ini salah!');
+        return;
+      }
+      if (newP !== confP) {
+        alert('Konfirmasi password baru tidak cocok!');
+        return;
+      }
+
+      userProfile.password = newP;
+      simpanDatabaseKeStorage();
+      alert('Password berhasil diperbarui!');
+      tutupModalPassword();
+    }
+
+    function bukaModalProfil() {
+      document.getElementById('userDropdown').classList.add('hidden');
+      document.getElementById('editNamaGuru').value = userProfile.namaGuru;
+      document.getElementById('editNipGuru').value = userProfile.nipGuru;
+      document.getElementById('editNamaMadrasah').value = userProfile.namaMadrasah;
+      document.getElementById('editNamaKamad').value = userProfile.namaKamad;
+      document.getElementById('editNipKamad').value = userProfile.nipKamad;
+      document.getElementById('editMapel').value = userProfile.mapel;
+      document.getElementById('editTahunPelajaran').value = userProfile.tahunPelajaran;
+      document.getElementById('modalEditProfil').classList.remove('hidden');
+    }
+
+    function tutupModalProfil() {
+      document.getElementById('modalEditProfil').classList.add('hidden');
+    }
+
+    function handleSimpanProfil(e) {
+      e.preventDefault();
+      userProfile.namaGuru = document.getElementById('editNamaGuru').value.trim();
+      userProfile.nipGuru = document.getElementById('editNipGuru').value.trim();
+      userProfile.namaMadrasah = document.getElementById('editNamaMadrasah').value.trim();
+      userProfile.namaKamad = document.getElementById('editNamaKamad').value.trim();
+      userProfile.nipKamad = document.getElementById('editNipKamad').value.trim();
+      userProfile.mapel = document.getElementById('editMapel').value.trim();
+      userProfile.tahunPelajaran = document.getElementById('editTahunPelajaran').value.trim();
+
+      simpanDatabaseKeStorage();
+      applyUserProfile();
+      renderSemua();
+      tutupModalProfil();
+      alert('Profil berhasil diperbarui!');
     }
 
     function applyUserProfile() {
@@ -813,27 +1075,104 @@
       document.getElementById('nav-madrasah').textContent = userProfile.namaMadrasah;
       document.getElementById('nav-mapel-tp').textContent = `${userProfile.mapel} • ${userProfile.tahunPelajaran}`;
 
+      document.getElementById('dd-nama-guru').textContent = userProfile.namaGuru;
+      document.getElementById('dd-email').textContent = userProfile.email;
+
       document.getElementById('banner-guru').textContent = userProfile.namaGuru;
       document.getElementById('banner-madrasah').textContent = userProfile.namaMadrasah;
       document.getElementById('banner-mapel').textContent = userProfile.mapel;
       document.getElementById('banner-tp').textContent = userProfile.tahunPelajaran;
+      document.getElementById('banner-jenjang').textContent = userProfile.jenjang === 'MI' ? 'MI / SD' : userProfile.jenjang === 'MA' ? 'MA / SMA / SMK' : 'MTs / SMP';
 
       document.getElementById('p-sekolah').textContent = userProfile.namaMadrasah;
       document.getElementById('p-mapel').textContent = userProfile.mapel;
       document.getElementById('p-tp').textContent = userProfile.tahunPelajaran;
       document.getElementById('p-guru').textContent = userProfile.namaGuru;
       document.getElementById('p-ttd-guru').textContent = userProfile.namaGuru;
+      document.getElementById('p-guru-nip').textContent = "NIP. " + userProfile.nipGuru;
+      document.getElementById('p-kamad').textContent = userProfile.namaKamad;
+      document.getElementById('p-kamad-nip').textContent = "NIP. " + userProfile.nipKamad;
     }
 
-    function openProfileModal() {
-      document.getElementById('authEmail').value = userProfile.email;
-      document.getElementById('authNamaGuru').value = userProfile.namaGuru;
-      document.getElementById('authNamaMadrasah').value = userProfile.namaMadrasah;
-      document.getElementById('authMapel').value = userProfile.mapel;
-      document.getElementById('authTahunPelajaran').value = userProfile.tahunPelajaran;
-      showAuthModal('signup');
-      document.getElementById('authModalTitle').textContent = "Ubah Profil Pendidik & Madrasah";
-      document.getElementById('btnSubmitAuth').textContent = "Simpan Perubahan";
+    // --- MANAJEMEN MULTI-JENJANG & MULTI-KELAS ---
+    function inisialisasiKelasUI() {
+      document.getElementById('pilihJenjang').value = userProfile.jenjang;
+      renderDropdownKelas();
+    }
+
+    function gantiJenjang(jenjangBaru) {
+      userProfile.jenjang = jenjangBaru;
+      kelasAktifIndex = 0;
+      simpanDatabaseKeStorage();
+      renderDropdownKelas();
+      applyUserProfile();
+      renderSemua();
+    }
+
+    function renderDropdownKelas() {
+      const listKelas = databaseKelas[userProfile.jenjang] || [];
+      const select = document.getElementById('selectKelasAktif');
+      select.innerHTML = '';
+
+      if (listKelas.length === 0) {
+        select.innerHTML = '<option value="0">Belum ada kelas</option>';
+        return;
+      }
+
+      listKelas.forEach((k, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `${k.nama} (${k.siswa.length} Siswa)`;
+        if (idx === kelasAktifIndex) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      const current = listKelas[kelasAktifIndex] || listKelas[0];
+      if (current) {
+        document.getElementById('inputKKMKelas').value = current.kkm;
+        document.getElementById('info-count-siswa').textContent = current.siswa.length;
+        document.querySelectorAll('.lbl-kelas-aktif').forEach(el => el.textContent = current.nama);
+        document.getElementById('banner-kelas-aktif').textContent = current.nama;
+        document.getElementById('p-kelas').textContent = current.nama;
+      }
+    }
+
+    function pilihKelas(idx) {
+      kelasAktifIndex = parseInt(idx);
+      renderDropdownKelas();
+      renderSemua();
+    }
+
+    function ubahKKMKelas(val) {
+      const listKelas = databaseKelas[userProfile.jenjang] || [];
+      if (listKelas[kelasAktifIndex]) {
+        listKelas[kelasAktifIndex].kkm = parseFloat(val) || 75;
+        simpanDatabaseKeStorage();
+        renderSemua();
+      }
+    }
+
+    function tambahKelasBaru() {
+      const nama = prompt(`Masukkan Nama Rombel/Kelas Baru (${userProfile.jenjang}):`, userProfile.jenjang === 'MI' ? 'Kelas 5 A' : userProfile.jenjang === 'MA' ? 'XI IPA 2' : 'VII C');
+      if (nama && nama.trim()) {
+        const kkmDefault = parseFloat(prompt('Masukkan Nilai KKM untuk kelas ini:', '75')) || 75;
+        databaseKelas[userProfile.jenjang].push({
+          nama: nama.trim(),
+          kkm: kkmDefault,
+          jmlSoal: 10,
+          siswa: []
+        });
+        kelasAktifIndex = databaseKelas[userProfile.jenjang].length - 1;
+        simpanDatabaseKeStorage();
+        renderDropdownKelas();
+        renderSemua();
+        alert(`Kelas ${nama} berhasil ditambahkan! Silakan upload Excel atau tambah nilai.`);
+      }
+    }
+
+    function getKelasAktif() {
+      const list = databaseKelas[userProfile.jenjang] || [];
+      return list[kelasAktifIndex] || { nama: "Kelas", kkm: 75, jmlSoal: 10, siswa: [] };
     }
 
     // --- TAB SWITCHER ---
@@ -857,7 +1196,53 @@
       }
     }
 
-    // --- FITUR IMPORT EXCEL ANTI-TERTUKAR ---
+    // --- FITUR SHOW / HIDE PASSWORD ---
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-brand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>`;
+      } else {
+        input.type = 'password';
+        icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
+      }
+    }
+
+    // --- CAPTCHA GENERATOR ---
+    function generateCaptcha() {
+      const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+      let code = "";
+      for (let i = 0; i < 5; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+      currentCaptcha = code;
+
+      const canvas = document.getElementById('captchaCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#f1f5f9";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < 4; i++) {
+        ctx.strokeStyle = ['#cbd5e1', '#94a3b8', '#a7f3d0', '#fbcfe8'][i % 4];
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.stroke();
+      }
+
+      ctx.font = "bold 20px 'Courier New', monospace";
+      ctx.fillStyle = "#064e3b";
+      for (let i = 0; i < code.length; i++) {
+        ctx.save();
+        ctx.translate(16 + i * 22, 27);
+        ctx.rotate((Math.random() - 0.5) * 0.35);
+        ctx.fillText(code[i], 0, 0);
+        ctx.restore();
+      }
+    }
+
+    // --- IMPORT EXCEL KE KELAS AKTIF ---
     function handleExcelUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -875,10 +1260,7 @@
             return;
           }
 
-          let colNama = -1;
-          let colNilai = -1;
-          let headerIdx = -1;
-
+          let colNama = -1, colNilai = -1, headerIdx = -1;
           for (let r = 0; r < Math.min(10, rows.length); r++) {
             const row = rows[r];
             if (!row) continue;
@@ -887,17 +1269,10 @@
               if (val.includes('nama') || val.includes('siswa')) colNama = c;
               if (val.includes('nilai') || val.includes('skor') || val.includes('score')) colNilai = c;
             }
-            if (colNama !== -1 && colNilai !== -1) {
-              headerIdx = r;
-              break;
-            }
+            if (colNama !== -1 && colNilai !== -1) { headerIdx = r; break; }
           }
 
-          if (colNama === -1 || colNilai === -1) {
-            colNama = 1;
-            colNilai = 2;
-            headerIdx = 0;
-          }
+          if (colNama === -1 || colNilai === -1) { colNama = 1; colNilai = 2; headerIdx = 0; }
 
           let parsed = [];
           for (let r = headerIdx + 1; r < rows.length; r++) {
@@ -912,9 +1287,12 @@
           }
 
           if (parsed.length > 0) {
-            dataSiswa = parsed;
+            const kAktif = getKelasAktif();
+            kAktif.siswa = parsed;
+            simpanDatabaseKeStorage();
+            renderDropdownKelas();
             renderSemua();
-            alert(`Berhasil mengimpor ${parsed.length} siswa secara akurat!`);
+            alert(`Berhasil mengimpor ${parsed.length} siswa ke ${kAktif.nama}!`);
             switchTab('siswa');
           } else {
             alert('Kolom nama siswa dan nilai tidak ditemukan.');
@@ -927,23 +1305,55 @@
       event.target.value = '';
     }
 
-    // --- RENDER SEMUA PERHITUNGAN & STATISTIK ---
+    // --- HITUNG PREDIKAT STANDAR KEMENAG ---
+    function hitungPredikat(nilai, kkm) {
+      const interval = (100 - kkm) / 3;
+      const batasB = kkm + interval;
+      const batasA = kkm + (2 * interval);
+
+      if (nilai >= batasA) return { predikat: "A", label: "Sangat Baik", warna: "bg-emerald-100 text-emerald-800" };
+      if (nilai >= batasB) return { predikat: "B", label: "Baik", warna: "bg-blue-100 text-blue-800" };
+      if (nilai >= kkm) return { predikat: "C", label: "Cukup", warna: "bg-amber-100 text-amber-800" };
+      return { predikat: "D", label: "Perlu Bimbingan", warna: "bg-rose-100 text-rose-800" };
+    }
+
+    // --- RENDER SEMUA MODUL ---
     function renderSemua() {
+      const kAktif = getKelasAktif();
+      const kkm = kAktif.kkm;
+      const dataSiswa = kAktif.siswa;
+
+      document.querySelectorAll('.lbl-kkm').forEach(el => el.textContent = kkm);
+      document.getElementById('p-kkm').textContent = kkm;
+      document.getElementById('pedoman-kkm-val').textContent = kkm;
+
+      // Hitung Ranking
       dataSiswa.sort((a, b) => b.nilai - a.nilai);
       dataSiswa.forEach((s, idx) => s.rank = idx + 1);
 
       const total = dataSiswa.length;
       document.getElementById('badge-total-siswa').textContent = total;
       document.getElementById('stat-total-siswa').textContent = total;
+      document.getElementById('info-count-siswa').textContent = total;
 
-      if (total === 0) return;
+      renderPedomanPredikat(kkm);
+      renderListSemuaKelas();
+
+      if (total === 0) {
+        document.getElementById('stat-avg').textContent = "0";
+        document.getElementById('stat-persen-tuntas').textContent = "0%";
+        document.getElementById('stat-max').textContent = "0";
+        document.getElementById('stat-min').textContent = "0";
+        document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada data siswa di ${kAktif.nama}. Silakan upload Excel.</td></tr>`;
+        return;
+      }
 
       const nilaiArr = dataSiswa.map(s => s.nilai);
       const avg = nilaiArr.reduce((a, b) => a + b, 0) / total;
       const max = Math.max(...nilaiArr);
       const min = Math.min(...nilaiArr);
-      const tuntasArr = dataSiswa.filter(s => s.nilai >= userProfile.kkm);
-      const remedArr = dataSiswa.filter(s => s.nilai < userProfile.kkm);
+      const tuntasArr = dataSiswa.filter(s => s.nilai >= kkm);
+      const remedArr = dataSiswa.filter(s => s.nilai < kkm);
       const tuntasCount = tuntasArr.length;
       const remedCount = remedArr.length;
       const tuntasPersen = ((tuntasCount / total) * 100).toFixed(0);
@@ -963,17 +1373,78 @@
       document.getElementById('stat-stdev').textContent = stdev;
 
       document.getElementById('narasi-kesimpulan').innerHTML = `
-        Berdasarkan hasil analisis evaluasi ulangan pada mata pelajaran <b>${userProfile.mapel}</b> 
-        dengan batas KKM <b>${userProfile.kkm}</b>, diperoleh nilai rata-rata kelas sebesar <b>${avg.toFixed(1)}</b>. 
+        Berdasarkan hasil analisis evaluasi ulangan pada mata pelajaran <b>${userProfile.mapel}</b> kelas <b>${kAktif.nama}</b> 
+        dengan batas KKM <b>${kkm}</b>, diperoleh nilai rata-rata kelas sebesar <b>${avg.toFixed(1)}</b>. 
         Dari total <b>${total}</b> siswa, sebanyak <b>${tuntasCount} siswa (${tuntasPersen}%)</b> dinyatakan <b>Tuntas</b>, 
         sedangkan <b>${remedCount} siswa (${(100 - tuntasPersen).toFixed(0)}%)</b> memerlukan bimbingan <b>Remedial</b>.
       `;
 
       renderTabelSiswa();
       renderButirSoal(total);
-      renderRemedialPengayaan(tuntasArr, remedArr);
-      renderPrintTemplate(total, avg, max, min, tuntasCount, remedCount, tuntasPersen);
-      renderCharts(tuntasCount, remedCount);
+      renderRemedialPengayaan(tuntasArr, remedArr, kkm);
+      renderPrintTemplate(total, avg, max, min, tuntasCount, remedCount, tuntasPersen, kAktif.nama);
+      renderCharts(tuntasCount, remedCount, kkm, dataSiswa);
+    }
+
+    // --- RENDER DAFTAR SELURUH KELAS DI BERANDA ---
+    function renderListSemuaKelas() {
+      const box = document.getElementById('daftar-semua-kelas-box');
+      const list = databaseKelas[userProfile.jenjang] || [];
+
+      box.innerHTML = list.map((k, idx) => {
+        const isSelected = idx === kelasAktifIndex;
+        const total = k.siswa.length;
+        const avg = total > 0 ? (k.siswa.reduce((a, b) => a + b.nilai, 0) / total).toFixed(1) : "0";
+        const tuntas = total > 0 ? k.siswa.filter(s => s.nilai >= k.kkm).length : 0;
+        const persen = total > 0 ? ((tuntas / total) * 100).toFixed(0) : "0";
+
+        return `
+          <div onclick="pilihKelas(${idx})" class="p-3 rounded-2xl border transition cursor-pointer flex justify-between items-center ${isSelected ? 'bg-brand-50 border-brand-300 shadow-sm' : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100'}">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-800 text-xs">${k.nama}</span>
+                ${isSelected ? '<span class="text-[9px] px-2 py-0.5 rounded-full bg-brand-700 text-white font-bold">Sedang Aktif</span>' : ''}
+              </div>
+              <p class="text-[10px] text-slate-500 mt-0.5">KKM: <b>${k.kkm}</b> • Total: <b>${total} Siswa</b></p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-black text-brand-700">Rata-rata: ${avg}</span>
+              <p class="text-[10px] ${persen >= 85 ? 'text-emerald-700' : 'text-amber-700'} font-semibold">Ketuntasan: ${persen}%</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- RENDER PEDOMAN PREDIKAT KEMENAG ---
+    function renderPedomanPredikat(kkm) {
+      const tbody = document.getElementById('tabel-predikat-body');
+      const interval = ((100 - kkm) / 3).toFixed(1);
+      const bB = (kkm + parseFloat(interval)).toFixed(1);
+      const bA = (kkm + (2 * parseFloat(interval))).toFixed(1);
+
+      tbody.innerHTML = `
+        <tr class="hover:bg-slate-50">
+          <td class="p-2 text-center font-bold text-emerald-800"><span class="px-2 py-0.5 rounded bg-emerald-100">A</span></td>
+          <td class="p-2 text-center font-mono font-bold">${bA} s.d 100</td>
+          <td class="p-2 font-medium text-slate-700">Sangat Baik (Melampaui KKM)</td>
+        </tr>
+        <tr class="hover:bg-slate-50">
+          <td class="p-2 text-center font-bold text-blue-800"><span class="px-2 py-0.5 rounded bg-blue-100">B</span></td>
+          <td class="p-2 text-center font-mono font-bold">${bB} s.d &lt; ${bA}</td>
+          <td class="p-2 font-medium text-slate-700">Baik (Memenuhi KKM secara optimal)</td>
+        </tr>
+        <tr class="hover:bg-slate-50">
+          <td class="p-2 text-center font-bold text-amber-800"><span class="px-2 py-0.5 rounded bg-amber-100">C</span></td>
+          <td class="p-2 text-center font-mono font-bold">${kkm} s.d &lt; ${bB}</td>
+          <td class="p-2 font-medium text-slate-700">Cukup (Memenuhi KKM minimum)</td>
+        </tr>
+        <tr class="hover:bg-slate-50">
+          <td class="p-2 text-center font-bold text-rose-800"><span class="px-2 py-0.5 rounded bg-rose-100">D</span></td>
+          <td class="p-2 text-center font-mono font-bold">&lt; ${kkm}</td>
+          <td class="p-2 font-bold text-rose-700">Perlu Bimbingan (Remedial Wajib)</td>
+        </tr>
+      `;
     }
 
     // --- TABEL SISWA ---
@@ -992,34 +1463,40 @@
 
     function toggleSortNilai() {
       sortAsc = !sortAsc;
-      dataSiswa.sort((a, b) => sortAsc ? a.nilai - b.nilai : b.nilai - a.nilai);
+      const kAktif = getKelasAktif();
+      kAktif.siswa.sort((a, b) => sortAsc ? a.nilai - b.nilai : b.nilai - a.nilai);
       renderTabelSiswa();
     }
 
     function renderTabelSiswa() {
+      const kAktif = getKelasAktif();
       const keyword = (document.getElementById('searchSiswa')?.value || '').toLowerCase();
       const tbody = document.getElementById('tbody-siswa');
 
-      let filtered = dataSiswa.filter(s => {
+      let filtered = kAktif.siswa.filter(s => {
         const matchNama = s.nama.toLowerCase().includes(keyword);
-        if (filterAktif === 'tuntas') return matchNama && s.nilai >= userProfile.kkm;
-        if (filterAktif === 'remedial') return matchNama && s.nilai < userProfile.kkm;
+        if (filterAktif === 'tuntas') return matchNama && s.nilai >= kAktif.kkm;
+        if (filterAktif === 'remedial') return matchNama && s.nilai < kAktif.kkm;
         return matchNama;
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Tidak ada data siswa.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Tidak ada data siswa.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = filtered.map((s, idx) => {
-        const isTuntas = s.nilai >= userProfile.kkm;
+        const isTuntas = s.nilai >= kAktif.kkm;
+        const pred = hitungPredikat(s.nilai, kAktif.kkm);
         return `
           <tr class="hover:bg-slate-50 transition border-b border-slate-100">
             <td class="p-3.5 text-center font-extrabold text-slate-400">#${s.rank}</td>
             <td class="p-3.5 text-center text-slate-500">${idx + 1}</td>
             <td class="p-3.5 font-semibold text-slate-800">${s.nama}</td>
             <td class="p-3.5 text-center font-black text-sm ${isTuntas ? 'text-emerald-700' : 'text-rose-600'}">${s.nilai}</td>
+            <td class="p-3.5 text-center">
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold ${pred.warna}">${pred.predikat}</span>
+            </td>
             <td class="p-3.5 text-center">
               <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wide ${isTuntas ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
                 ${isTuntas ? 'TUNTAS' : 'REMEDIAL'}
@@ -1037,42 +1514,38 @@
     }
 
     function hapusSatuSiswa(nama) {
-      dataSiswa = dataSiswa.filter(s => s.nama !== nama);
+      const kAktif = getKelasAktif();
+      kAktif.siswa = kAktif.siswa.filter(s => s.nama !== nama);
+      simpanDatabaseKeStorage();
       renderSemua();
     }
 
     // --- BUTIR SOAL ---
     function renderButirSoal(total) {
+      const kAktif = getKelasAktif();
       const tbody = document.getElementById('tbody-butir');
       let html = '';
       let baikCount = 0, revisiCount = 0, buangCount = 0;
       let kesukaranData = [];
 
-      for (let i = 1; i <= userProfile.jmlSoal; i++) {
+      for (let i = 1; i <= kAktif.jmlSoal; i++) {
         const seed = (i * 11) % 9;
         const benar = Math.max(2, Math.min(total, Math.round(total * (0.42 + (seed * 0.06)))));
-        const p = parseFloat((benar / total).toFixed(2));
+        const p = parseFloat((benar / (total || 1)).toFixed(2));
         kesukaranData.push(p);
 
-        let katP = "Sedang";
-        let colorP = "text-blue-700 bg-blue-50";
+        let katP = "Sedang", colorP = "text-blue-700 bg-blue-50";
         if (p > 0.70) { katP = "Mudah"; colorP = "text-emerald-700 bg-emerald-50"; }
         else if (p < 0.30) { katP = "Sukar"; colorP = "text-rose-700 bg-rose-50"; }
 
         const dp = parseFloat((0.18 + (seed * 0.04)).toFixed(2));
-        let katDP = "Cukup";
-        let status = "Direvisi";
-        let colorStatus = "text-amber-800 bg-amber-100";
+        let katDP = "Cukup", status = "Direvisi", colorStatus = "text-amber-800 bg-amber-100";
 
         if (dp >= 0.40) {
-          katDP = "Baik";
-          status = "Diterima (Baik)";
-          colorStatus = "text-emerald-800 bg-emerald-100";
+          katDP = "Baik"; status = "Diterima (Baik)"; colorStatus = "text-emerald-800 bg-emerald-100";
           baikCount++;
         } else if (dp < 0.20) {
-          katDP = "Jelek";
-          status = "Dibuang";
-          colorStatus = "text-rose-800 bg-rose-100";
+          katDP = "Jelek"; status = "Dibuang"; colorStatus = "text-rose-800 bg-rose-100";
           buangCount++;
         } else {
           revisiCount++;
@@ -1100,7 +1573,7 @@
     }
 
     // --- REMEDIAL & PENGAYAAN ---
-    function renderRemedialPengayaan(tuntasArr, remedArr) {
+    function renderRemedialPengayaan(tuntasArr, remedArr, kkm) {
       document.getElementById('badge-total-remed').textContent = remedArr.length + " Siswa";
       document.getElementById('badge-total-pengayaan').textContent = tuntasArr.length + " Siswa";
 
@@ -1109,7 +1582,7 @@
         <div class="p-3 rounded-xl border border-rose-100 bg-rose-50/40 flex justify-between items-center text-xs">
           <div>
             <p class="font-bold text-slate-800">${idx + 1}. ${s.nama}</p>
-            <p class="text-[10px] text-slate-500">Nilai: <b class="text-rose-600">${s.nilai}</b> (Kurang ${(userProfile.kkm - s.nilai).toFixed(0)} poin)</p>
+            <p class="text-[10px] text-slate-500">Nilai: <b class="text-rose-600">${s.nilai}</b> (Kurang ${(kkm - s.nilai).toFixed(0)} poin)</p>
           </div>
           <span class="text-[10px] font-bold text-rose-700 bg-rose-100 px-2 py-1 rounded-md">Bimbingan Khusus</span>
         </div>
@@ -1128,7 +1601,8 @@
     }
 
     // --- CETAK A4 ---
-    function renderPrintTemplate(total, avg, max, min, tuntas, remed, persen) {
+    function renderPrintTemplate(total, avg, max, min, tuntas, remed, persen, namaKelas) {
+      document.getElementById('p-kelas').textContent = namaKelas;
       document.getElementById('p-stat-total').textContent = total;
       document.getElementById('p-stat-avg').textContent = avg.toFixed(1);
       document.getElementById('p-stat-max').textContent = max;
@@ -1138,24 +1612,29 @@
       document.getElementById('p-stat-persen').textContent = persen + "%";
 
       const now = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-      document.getElementById('p-tgl-cetak').textContent = "Jakarta, " + now;
+      document.getElementById('p-tgl-cetak').textContent = "Cimahi, " + now;
 
-      document.getElementById('p-tbody-siswa').innerHTML = dataSiswa.map((s, idx) => `
-        <tr class="border-b border-slate-300">
-          <td class="text-center font-bold">#${s.rank}</td>
-          <td class="text-center">${idx + 1}</td>
-          <td class="font-semibold">${s.nama}</td>
-          <td class="text-center font-bold">${s.nilai}</td>
-          <td class="text-center font-bold ${s.nilai >= userProfile.kkm ? 'text-emerald-800' : 'text-rose-800'}">
-            ${s.nilai >= userProfile.kkm ? 'TUNTAS' : 'REMEDIAL'}
-          </td>
-          <td class="text-center">${s.nilai >= userProfile.kkm ? 'Pengayaan' : 'Remedial Wajib'}</td>
-        </tr>
-      `).join('');
+      const kAktif = getKelasAktif();
+      document.getElementById('p-tbody-siswa').innerHTML = kAktif.siswa.map((s, idx) => {
+        const pred = hitungPredikat(s.nilai, kAktif.kkm);
+        return `
+          <tr class="border-b border-slate-300">
+            <td class="text-center font-bold">#${s.rank}</td>
+            <td class="text-center">${idx + 1}</td>
+            <td class="font-semibold">${s.nama}</td>
+            <td class="text-center font-bold">${s.nilai}</td>
+            <td class="text-center font-bold">${pred.predikat}</td>
+            <td class="text-center font-bold ${s.nilai >= kAktif.kkm ? 'text-emerald-800' : 'text-rose-800'}">
+              ${s.nilai >= kAktif.kkm ? 'TUNTAS' : 'REMEDIAL'}
+            </td>
+            <td class="text-center">${s.nilai >= kAktif.kkm ? 'Pengayaan' : 'Remedial Wajib'}</td>
+          </tr>
+        `;
+      }).join('');
     }
 
-    // --- CHART.JS ---
-    function renderCharts(tuntas = 0, remed = 0) {
+    // --- GRAFIK CHART.JS ---
+    function renderCharts(tuntas = 0, remed = 0, kkm = 75, dataSiswa = []) {
       const ctxDonut = document.getElementById('chartKetuntasanDonut')?.getContext('2d');
       if (ctxDonut) {
         if (chartDonutKetuntasan) chartDonutKetuntasan.destroy();
@@ -1182,15 +1661,15 @@
       const ctxBar = document.getElementById('chartDistribusiBar')?.getContext('2d');
       if (ctxBar) {
         const r1 = dataSiswa.filter(s => s.nilai < 60).length;
-        const r2 = dataSiswa.filter(s => s.nilai >= 60 && s.nilai < userProfile.kkm).length;
-        const r3 = dataSiswa.filter(s => s.nilai >= userProfile.kkm && s.nilai < 85).length;
+        const r2 = dataSiswa.filter(s => s.nilai >= 60 && s.nilai < kkm).length;
+        const r3 = dataSiswa.filter(s => s.nilai >= kkm && s.nilai < 85).length;
         const r4 = dataSiswa.filter(s => s.nilai >= 85).length;
 
         if (chartBarDistribusi) chartBarDistribusi.destroy();
         chartBarDistribusi = new Chart(ctxBar, {
           type: 'bar',
           data: {
-            labels: ['< 60', `60 - ${userProfile.kkm - 1}`, `${userProfile.kkm} - 84`, '85 - 100'],
+            labels: ['< 60', `60 - ${kkm - 1}`, `${kkm} - 84`, '85 - 100'],
             datasets: [{
               data: [r1, r2, r3, r4],
               backgroundColor: ['#f43f5e', '#fbbf24', '#0284c7', '#059669'],
@@ -1254,6 +1733,7 @@
     }
 
     function downloadTemplateExcel() {
+      const kAktif = getKelasAktif();
       const template = [
         ["No", "Nama Siswa", "Nilai"],
         [1, "AEESHA KIREY UFAIRAH", 91],
@@ -1264,7 +1744,7 @@
       const ws = XLSX.utils.aoa_to_sheet(template);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Nilai_Siswa");
-      XLSX.writeFile(wb, `Template_Nilai_${userProfile.mapel}.xlsx`);
+      XLSX.writeFile(wb, `Template_Nilai_${kAktif.nama}_${userProfile.mapel}.xlsx`);
     }
   </script>
 </body>
