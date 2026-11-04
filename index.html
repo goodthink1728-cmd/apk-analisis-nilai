@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Analisis Nilai Ulangan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-4 md:p-8">
+  <div class="max-w-4xl mx-auto space-y-6">
+    
+    <!-- Header -->
+    <header class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <h1 class="text-2xl font-bold text-slate-800">📊 Analisis Nilai Ulangan</h1>
+      <p class="text-sm text-slate-500">Aplikasi analisis hasil evaluasi belajar siswa berbasis web & mobile</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Mata Pelajaran</label>
+          <input id="mapel" type="text" placeholder="Contoh: Matematika" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Kelas</label>
+          <input id="kelas" type="text" placeholder="Contoh: VIII A" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Batas KKM</label>
+          <input id="kkm" type="number" value="75" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+        </div>
+      </div>
+    </header>
+
+    <!-- Input Form -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <h2 class="text-lg font-semibold text-slate-800 mb-3">Input Data Siswa</h2>
+      <form id="formSiswa" class="flex flex-col md:flex-row gap-3">
+        <input id="namaSiswa" type="text" placeholder="Nama Siswa" required class="flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+        <input id="nilaiSiswa" type="number" step="0.1" min="0" max="100" placeholder="Nilai (0-100)" required class="w-full md:w-36 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none">
+        <button type="submit" class="bg-teal-600 text-white font-medium px-5 py-2 rounded-lg text-sm hover:bg-teal-700 transition">Tambah</button>
+      </form>
+    </div>
+
+    <!-- Ringkasan Statistik -->
+    <div id="statSection" class="hidden grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 text-center">
+        <span class="text-xs text-slate-500">Rata-rata</span>
+        <p id="avgVal" class="text-2xl font-bold text-teal-600 mt-1">0</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 text-center">
+        <span class="text-xs text-slate-500">Tertinggi / Terendah</span>
+        <p class="text-lg font-bold text-slate-800 mt-1"><span id="maxVal" class="text-emerald-600">0</span> / <span id="minVal" class="text-rose-600">0</span></p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 text-center">
+        <span class="text-xs text-slate-500">Ketuntasan</span>
+        <p id="tuntasPersen" class="text-2xl font-bold text-blue-600 mt-1">0%</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 text-center">
+        <span class="text-xs text-slate-500">Tuntas / Remedial</span>
+        <p class="text-lg font-bold text-slate-800 mt-1"><span id="jmlTuntas" class="text-emerald-600">0</span> / <span id="jmlRemed" class="text-rose-600">0</span></p>
+      </div>
+    </div>
+
+    <!-- Tabel Data Siswa -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold text-slate-800">Daftar Nilai (<span id="totalSiswa">0</span> Siswa)</h2>
+        <button onclick="window.print()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-md font-medium border border-slate-300">🖨️ Cetak / Simpan PDF</button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 text-slate-600 border-b">
+            <tr>
+              <th class="p-3">No</th>
+              <th class="p-3">Nama Siswa</th>
+              <th class="p-3">Nilai</th>
+              <th class="p-3">Status</th>
+              <th class="p-3 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabelBody" class="divide-y divide-slate-100">
+            <tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data nilai.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let listSiswa = [];
+
+    const form = document.getElementById('formSiswa');
+    const inputNama = document.getElementById('namaSiswa');
+    const inputNilai = document.getElementById('nilaiSiswa');
+    const inputKKM = document.getElementById('kkm');
+    const tabelBody = document.getElementById('tabelBody');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nama = inputNama.value.trim();
+      const nilai = parseFloat(inputNilai.value);
+      if (nama && !isNaN(nilai)) {
+        listSiswa.push({ nama, nilai });
+        inputNama.value = '';
+        inputNilai.value = '';
+        inputNama.focus();
+        render();
+      }
+    });
+
+    inputKKM.addEventListener('input', render);
+
+    function hapusSiswa(index) {
+      listSiswa.splice(index, 1);
+      render();
+    }
+
+    function render() {
+      const kkm = parseFloat(inputKKM.value) || 75;
+      document.getElementById('totalSiswa').textContent = listSiswa.length;
+
+      if (listSiswa.length === 0) {
+        tabelBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data nilai.</td></tr>`;
+        document.getElementById('statSection').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('statSection').classList.remove('hidden');
+
+      // Perhitungan Statistik
+      const nilaiList = listSiswa.map(s => s.nilai);
+      const avg = nilaiList.reduce((a, b) => a + b, 0) / nilaiList.length;
+      const max = Math.max(...nilaiList);
+      const min = Math.min(...nilaiList);
+      const tuntas = listSiswa.filter(s => s.nilai >= kkm).length;
+      const remed = listSiswa.length - tuntas;
+      const persen = (tuntas / listSiswa.length) * 100;
+
+      document.getElementById('avgVal').textContent = avg.toFixed(1);
+      document.getElementById('maxVal').textContent = max;
+      document.getElementById('minVal').textContent = min;
+      document.getElementById('jmlTuntas').textContent = tuntas;
+      document.getElementById('jmlRemed').textContent = remed;
+      document.getElementById('tuntasPersen').textContent = persen.toFixed(0) + '%';
+
+      // Render Tabel
+      tabelBody.innerHTML = listSiswa.map((item, idx) => {
+        const isTuntas = item.nilai >= kkm;
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3 text-slate-500">${idx + 1}</td>
+            <td class="p-3 font-medium text-slate-800">${item.nama}</td>
+            <td class="p-3 font-semibold">${item.nilai}</td>
+            <td class="p-3">
+              <span class="px-2.5 py-1 text-xs rounded-full font-medium ${isTuntas ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                ${isTuntas ? 'Tuntas' : 'Remedial'}
+              </span>
+            </td>
+            <td class="p-3 text-center">
+              <button onclick="hapusSiswa(${idx})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Hapus</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>
