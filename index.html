@@ -291,25 +291,28 @@
       <div class="flex flex-wrap items-center gap-2">
         <span class="text-slate-500 font-semibold text-[11px]">Tingkat Jenjang:</span>
         <select id="pilihJenjang" onchange="gantiJenjang(this.value)" class="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
-          <option value="MI">MI / SD (Kelas 1 - 6)</option>
-          <option value="MTs" selected>MTs / SMP (Kelas 7 - 9)</option>
-          <option value="MA">MA / SMA / SMK (Kelas 10 - 12)</option>
+          <option value="MI">MI / SD</option>
+          <option value="MTs" selected>MTs / SMP</option>
+          <option value="MA">MA / SMA / SMK</option>
         </select>
 
         <span class="text-slate-500 font-semibold text-[11px] ml-2">Pilih Rombel / Kelas:</span>
         <div class="flex items-center gap-1.5">
           <select id="selectKelasAktif" onchange="pilihKelas(this.value)" class="bg-brand-50 border border-brand-300 text-brand-900 rounded-lg px-3 py-1.5 text-xs font-extrabold outline-none focus:ring-2 focus:ring-brand-500">
-            <!-- Diisi otomatis via JS -->
+            <!-- Diisi hanya kelas yang sudah diinput -->
           </select>
           <button onclick="tambahKelasBaru()" class="px-2.5 py-1.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg text-xs font-semibold transition" title="Tambah Kelas Baru">
             + Tambah Kelas
+          </button>
+          <button onclick="hapusKelasAktif()" id="btnHapusKelas" class="px-2 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 rounded-lg text-xs font-semibold transition" title="Hapus Kelas Ini">
+            🗑️ Hapus
           </button>
         </div>
       </div>
 
       <!-- KKM & Mapel Kelas Aktif -->
       <div class="flex items-center gap-4 text-xs">
-        <div>
+        <div id="wrapperKKMKelas">
           <span class="text-slate-400 text-[10px] uppercase font-bold mr-1">KKM Kelas:</span>
           <input type="number" id="inputKKMKelas" value="75" onchange="ubahKKMKelas(this.value)" class="w-12 text-center font-bold text-brand-800 border-b border-brand-400 bg-transparent outline-none">
         </div>
@@ -373,7 +376,7 @@
             Ahlan wa Sahlan, <span id="banner-guru" class="text-brand-200">Agus Gunawan, M.Pd.</span>!
           </h2>
           <p class="mt-2 text-xs sm:text-sm text-brand-100 leading-relaxed">
-            Kelola evaluasi pembelajaran, analisis butir soal, dan program tindak lanjut untuk seluruh kelas yang Anda ampu di <b><span id="banner-madrasah">MTs Negeri Kota Cimahi</span></b>.
+            Kelola evaluasi pembelajaran, analisis butir soal, dan program tindak lanjut untuk kelas yang Anda ampu di <b><span id="banner-madrasah">MTs Negeri Kota Cimahi</span></b>.
           </p>
 
           <div class="mt-5 flex flex-wrap items-center gap-2 text-xs">
@@ -433,22 +436,22 @@
         </div>
       </div>
 
-      <!-- KONTEN BARU: PENGGANTI VIDEO TUTORIAL -->
+      <!-- KONTEN: HANYA MENAMPILKAN KELAS YANG SUDAH DIINPUT -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        <!-- 1. Rekapitulasi Seluruh Kelas yang Diampu -->
+        <!-- 1. Rekapitulasi Kelas yang Sudah Diinput -->
         <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
           <div>
             <div class="flex justify-between items-center mb-1">
               <h4 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
-                <span>📚</span> Daftar Seluruh Rombel / Kelas yang Diampu
+                <span>📚</span> Daftar Kelas yang Sudah Diinput
               </h4>
-              <button onclick="tambahKelasBaru()" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-50 text-brand-700 hover:bg-brand-100 transition">+ Tambah</button>
+              <button onclick="tambahKelasBaru()" class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-brand-50 text-brand-700 hover:bg-brand-100 transition">+ Tambah Kelas</button>
             </div>
-            <p class="text-xs text-slate-500 mb-4">Klik kelas untuk langsung beralih dan mengolah nilainya:</p>
+            <p class="text-xs text-slate-500 mb-4">Kelas yang aktif di bawah ini telah terdaftar di sistem:</p>
 
             <div id="daftar-semua-kelas-box" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-              <!-- Render otomatis via JS -->
+              <!-- Render hanya kelas yang sudah ada -->
             </div>
           </div>
         </div>
@@ -481,7 +484,7 @@
           </div>
 
           <div class="mt-4 text-[11px] text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100">
-            📌 <b>Rumus Baku:</b> Panjang Interval = (100 - KKM) / 3. Nilai di bawah KKM otomatis masuk predikat <b>D (Perlu Bimbingan / Remedial)</b>.
+            📌 <b>Rumus Baku Kemenag:</b> Panjang Interval = (100 - KKM) / 3. Nilai di bawah KKM otomatis masuk predikat <b>D (Perlu Bimbingan / Remedial)</b>.
           </div>
         </div>
 
@@ -738,7 +741,6 @@
 
   <!-- ================= SCRIPT LOGIKA UTAMA ================= -->
   <script>
-    // State Pengguna
     let userProfile = {
       isLoggedIn: false,
       email: "guru@kemenag.go.id",
@@ -753,7 +755,7 @@
       mapel: "Bahasa Arab"
     };
 
-    // Database Multi-Kelas per Jenjang
+    // HANYA KELAS YANG SUDAH DIINPUT OLEH PENGGUNA (TIDAK ADA KELAS DUMMY)
     let databaseKelas = {
       "MTs": [
         {
@@ -794,73 +796,10 @@
             { nama: "YUNISYA HUMAYRA", nilai: 69 },
             { nama: "ZAHRA ASHIDQIA HASIBUAN", nilai: 48 }
           ]
-        },
-        {
-          nama: "VII B",
-          kkm: 75,
-          jmlSoal: 10,
-          siswa: [
-            { nama: "ADAM MALIK", nilai: 82 },
-            { nama: "AISYAH PUTRI", nilai: 88 },
-            { nama: "BAGAS PRATAMA", nilai: 74 },
-            { nama: "DINI AMALIA", nilai: 90 },
-            { nama: "FAJAR SHODIQ", nilai: 65 }
-          ]
-        },
-        {
-          nama: "VIII A",
-          kkm: 78,
-          jmlSoal: 10,
-          siswa: [
-            { nama: "FARHAN MAULANA", nilai: 85 },
-            { nama: "HIDAYATULLAH", nilai: 80 },
-            { nama: "LUTHFI ZAKARIA", nilai: 78 },
-            { nama: "SALMA NABILA", nilai: 92 }
-          ]
         }
       ],
-      "MI": [
-        {
-          nama: "Kelas 4 A",
-          kkm: 70,
-          jmlSoal: 10,
-          siswa: [
-            { nama: "ALI BIN ABI THALIB", nilai: 85 },
-            { nama: "HASAN BASRI", nilai: 75 },
-            { nama: "MARYAM AZZAHRA", nilai: 90 }
-          ]
-        },
-        {
-          nama: "Kelas 6 B",
-          kkm: 75,
-          jmlSoal: 10,
-          siswa: [
-            { nama: "BILAL BIN RABAH", nilai: 88 },
-            { nama: "HAMZAH ASADULLAH", nilai: 95 }
-          ]
-        }
-      ],
-      "MA": [
-        {
-          nama: "X Agama",
-          kkm: 78,
-          jmlSoal: 10,
-          siswa: [
-            { nama: "ABDULLAH IBNU MAS'UD", nilai: 92 },
-            { nama: "ZAID BIN TSABIT", nilai: 95 },
-            { nama: "MU'ADZ BIN JABAL", nilai: 88 }
-          ]
-        },
-        {
-          nama: "XI IPA 1",
-          kkm: 75,
-          jmlSoal: 10,
-          siswa: [
-            { nama: "IBNU SINA", nilai: 98 },
-            { nama: "AL-KHAWARIZMI", nilai: 96 }
-          ]
-        }
-      ]
+      "MI": [],
+      "MA": []
     };
 
     let kelasAktifIndex = 0;
@@ -889,14 +828,14 @@
       if (savedUser) {
         try { userProfile = { ...userProfile, ...JSON.parse(savedUser) }; } catch (e) {}
       }
-      const savedDb = localStorage.getItem('madrasah_database_kelas');
+      const savedDb = localStorage.getItem('madrasah_database_kelas_v2');
       if (savedDb) {
         try { databaseKelas = JSON.parse(savedDb); } catch (e) {}
       }
     }
 
     function simpanDatabaseKeStorage() {
-      localStorage.setItem('madrasah_database_kelas', JSON.stringify(databaseKelas));
+      localStorage.setItem('madrasah_database_kelas_v2', JSON.stringify(databaseKelas));
       localStorage.setItem('madrasah_analisis_user', JSON.stringify(userProfile));
     }
 
@@ -965,9 +904,7 @@
         userProfile.jenjang = document.getElementById('authJenjang').value || userProfile.jenjang;
         userProfile.mapel = document.getElementById('authMapel').value.trim() || userProfile.mapel;
       } else {
-        // Sign In verification
         if (userProfile.email && email !== userProfile.email) {
-          // Bolehkan sign in jika pengguna baru memasukkan email
           userProfile.email = email;
         }
         if (pass !== userProfile.password && userProfile.password) {
@@ -988,7 +925,6 @@
       dd.classList.toggle('hidden');
     }
 
-    // Tutup dropdown jika klik di luar
     window.addEventListener('click', (e) => {
       if (!e.target.closest('#userDropdown') && !e.target.closest('button[onclick="toggleUserDropdown()"]')) {
         document.getElementById('userDropdown')?.classList.add('hidden');
@@ -1112,11 +1048,25 @@
     function renderDropdownKelas() {
       const listKelas = databaseKelas[userProfile.jenjang] || [];
       const select = document.getElementById('selectKelasAktif');
+      const btnHapus = document.getElementById('btnHapusKelas');
       select.innerHTML = '';
 
       if (listKelas.length === 0) {
-        select.innerHTML = '<option value="0">Belum ada kelas</option>';
+        select.innerHTML = '<option value="-1">-- Belum Ada Kelas Diinput --</option>';
+        btnHapus.style.display = 'none';
+        document.getElementById('wrapperKKMKelas').style.opacity = '0.4';
+        document.getElementById('info-count-siswa').textContent = "0";
+        document.querySelectorAll('.lbl-kelas-aktif').forEach(el => el.textContent = "-");
+        document.getElementById('banner-kelas-aktif').textContent = "Belum Ada";
+        document.getElementById('p-kelas').textContent = "-";
         return;
+      }
+
+      btnHapus.style.display = 'inline-block';
+      document.getElementById('wrapperKKMKelas').style.opacity = '1';
+
+      if (kelasAktifIndex >= listKelas.length) {
+        kelasAktifIndex = 0;
       }
 
       listKelas.forEach((k, idx) => {
@@ -1127,7 +1077,7 @@
         select.appendChild(opt);
       });
 
-      const current = listKelas[kelasAktifIndex] || listKelas[0];
+      const current = listKelas[kelasAktifIndex];
       if (current) {
         document.getElementById('inputKKMKelas').value = current.kkm;
         document.getElementById('info-count-siswa').textContent = current.siswa.length;
@@ -1153,9 +1103,13 @@
     }
 
     function tambahKelasBaru() {
-      const nama = prompt(`Masukkan Nama Rombel/Kelas Baru (${userProfile.jenjang}):`, userProfile.jenjang === 'MI' ? 'Kelas 5 A' : userProfile.jenjang === 'MA' ? 'XI IPA 2' : 'VII C');
+      const saranNama = userProfile.jenjang === 'MI' ? 'Kelas 1 A' : userProfile.jenjang === 'MA' ? 'X-1' : 'VII B';
+      const nama = prompt(`Masukkan Nama Rombel/Kelas Baru (${userProfile.jenjang}):`, saranNama);
       if (nama && nama.trim()) {
         const kkmDefault = parseFloat(prompt('Masukkan Nilai KKM untuk kelas ini:', '75')) || 75;
+        if (!databaseKelas[userProfile.jenjang]) {
+          databaseKelas[userProfile.jenjang] = [];
+        }
         databaseKelas[userProfile.jenjang].push({
           nama: nama.trim(),
           kkm: kkmDefault,
@@ -1166,13 +1120,30 @@
         simpanDatabaseKeStorage();
         renderDropdownKelas();
         renderSemua();
-        alert(`Kelas ${nama} berhasil ditambahkan! Silakan upload Excel atau tambah nilai.`);
+        alert(`Kelas ${nama} berhasil ditambahkan! Silakan upload Excel atau isi data nilai.`);
+      }
+    }
+
+    function hapusKelasAktif() {
+      const list = databaseKelas[userProfile.jenjang] || [];
+      if (list.length === 0 || kelasAktifIndex < 0) return;
+      const current = list[kelasAktifIndex];
+
+      if (confirm(`Apakah Anda yakin ingin menghapus kelas ${current.nama} beserta seluruh data nilainya?`)) {
+        list.splice(kelasAktifIndex, 1);
+        kelasAktifIndex = 0;
+        simpanDatabaseKeStorage();
+        renderDropdownKelas();
+        renderSemua();
       }
     }
 
     function getKelasAktif() {
       const list = databaseKelas[userProfile.jenjang] || [];
-      return list[kelasAktifIndex] || { nama: "Kelas", kkm: 75, jmlSoal: 10, siswa: [] };
+      if (list.length === 0 || kelasAktifIndex < 0 || !list[kelasAktifIndex]) {
+        return null;
+      }
+      return list[kelasAktifIndex];
     }
 
     // --- TAB SWITCHER ---
@@ -1247,6 +1218,13 @@
       const file = event.target.files[0];
       if (!file) return;
 
+      const kAktif = getKelasAktif();
+      if (!kAktif) {
+        alert('Silakan buat kelas terlebih dahulu dengan mengklik "+ Tambah Kelas".');
+        event.target.value = '';
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
@@ -1287,12 +1265,11 @@
           }
 
           if (parsed.length > 0) {
-            const kAktif = getKelasAktif();
             kAktif.siswa = parsed;
             simpanDatabaseKeStorage();
             renderDropdownKelas();
             renderSemua();
-            alert(`Berhasil mengimpor ${parsed.length} siswa ke ${kAktif.nama}!`);
+            alert(`Berhasil mengimpor ${parsed.length} siswa ke kelas ${kAktif.nama}!`);
             switchTab('siswa');
           } else {
             alert('Kolom nama siswa dan nilai tidak ditemukan.');
@@ -1320,6 +1297,22 @@
     // --- RENDER SEMUA MODUL ---
     function renderSemua() {
       const kAktif = getKelasAktif();
+
+      if (!kAktif) {
+        // Tampilan Jika Belum Ada Kelas Sama Sekali di Jenjang Ini
+        document.getElementById('stat-total-siswa').textContent = "0";
+        document.getElementById('badge-total-siswa').textContent = "0";
+        document.getElementById('stat-avg').textContent = "0";
+        document.getElementById('stat-persen-tuntas').textContent = "0%";
+        document.getElementById('stat-max').textContent = "0";
+        document.getElementById('stat-min').textContent = "0";
+        document.getElementById('stat-stdev').textContent = "0.0";
+        document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400">Belum ada kelas yang diinput pada jenjang ini.<br><button onclick="tambahKelasBaru()" class="mt-2 text-xs font-bold text-brand-700 hover:underline">+ Klik untuk Tambah Kelas Baru</button></td></tr>`;
+        document.getElementById('daftar-semua-kelas-box').innerHTML = `<div class="p-6 text-center text-xs text-slate-400 border border-dashed rounded-2xl">Belum ada kelas yang diinput pada jenjang ${userProfile.jenjang}.<br><button onclick="tambahKelasBaru()" class="mt-2 font-bold text-brand-700 hover:underline">+ Tambah Kelas Sekarang</button></div>`;
+        document.getElementById('narasi-kesimpulan').textContent = "Belum ada kelas yang diinput.";
+        return;
+      }
+
       const kkm = kAktif.kkm;
       const dataSiswa = kAktif.siswa;
 
@@ -1344,7 +1337,7 @@
         document.getElementById('stat-persen-tuntas').textContent = "0%";
         document.getElementById('stat-max').textContent = "0";
         document.getElementById('stat-min').textContent = "0";
-        document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada data siswa di ${kAktif.nama}. Silakan upload Excel.</td></tr>`;
+        document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada data siswa di ${kAktif.nama}. Silakan upload file Excel atau tambahkan nilai.</td></tr>`;
         return;
       }
 
@@ -1386,10 +1379,15 @@
       renderCharts(tuntasCount, remedCount, kkm, dataSiswa);
     }
 
-    // --- RENDER DAFTAR SELURUH KELAS DI BERANDA ---
+    // --- RENDER HANYA KELAS YANG SUDAH DIINPUT DI BERANDA ---
     function renderListSemuaKelas() {
       const box = document.getElementById('daftar-semua-kelas-box');
       const list = databaseKelas[userProfile.jenjang] || [];
+
+      if (list.length === 0) {
+        box.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 border border-dashed rounded-2xl">Belum ada kelas yang diinput pada jenjang ${userProfile.jenjang}.<br><button onclick="tambahKelasBaru()" class="mt-2 font-bold text-brand-700 hover:underline">+ Tambah Kelas Sekarang</button></div>`;
+        return;
+      }
 
       box.innerHTML = list.map((k, idx) => {
         const isSelected = idx === kelasAktifIndex;
@@ -1464,12 +1462,15 @@
     function toggleSortNilai() {
       sortAsc = !sortAsc;
       const kAktif = getKelasAktif();
-      kAktif.siswa.sort((a, b) => sortAsc ? a.nilai - b.nilai : b.nilai - a.nilai);
-      renderTabelSiswa();
+      if (kAktif) {
+        kAktif.siswa.sort((a, b) => sortAsc ? a.nilai - b.nilai : b.nilai - a.nilai);
+        renderTabelSiswa();
+      }
     }
 
     function renderTabelSiswa() {
       const kAktif = getKelasAktif();
+      if (!kAktif) return;
       const keyword = (document.getElementById('searchSiswa')?.value || '').toLowerCase();
       const tbody = document.getElementById('tbody-siswa');
 
@@ -1515,14 +1516,17 @@
 
     function hapusSatuSiswa(nama) {
       const kAktif = getKelasAktif();
-      kAktif.siswa = kAktif.siswa.filter(s => s.nama !== nama);
-      simpanDatabaseKeStorage();
-      renderSemua();
+      if (kAktif) {
+        kAktif.siswa = kAktif.siswa.filter(s => s.nama !== nama);
+        simpanDatabaseKeStorage();
+        renderSemua();
+      }
     }
 
     // --- BUTIR SOAL ---
     function renderButirSoal(total) {
       const kAktif = getKelasAktif();
+      if (!kAktif) return;
       const tbody = document.getElementById('tbody-butir');
       let html = '';
       let baikCount = 0, revisiCount = 0, buangCount = 0;
@@ -1530,7 +1534,7 @@
 
       for (let i = 1; i <= kAktif.jmlSoal; i++) {
         const seed = (i * 11) % 9;
-        const benar = Math.max(2, Math.min(total, Math.round(total * (0.42 + (seed * 0.06)))));
+        const benar = Math.max(1, Math.min(total, Math.round(total * (0.42 + (seed * 0.06)))));
         const p = parseFloat((benar / (total || 1)).toFixed(2));
         kesukaranData.push(p);
 
@@ -1615,6 +1619,7 @@
       document.getElementById('p-tgl-cetak').textContent = "Cimahi, " + now;
 
       const kAktif = getKelasAktif();
+      if (!kAktif) return;
       document.getElementById('p-tbody-siswa').innerHTML = kAktif.siswa.map((s, idx) => {
         const pred = hitungPredikat(s.nilai, kAktif.kkm);
         return `
@@ -1734,6 +1739,7 @@
 
     function downloadTemplateExcel() {
       const kAktif = getKelasAktif();
+      const namaK = kAktif ? kAktif.nama : "Kelas";
       const template = [
         ["No", "Nama Siswa", "Nilai"],
         [1, "AEESHA KIREY UFAIRAH", 91],
@@ -1744,7 +1750,7 @@
       const ws = XLSX.utils.aoa_to_sheet(template);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Nilai_Siswa");
-      XLSX.writeFile(wb, `Template_Nilai_${kAktif.nama}_${userProfile.mapel}.xlsx`);
+      XLSX.writeFile(wb, `Template_Nilai_${namaK}_${userProfile.mapel}.xlsx`);
     }
   </script>
 </body>
