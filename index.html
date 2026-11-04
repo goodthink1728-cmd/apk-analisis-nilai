@@ -16,6 +16,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- SheetJS untuk Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Marked.js untuk Render AI Markdown Super Rapi & Anti-Bug -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -46,6 +48,89 @@
     }
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    /* Styling Khusus Markdown AI */
+    .ai-markdown-output h1, .ai-markdown-output h2, .ai-markdown-output h3 {
+      font-weight: 800;
+      color: #064e3b;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+    .ai-markdown-output h4 {
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 1rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.25rem;
+    }
+    .ai-markdown-output h5 {
+      font-weight: 700;
+      color: #334155;
+      margin-top: 0.75rem;
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+    }
+    .ai-markdown-output p {
+      margin-bottom: 0.65rem;
+      line-height: 1.65;
+      color: #334155;
+    }
+    .ai-markdown-output ul {
+      list-style-type: disc;
+      padding-left: 1.25rem;
+      margin-bottom: 0.65rem;
+      color: #334155;
+    }
+    .ai-markdown-output ol {
+      list-style-type: decimal;
+      padding-left: 1.25rem;
+      margin-bottom: 0.65rem;
+      color: #334155;
+    }
+    .ai-markdown-output li {
+      margin-bottom: 0.25rem;
+    }
+    .ai-markdown-output strong {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .ai-markdown-output em {
+      font-style: italic;
+      color: #475569;
+    }
+    .ai-markdown-output hr {
+      border: 0;
+      border-top: 1px solid #e2e8f0;
+      margin: 1rem 0;
+    }
+    .ai-markdown-output blockquote {
+      border-left: 4px solid #10b981;
+      padding-left: 0.75rem;
+      font-style: italic;
+      color: #475569;
+      background: #f0fdf4;
+      padding-top: 0.35rem;
+      padding-bottom: 0.35rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      margin: 0.75rem 0;
+    }
+    .ai-markdown-output table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.8rem;
+    }
+    .ai-markdown-output th, .ai-markdown-output td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+    }
+    .ai-markdown-output th {
+      background-color: #f8fafc;
+      font-weight: 700;
+      color: #0f172a;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased font-sans min-h-screen flex flex-col">
@@ -933,7 +1018,7 @@
           </div>
         </div>
 
-        <div id="containerHasilAI" class="p-6 text-xs text-slate-700 leading-relaxed space-y-4 max-h-[600px] overflow-y-auto custom-scrollbar">
+        <div id="containerHasilAI" class="p-6 text-xs sm:text-sm text-slate-700 leading-relaxed space-y-4 ai-markdown-output max-h-[650px] overflow-y-auto custom-scrollbar">
           <div class="text-center py-12 text-slate-400">
             <span class="text-4xl block mb-2 opacity-50">✨</span>
             <p class="font-bold text-slate-600">Belum ada analisis yang dijalankan.</p>
@@ -1474,19 +1559,55 @@ Bagi siswa yang telah melampaui batas KKM (terutama siswa peringkat teratas: ${c
 
     function renderMarkdownAI(md) {
       if (!md) return '';
-      let html = md
-        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-        .replace(/^### (.*$)/gim, '<h4 class="text-sm font-black text-brand-900 mt-4 mb-2 pb-1 border-b border-slate-200 flex items-center gap-1.5">$1</h4>')
-        .replace(/^#### (.*$)/gim, '<h5 class="text-xs font-bold text-slate-800 mt-3 mb-1.5">$1</h5>')
-        .replace(/^## (.*$)/gim, '<h3 class="text-base font-black text-brand-950 mt-4 mb-2">$1</h3>')
-        .replace(/\\*\\*(.*?)\\*\\*/gim, '<strong class="font-bold text-slate-900">$1</strong>')
-        .replace(/\\*(.*?)\\*/gim, '<em class="italic">$1</em>')
-        .replace(/^---$/gim, '<hr class="my-3 border-slate-200">')
-        .replace(/^\\s*-\\s*(.*$)/gim, '<li class="ml-4 list-disc text-slate-700 py-0.5">$1</li>')
-        .replace(/^\\s*\\d+\\.\\s*(.*$)/gim, '<li class="ml-4 list-decimal text-slate-700 py-0.5">$1</li>')
-        .replace(/\\n\\n/gim, '<p class="mb-2"></p>');
+      // Jika library marked.js tersedia via CDN, gunakan parser standar Markdown dunia:
+      if (typeof marked !== 'undefined') {
+        try {
+          if (typeof marked.parse === 'function') {
+            return marked.parse(md, { breaks: true, gfm: true });
+          } else if (typeof marked === 'function') {
+            return marked(md);
+          }
+        } catch (e) {
+          console.warn("marked.parse warning, beralih ke fallback:", e);
+        }
+      }
 
-      return html;
+      // Safe Fallback Terstruktur (Jika Offline):
+      // Anti-bug: memproses baris per baris tanpa regex chaining yang merusak karakter
+      const escaped = md
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      
+      const lines = escaped.split('\n');
+      let out = '';
+      for (let line of lines) {
+        let trimmed = line.trim();
+        if (trimmed.startsWith('### ')) {
+          out += `<h4 class="font-bold text-brand-900 mt-3 mb-1 text-sm">${trimmed.substring(4)}</h4>`;
+        } else if (trimmed.startsWith('#### ')) {
+          out += `<h5 class="font-bold text-slate-800 mt-2 mb-1 text-xs">${trimmed.substring(5)}</h5>`;
+        } else if (trimmed.startsWith('## ')) {
+          out += `<h3 class="font-black text-brand-950 mt-4 mb-2 text-base">${trimmed.substring(3)}</h3>`;
+        } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          let item = trimmed.substring(2);
+          item = item.split('**').map((part, idx) => idx % 2 === 1 ? `<strong class="font-bold text-slate-900">${part}</strong>` : part).join('');
+          out += `<li class="ml-4 list-disc text-slate-700 py-0.5">${item}</li>`;
+        } else if (/^\d+\.\s/.test(trimmed)) {
+          let dotPos = trimmed.indexOf('.');
+          let item = trimmed.substring(dotPos + 1).trim();
+          item = item.split('**').map((part, idx) => idx % 2 === 1 ? `<strong class="font-bold text-slate-900">${part}</strong>` : part).join('');
+          out += `<li class="ml-4 list-decimal text-slate-700 py-0.5">${item}</li>`;
+        } else if (trimmed === '---') {
+          out += `<hr class="my-3 border-slate-200">`;
+        } else if (trimmed === '') {
+          out += `<div class="h-2"></div>`;
+        } else {
+          let p = line.split('**').map((part, idx) => idx % 2 === 1 ? `<strong class="font-bold text-slate-900">${part}</strong>` : part).join('');
+          out += `<p class="mb-1 text-slate-700">${p}</p>`;
+        }
+      }
+      return out;
     }
 
     // --- STATE & DATABASE APLIKASI ---
