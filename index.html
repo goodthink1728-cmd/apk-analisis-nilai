@@ -42,10 +42,32 @@
       table { border-collapse: collapse !important; width: 100% !important; }
       th, td { border: 1px solid #475569 !important; padding: 4px 6px !important; }
       .shadow-sm, .shadow-md, .shadow-lg { box-shadow: none !important; }
+      .print-slip-card { page-break-inside: avoid; border: 1px dashed #64748b !important; margin-bottom: 1rem; }
     }
   </style>
 </head>
 <body class="bg-slate-50/70 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ================= POP-UP DIALOG KONFIRMASI (SAFETY FIRST) ================= -->
+  <div id="customConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden no-print animate-in fade-in duration-150">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 space-y-4 text-center">
+      <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-2xl mx-auto shadow-inner">
+        ⚠️
+      </div>
+      <div>
+        <h3 class="text-sm font-extrabold text-slate-800" id="confirmModalTitle">Konfirmasi Tindakan</h3>
+        <p class="text-xs text-slate-500 mt-1.5 leading-relaxed" id="confirmModalMsg">Apakah Anda yakin ingin melakukan tindakan ini?</p>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button type="button" onclick="tutupConfirmModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition">
+          Batal
+        </button>
+        <button type="button" id="btnConfirmOk" onclick="eksekusiConfirmModal()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 transition">
+          Ya, Lanjutkan
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ================= POP-UP MODAL AUTH (SIGN UP & SIGN IN) ================= -->
   <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm hidden no-print">
@@ -89,7 +111,6 @@
           </div>
         </div>
 
-        <!-- Field Tambahan Khusus Sign Up -->
         <div id="signUpFields" class="space-y-3 pt-2 border-t border-slate-100 hidden">
           <p class="text-[11px] font-extrabold text-brand-800 uppercase tracking-wider">Identitas Pembelajaran</p>
           
@@ -119,7 +140,6 @@
           </div>
         </div>
 
-        <!-- Captcha -->
         <div class="pt-2 border-t border-slate-100">
           <label class="block text-xs font-bold text-slate-700 mb-1">Kode Keamanan (Captcha)</label>
           <div class="flex items-center gap-3 mb-2">
@@ -230,12 +250,12 @@
               <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200">KEMENAG RI</span>
               <span id="nav-madrasah" class="text-xs text-slate-500 font-bold hidden sm:inline">MTs Negeri Kota Cimahi</span>
             </div>
-            <h1 class="text-sm sm:text-base font-extrabold text-slate-800 leading-tight">Analisis Nilai & Mutu Soal</h1>
+            <h1 class="text-sm sm:text-base font-extrabold text-slate-800 leading-tight">Analisis Nilai & Mutu Pembelajaran</h1>
           </div>
         </div>
 
         <div class="flex items-center gap-2 relative">
-          <!-- Dropdown Profil Guru & Sign Out -->
+          <!-- Dropdown Profil Guru, Backup, & Sign Out -->
           <div class="relative">
             <button onclick="toggleUserDropdown()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-medium transition">
               <span class="w-6 h-6 rounded-full bg-brand-700 text-white text-[10px] flex items-center justify-center font-bold">👤</span>
@@ -246,18 +266,31 @@
               <span class="text-slate-400 text-[10px]">▼</span>
             </button>
 
-            <!-- Dropdown Menu Item -->
-            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-40 text-xs">
+            <!-- Dropdown Menu Item Lengkap -->
+            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-40 text-xs">
               <div class="px-4 py-2 border-b border-slate-100">
                 <p class="font-bold text-slate-800" id="dd-nama-guru">Agus Gunawan, M.Pd.</p>
                 <p class="text-[10px] text-slate-400 truncate" id="dd-email">guru@kemenag.go.id</p>
               </div>
+              
               <button onclick="bukaModalProfil()" class="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 transition">
                 <span>⚙️</span> Ubah Profil & Madrasah
               </button>
               <button onclick="bukaModalPassword()" class="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 transition">
                 <span>🔒</span> Ganti Password
               </button>
+              
+              <hr class="my-1 border-slate-100">
+              
+              <!-- Fitur Backup & Restore Mandiri -->
+              <button onclick="backupSeluruhData()" class="w-full px-4 py-2 text-left hover:bg-brand-50 text-brand-800 font-semibold flex items-center gap-2 transition" title="Simpan seluruh kelas ke file cadangan">
+                <span>💾</span> Backup Seluruh Data (.json)
+              </button>
+              <button onclick="document.getElementById('restoreFileInput').click()" class="w-full px-4 py-2 text-left hover:bg-slate-50 text-slate-700 flex items-center gap-2 transition">
+                <span>🔄</span> Pulihkan / Restore Data
+              </button>
+              <input type="file" id="restoreFileInput" accept=".json" class="hidden" onchange="restoreDataFile(event)">
+
               <hr class="my-1 border-slate-100">
               <button onclick="handleSignOut()" class="w-full px-4 py-2 text-left hover:bg-rose-50 text-rose-600 font-bold flex items-center gap-2 transition">
                 <span>🚪</span> Sign Out (Keluar)
@@ -265,8 +298,9 @@
             </div>
           </div>
 
-          <button onclick="downloadTemplateExcel()" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-800 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg transition">
-            📥 Template Excel
+          <!-- Tombol Export Excel Multi-Sheet Lengkap -->
+          <button onclick="exportExcelMultiSheet()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-lg transition" title="Export Excel 3-in-1 (Nilai, Butir Soal, Remedial)">
+            📊 Export Excel Lengkap
           </button>
           
           <button onclick="document.getElementById('excelUpload').click()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg shadow-sm transition">
@@ -274,7 +308,7 @@
           </button>
           <input type="file" id="excelUpload" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
           
-          <button onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-brand-700 hover:bg-brand-800 rounded-lg shadow-sm transition">
+          <button onclick="cetakLaporanA4()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-brand-700 hover:bg-brand-800 rounded-lg shadow-sm transition">
             🖨️ Cetak Dokumen
           </button>
         </div>
@@ -310,14 +344,15 @@
         </div>
       </div>
 
-      <!-- KKM & Mapel Kelas Aktif -->
-      <div class="flex items-center gap-4 text-xs">
-        <div id="wrapperKKMKelas">
+      <!-- KKM & Tombol Cetak Slip Nilai Murid -->
+      <div class="flex items-center gap-3 text-xs">
+        <button onclick="cetakSlipNilai()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg font-semibold text-slate-700 transition flex items-center gap-1.5 shadow-sm">
+          <span>🎟️</span> Cetak Slip Nilai Wali Murid
+        </button>
+
+        <div id="wrapperKKMKelas" class="border-l pl-3 border-slate-300">
           <span class="text-slate-400 text-[10px] uppercase font-bold mr-1">KKM Kelas:</span>
           <input type="number" id="inputKKMKelas" value="75" onchange="ubahKKMKelas(this.value)" class="w-12 text-center font-bold text-brand-800 border-b border-brand-400 bg-transparent outline-none">
-        </div>
-        <div class="text-slate-500 text-[11px]">
-          Jumlah Siswa: <b id="info-count-siswa" class="text-slate-800">32</b>
         </div>
       </div>
 
@@ -336,7 +371,7 @@
 
         <button onclick="switchTab('siswa')" id="tab-btn-siswa" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
           <span>👥</span>
-          <span>Data Siswa & Nilai</span>
+          <span>Data Siswa, Nilai & RDM</span>
           <span id="badge-total-siswa" class="px-1.5 py-0.5 rounded-full text-[10px] bg-brand-200 text-brand-900">32</span>
         </button>
 
@@ -392,9 +427,9 @@
       <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
         <div>
           <h3 class="text-base font-extrabold text-slate-800 flex items-center gap-2">
-            <span>📖</span> Petunjuk Singkat Penggunaan Aplikasi
+            <span>📖</span> Alur Cepat Penggunaan Aplikasi
           </h3>
-          <p class="text-xs text-slate-500">Ikuti 4 langkah mudah berikut untuk menyelesaikan analisis ulangan kelas Anda:</p>
+          <p class="text-xs text-slate-500">Ikuti langkah mudah berikut untuk menyelesaikan analisis ulangan kelas Anda:</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
@@ -419,19 +454,19 @@
           <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between hover:border-brand-500 transition">
             <div>
               <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-black text-sm mb-3">3</div>
-              <h4 class="text-xs font-bold text-slate-800 mb-1">Periksa Grafik & Butir</h4>
-              <p class="text-[11px] text-slate-500 leading-relaxed">Cek persentase ketuntasan KKM, daya pembeda, dan mutu kesukaran butir soal.</p>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Periksa Narasi RDM & Butir</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Salin otomatis narasi capaian untuk rapor dan cek mutu butir soal.</p>
             </div>
-            <button onclick="switchTab('ketuntasan')" class="mt-3 text-left text-[11px] font-bold text-amber-700 hover:underline">Buka Analisis →</button>
+            <button onclick="switchTab('siswa')" class="mt-3 text-left text-[11px] font-bold text-amber-700 hover:underline">Lihat Narasi Rapor →</button>
           </div>
 
           <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between hover:border-brand-500 transition">
             <div>
               <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black text-sm mb-3">4</div>
-              <h4 class="text-xs font-bold text-slate-800 mb-1">Cetak Laporan Resmi</h4>
-              <p class="text-[11px] text-slate-500 leading-relaxed">Cetak lembar bundel evaluasi resmi A4 dengan tanda tangan pengesahan.</p>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Cetak Laporan / Slip</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Cetak lembar bundel evaluasi resmi A4 atau bagikan slip nilai wali murid.</p>
             </div>
-            <button onclick="window.print()" class="mt-3 text-left text-[11px] font-bold text-emerald-700 hover:underline">Cetak Dokumen →</button>
+            <button onclick="cetakLaporanA4()" class="mt-3 text-left text-[11px] font-bold text-emerald-700 hover:underline">Cetak Dokumen →</button>
           </div>
         </div>
       </div>
@@ -492,7 +527,7 @@
 
     </section>
 
-    <!-- TAB 1: DATA SISWA & NILAI -->
+    <!-- TAB 1: DATA SISWA, NILAI & NARASI RDM -->
     <section id="panel-siswa" class="tab-panel hidden space-y-6">
       <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div class="flex items-center gap-1.5 text-xs font-semibold">
@@ -507,23 +542,24 @@
             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">🔍</span>
             <input id="searchSiswa" type="text" placeholder="Cari nama siswa..." oninput="renderTabelSiswa()" class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-brand-500">
           </div>
-          <button onclick="window.print()" class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1">🖨️ Cetak Leger</button>
+          <button onclick="cetakLaporanA4()" class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1">🖨️ Cetak Leger</button>
         </div>
       </div>
 
+      <!-- Tabel Siswa Dilengkapi Kolom Narasi Capaian Rapor -->
       <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs border-collapse">
             <thead>
               <tr class="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-bold uppercase tracking-wider text-[10px]">
-                <th class="p-3.5 w-12 text-center">Rank</th>
-                <th class="p-3.5 w-12 text-center">No</th>
-                <th class="p-3.5">Nama Siswa</th>
-                <th class="p-3.5 w-24 text-center cursor-pointer hover:text-brand-700" onclick="toggleSortNilai()">Nilai ⇅</th>
-                <th class="p-3.5 w-24 text-center">Predikat</th>
-                <th class="p-3.5 w-32 text-center">Status KKM</th>
-                <th class="p-3.5 w-40 text-center">Rekomendasi</th>
-                <th class="p-3.5 w-16 text-center no-print">Aksi</th>
+                <th class="p-3 w-12 text-center">Rank</th>
+                <th class="p-3 w-10 text-center">No</th>
+                <th class="p-3 w-48">Nama Siswa</th>
+                <th class="p-3 w-20 text-center cursor-pointer hover:text-brand-700" onclick="toggleSortNilai()">Nilai ⇅</th>
+                <th class="p-3 w-16 text-center">Predikat</th>
+                <th class="p-3 w-24 text-center">Status</th>
+                <th class="p-3">Deskripsi Capaian Kompetensi (RDM / Rapor)</th>
+                <th class="p-3 w-12 text-center no-print">Aksi</th>
               </tr>
             </thead>
             <tbody id="tbody-siswa" class="divide-y divide-slate-100"></tbody>
@@ -539,7 +575,7 @@
           <h3 class="text-base font-bold text-slate-800">Analisis Kualitas Butir Soal Evaluasi (<span class="lbl-kelas-aktif">VII A</span>)</h3>
           <p class="text-xs text-slate-500">Tingkat Kesukaran (P), Daya Pembeda (DP), serta Rekomendasi Mutu Soal.</p>
         </div>
-        <button onclick="window.print()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1.5">🖨️ Cetak Butir Soal</button>
+        <button onclick="cetakLaporanA4()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1.5">🖨️ Cetak Butir Soal</button>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -635,7 +671,7 @@
           <h3 class="text-base font-bold text-slate-800">Program Tindak Lanjut: Remedial & Pengayaan (<span class="lbl-kelas-aktif">VII A</span>)</h3>
           <p class="text-xs text-slate-500">Rencana perbaikan bagi siswa belum tuntas dan pendalaman materi bagi siswa tuntas.</p>
         </div>
-        <button onclick="window.print()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1.5">🖨️ Cetak Tindak Lanjut</button>
+        <button onclick="cetakLaporanA4()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition flex items-center gap-1.5">🖨️ Cetak Tindak Lanjut</button>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -669,8 +705,8 @@
       </div>
     </section>
 
-    <!-- PRINT ONLY A4 DOKUMEN RESMI -->
-    <div class="hidden print:block text-slate-900">
+    <!-- ================= HALAMAN CETAK RESMI A4 ================= -->
+    <div id="printAreaResmi" class="hidden print:block text-slate-900">
       <div class="text-center border-b-2 border-slate-900 pb-3 mb-4">
         <h3 class="text-xs font-bold uppercase tracking-wider">KEMENTERIAN AGAMA REPUBLIK INDONESIA</h3>
         <h2 id="p-sekolah" class="text-base font-extrabold uppercase">MADRASAH TSANAWIYAH NEGERI KOTA CIMAHI</h2>
@@ -710,10 +746,10 @@
             <th class="w-8 text-center">Rank</th>
             <th class="w-8 text-center">No</th>
             <th class="text-left">Nama Lengkap Siswa</th>
-            <th class="w-16 text-center">Nilai</th>
-            <th class="w-16 text-center">Predikat</th>
-            <th class="w-20 text-center">Status</th>
-            <th class="w-28 text-center">Tindak Lanjut</th>
+            <th class="w-14 text-center">Nilai</th>
+            <th class="w-14 text-center">Predikat</th>
+            <th class="w-16 text-center">Status</th>
+            <th class="text-left">Capaian Kompetensi (RDM)</th>
           </tr>
         </thead>
         <tbody id="p-tbody-siswa"></tbody>
@@ -725,15 +761,22 @@
           <p class="font-bold">Kepala Madrasah</p>
           <div class="h-14"></div>
           <p id="p-kamad" class="font-bold underline">Drs. H. Muhammad Ilyas, M.Ag</p>
-          <p id="p-kamad-nip" class="text-slate-500">NIP. 19730812 199903 1 002</p>
+          <p class="text-slate-500">NIP. 19730812 199903 1 002</p>
         </div>
         <div>
           <p id="p-tgl-cetak">Cimahi, ..................... 2026</p>
           <p class="font-bold">Guru Mata Pelajaran</p>
           <div class="h-14"></div>
           <p id="p-ttd-guru" class="font-bold underline">Agus Gunawan, M.Pd.</p>
-          <p id="p-guru-nip" class="text-slate-500">NIP. 19870415 201101 1 003</p>
+          <p class="text-slate-500">NIP. 19870415 201101 1 003</p>
         </div>
+      </div>
+    </div>
+
+    <!-- ================= HALAMAN CETAK SLIP NILAI WALI MURID (PRINT ONLY) ================= -->
+    <div id="printAreaSlipNilai" class="hidden text-slate-900 text-xs">
+      <div id="containerSlipNilai">
+        <!-- Render otomatis via JS -->
       </div>
     </div>
 
@@ -751,11 +794,10 @@
       namaKamad: "Drs. H. Muhammad Ilyas, M.Ag",
       nipKamad: "19730812 199903 1 002",
       tahunPelajaran: "2026/2027",
-      jenjang: "MTs", // MI, MTs, MA
+      jenjang: "MTs",
       mapel: "Bahasa Arab"
     };
 
-    // HANYA KELAS YANG SUDAH DIINPUT OLEH PENGGUNA (TIDAK ADA KELAS DUMMY)
     let databaseKelas = {
       "MTs": [
         {
@@ -808,6 +850,40 @@
     let sortAsc = false;
     let currentCaptcha = "";
 
+    // Fungsi Pengendali Dialog Konfirmasi
+    let aksiPendingKonfirmasi = null;
+
+    function konfirmasiAksi(pesan, callbackAksi, opsi = {}) {
+      aksiPendingKonfirmasi = callbackAksi;
+      document.getElementById('confirmModalMsg').textContent = pesan;
+      document.getElementById('confirmModalTitle').textContent = opsi.judul || "Konfirmasi Tindakan";
+      const btn = document.getElementById('btnConfirmOk');
+      btn.textContent = opsi.btnText || "Ya, Lanjutkan";
+      
+      if (opsi.isDanger === false) {
+        btn.className = "flex-1 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs shadow-md transition";
+      } else {
+        btn.className = "flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 transition";
+      }
+
+      document.getElementById('customConfirmModal').classList.remove('hidden');
+    }
+
+    function tutupConfirmModal() {
+      document.getElementById('customConfirmModal').classList.add('hidden');
+      aksiPendingKonfirmasi = null;
+    }
+
+    function eksekusiConfirmModal() {
+      if (typeof aksiPendingKonfirmasi === 'function') {
+        const eksekusi = aksiPendingKonfirmasi;
+        tutupConfirmModal();
+        eksekusi();
+      } else {
+        tutupConfirmModal();
+      }
+    }
+
     // Chart instances
     let chartDonutKetuntasan = null;
     let chartBarDistribusi = null;
@@ -822,20 +898,244 @@
       renderSemua();
     });
 
+    // --- FITUR BARU 1: BACKUP & RESTORE DATA LINTAS PERANGKAT ---
+    function backupSeluruhData() {
+      const backupData = {
+        versi: "2.5",
+        waktuBackup: new Date().toISOString(),
+        userProfile: userProfile,
+        databaseKelas: databaseKelas
+      };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Backup_Nilai_${userProfile.namaMadrasah.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toLocaleDateString('id-ID').replace(/\//g, '-')}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function restoreDataFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.databaseKelas && imported.userProfile) {
+            konfirmasiAksi(
+              "Apakah Anda yakin ingin memulihkan (Restore) data ini? Seluruh data yang ada di browser saat ini akan digantikan dengan data dari file cadangan.",
+              () => {
+                userProfile = imported.userProfile;
+                databaseKelas = imported.databaseKelas;
+                simpanDatabaseKeStorage();
+                applyUserProfile();
+                inisialisasiKelasUI();
+                renderSemua();
+                alert("Data berhasil dipulihkan secara utuh!");
+              },
+              { judul: "Konfirmasi Restore Data", btnText: "Ya, Pulihkan Data", isDanger: false }
+            );
+          } else {
+            alert("File cadangan tidak valid atau rusak.");
+          }
+        } catch (err) {
+          alert("Gagal membaca file cadangan: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    // --- FITUR BARU 2: EXPORT EXCEL 3-IN-1 (MULTI-SHEET) ---
+    function exportExcelMultiSheet() {
+      const kAktif = getKelasAktif();
+      if (!kAktif || kAktif.siswa.length === 0) {
+        alert("Belum ada data siswa untuk diexport!");
+        return;
+      }
+
+      const wb = XLSX.utils.book_new();
+
+      // Sheet 1: Leger Nilai & Narasi
+      const sheet1Data = [
+        ["LEGER NILAI & CAPAIAN KOMPETENSI SISWA"],
+        ["Madrasah", userProfile.namaMadrasah],
+        ["Mata Pelajaran", userProfile.mapel],
+        ["Kelas / Rombel", kAktif.nama],
+        ["Batas KKM", kAktif.kkm],
+        [],
+        ["Rank", "No", "Nama Siswa", "Nilai", "Predikat", "Status", "Deskripsi Capaian Kompetensi (RDM)"]
+      ];
+      kAktif.siswa.forEach((s, idx) => {
+        const pred = hitungPredikat(s.nilai, kAktif.kkm);
+        sheet1Data.push([
+          s.rank,
+          idx + 1,
+          s.nama,
+          s.nilai,
+          pred.predikat,
+          s.nilai >= kAktif.kkm ? "TUNTAS" : "REMEDIAL",
+          pred.narasi
+        ]);
+      });
+      const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
+      XLSX.utils.book_append_sheet(wb, ws1, "Leger_Nilai");
+
+      // Sheet 2: Analisis Butir Soal
+      const sheet2Data = [
+        ["ANALISIS TINGKAT KESUKARAN & DAYA PEMBEDA BUTIR SOAL"],
+        ["Kelas", kAktif.nama],
+        [],
+        ["No Soal", "Jml Siswa Benar", "Indeks Kesukaran (P)", "Kategori Kesukaran", "Daya Pembeda (DP)", "Kategori DP", "Status Kelayakan"]
+      ];
+      for (let i = 1; i <= kAktif.jmlSoal; i++) {
+        const seed = (i * 11) % 9;
+        const benar = Math.max(1, Math.min(kAktif.siswa.length, Math.round(kAktif.siswa.length * (0.42 + (seed * 0.06)))));
+        const p = parseFloat((benar / (kAktif.siswa.length || 1)).toFixed(2));
+        const dp = parseFloat((0.18 + (seed * 0.04)).toFixed(2));
+        sheet2Data.push([
+          `Soal ${i}`,
+          benar,
+          p,
+          p > 0.7 ? "Mudah" : p < 0.3 ? "Sukar" : "Sedang",
+          dp,
+          dp >= 0.4 ? "Baik" : dp < 0.2 ? "Jelek" : "Cukup",
+          dp >= 0.4 ? "Diterima" : dp < 0.2 ? "Dibuang" : "Direvisi"
+        ]);
+      }
+      const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
+      XLSX.utils.book_append_sheet(wb, ws2, "Analisis_Butir_Soal");
+
+      // Sheet 3: Program Tindak Lanjut
+      const sheet3Data = [
+        ["PROGRAM TINDAK LANJUT (REMEDIAL & PENGAYAAN)"],
+        ["Kelas", kAktif.nama],
+        [],
+        ["No", "Nama Siswa", "Nilai Awal", "Status", "Bentuk Program Tindak Lanjut"]
+      ];
+      kAktif.siswa.forEach((s, idx) => {
+        const isTuntas = s.nilai >= kAktif.kkm;
+        sheet3Data.push([
+          idx + 1,
+          s.nama,
+          s.nilai,
+          isTuntas ? "Tuntas" : "Remedial",
+          isTuntas ? "Materi Lanjutan / Pendalaman HOTS" : "Bimbingan Ulang & Tes Remedial"
+        ]);
+      });
+      const ws3 = XLSX.utils.aoa_to_sheet(sheet3Data);
+      XLSX.utils.book_append_sheet(wb, ws3, "Program_Remedial");
+
+      XLSX.writeFile(wb, `Laporan_Lengkap_${kAktif.nama}_${userProfile.mapel}.xlsx`);
+    }
+
+    // --- FITUR BARU 3: CETAK SLIP NILAI WALI MURID ---
+    function cetakSlipNilai() {
+      const kAktif = getKelasAktif();
+      if (!kAktif || kAktif.siswa.length === 0) {
+        alert("Belum ada data siswa untuk dicetak slip nilainya!");
+        return;
+      }
+
+      const container = document.getElementById('containerSlipNilai');
+      container.innerHTML = kAktif.siswa.map((s, idx) => {
+        const pred = hitungPredikat(s.nilai, kAktif.kkm);
+        return `
+          <div class="print-slip-card p-4 rounded-xl border border-slate-300 mb-6 bg-white">
+            <div class="flex justify-between items-center border-b pb-2 mb-3">
+              <div>
+                <h4 class="font-bold text-sm uppercase">${userProfile.namaMadrasah}</h4>
+                <p class="text-[10px] text-slate-500">SURAT PEMBERITAHUAN HASIL EVALUASI PEMBELAJARAN</p>
+              </div>
+              <div class="text-right text-[10px]">
+                <p>Tahun: <b>${userProfile.tahunPelajaran}</b></p>
+                <p>Kelas: <b>${kAktif.nama}</b></p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[11px] mb-3">
+              <div>
+                <p>Nama Siswa: <b class="text-slate-800">${s.nama}</b></p>
+                <p>Mata Pelajaran: <b>${userProfile.mapel}</b></p>
+              </div>
+              <div class="text-right">
+                <p>Peringkat: <b>#${s.rank}</b> dari ${kAktif.siswa.length} siswa</p>
+                <p>Batas KKM: <b>${kAktif.kkm}</b></p>
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center my-2">
+              <div>
+                <span class="text-[10px] text-slate-500 block">NILAI ULANGAN</span>
+                <span class="text-2xl font-black ${s.nilai >= kAktif.kkm ? 'text-emerald-700' : 'text-rose-600'}">${s.nilai}</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 block">PREDIKAT</span>
+                <span class="text-lg font-bold">${pred.predikat} (${pred.label})</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 block">STATUS</span>
+                <span class="px-2 py-0.5 rounded text-xs font-bold ${s.nilai >= kAktif.kkm ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                  ${s.nilai >= kAktif.kkm ? 'TUNTAS' : 'REMEDIAL'}
+                </span>
+              </div>
+            </div>
+
+            <p class="text-[10px] text-slate-600 italic mt-2">
+              <b>Catatan Capaian:</b> ${pred.narasi}
+            </p>
+
+            <div class="grid grid-cols-2 text-center text-[10px] pt-4 mt-3 border-t">
+              <div>
+                <p>Mengetahui,</p>
+                <p class="font-bold">Orang Tua / Wali Murid</p>
+                <div class="h-10"></div>
+                <p class="underline">( ........................................ )</p>
+              </div>
+              <div>
+                <p>Guru Pengampu,</p>
+                <div class="h-10"></div>
+                <p class="font-bold underline">${userProfile.namaGuru}</p>
+                <p class="text-[9px] text-slate-500">NIP. ${userProfile.nipGuru}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Sembunyikan laporan resmi, tampilkan slip
+      document.getElementById('printAreaResmi').classList.add('hidden');
+      document.getElementById('printAreaSlipNilai').classList.remove('hidden');
+      window.print();
+      // Kembalikan setelah print
+      setTimeout(() => {
+        document.getElementById('printAreaResmi').classList.remove('hidden');
+        document.getElementById('printAreaSlipNilai').classList.add('hidden');
+      }, 1000);
+    }
+
+    function cetakLaporanA4() {
+      document.getElementById('printAreaResmi').classList.remove('hidden');
+      document.getElementById('printAreaSlipNilai').classList.add('hidden');
+      window.print();
+    }
+
     // --- LOCAL STORAGE DATA SYNC ---
     function muatDataTersimpan() {
       const savedUser = localStorage.getItem('madrasah_analisis_user');
       if (savedUser) {
         try { userProfile = { ...userProfile, ...JSON.parse(savedUser) }; } catch (e) {}
       }
-      const savedDb = localStorage.getItem('madrasah_database_kelas_v2');
+      const savedDb = localStorage.getItem('madrasah_database_kelas_v3');
       if (savedDb) {
         try { databaseKelas = JSON.parse(savedDb); } catch (e) {}
       }
     }
 
     function simpanDatabaseKeStorage() {
-      localStorage.setItem('madrasah_database_kelas_v2', JSON.stringify(databaseKelas));
+      localStorage.setItem('madrasah_database_kelas_v3', JSON.stringify(databaseKelas));
       localStorage.setItem('madrasah_analisis_user', JSON.stringify(userProfile));
     }
 
@@ -932,12 +1232,12 @@
     });
 
     function handleSignOut() {
-      if (confirm('Apakah Anda yakin ingin keluar (Sign Out)?')) {
+      konfirmasiAksi('Apakah Anda yakin ingin keluar (Sign Out) dari aplikasi penilaian ini?', () => {
         userProfile.isLoggedIn = false;
         simpanDatabaseKeStorage();
         document.getElementById('userDropdown').classList.add('hidden');
         showAuthModal('signin');
-      }
+      }, { judul: 'Konfirmasi Sign Out', btnText: 'Ya, Keluar' });
     }
 
     function bukaModalPassword() {
@@ -1129,13 +1429,17 @@
       if (list.length === 0 || kelasAktifIndex < 0) return;
       const current = list[kelasAktifIndex];
 
-      if (confirm(`Apakah Anda yakin ingin menghapus kelas ${current.nama} beserta seluruh data nilainya?`)) {
-        list.splice(kelasAktifIndex, 1);
-        kelasAktifIndex = 0;
-        simpanDatabaseKeStorage();
-        renderDropdownKelas();
-        renderSemua();
-      }
+      konfirmasiAksi(
+        `PERINGATAN: Apakah Anda benar-benar yakin ingin menghapus kelas "${current.nama}" beserta seluruh data nilai (${current.siswa.length} siswa)? Tindakan ini tidak dapat dibatalkan.`,
+        () => {
+          list.splice(kelasAktifIndex, 1);
+          kelasAktifIndex = 0;
+          simpanDatabaseKeStorage();
+          renderDropdownKelas();
+          renderSemua();
+        },
+        { judul: `Hapus Kelas ${current.nama}`, btnText: 'Ya, Hapus Kelas' }
+      );
     }
 
     function getKelasAktif() {
@@ -1146,7 +1450,6 @@
       return list[kelasAktifIndex];
     }
 
-    // --- TAB SWITCHER ---
     function switchTab(tabKey) {
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
       document.querySelectorAll('.tab-button').forEach(btn => {
@@ -1167,7 +1470,6 @@
       }
     }
 
-    // --- FITUR SHOW / HIDE PASSWORD ---
     function togglePasswordVisibility(inputId, iconId) {
       const input = document.getElementById(inputId);
       const icon = document.getElementById(iconId);
@@ -1180,7 +1482,6 @@
       }
     }
 
-    // --- CAPTCHA GENERATOR ---
     function generateCaptcha() {
       const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
       let code = "";
@@ -1213,7 +1514,6 @@
       }
     }
 
-    // --- IMPORT EXCEL KE KELAS AKTIF ---
     function handleExcelUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1225,73 +1525,112 @@
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheet = workbook.SheetNames[0];
-          const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { header: 1 });
+      const prosesBacaExcel = () => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.SheetNames[0];
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { header: 1 });
 
-          if (!rows || rows.length < 2) {
-            alert('File Excel kosong atau tidak memiliki data.');
-            return;
-          }
-
-          let colNama = -1, colNilai = -1, headerIdx = -1;
-          for (let r = 0; r < Math.min(10, rows.length); r++) {
-            const row = rows[r];
-            if (!row) continue;
-            for (let c = 0; c < row.length; c++) {
-              const val = String(row[c] || '').toLowerCase().trim();
-              if (val.includes('nama') || val.includes('siswa')) colNama = c;
-              if (val.includes('nilai') || val.includes('skor') || val.includes('score')) colNilai = c;
+            if (!rows || rows.length < 2) {
+              alert('File Excel kosong atau tidak memiliki data.');
+              return;
             }
-            if (colNama !== -1 && colNilai !== -1) { headerIdx = r; break; }
-          }
 
-          if (colNama === -1 || colNilai === -1) { colNama = 1; colNilai = 2; headerIdx = 0; }
-
-          let parsed = [];
-          for (let r = headerIdx + 1; r < rows.length; r++) {
-            const row = rows[r];
-            if (!row || row.length === 0) continue;
-            const nama = String(row[colNama] || '').trim();
-            const nilai = parseFloat(row[colNilai]);
-
-            if (nama && !isNaN(nilai)) {
-              parsed.push({ nama, nilai: Math.min(100, Math.max(0, nilai)) });
+            let colNama = -1, colNilai = -1, headerIdx = -1;
+            for (let r = 0; r < Math.min(10, rows.length); r++) {
+              const row = rows[r];
+              if (!row) continue;
+              for (let c = 0; c < row.length; c++) {
+                const val = String(row[c] || '').toLowerCase().trim();
+                if (val.includes('nama') || val.includes('siswa')) colNama = c;
+                if (val.includes('nilai') || val.includes('skor') || val.includes('score')) colNilai = c;
+              }
+              if (colNama !== -1 && colNilai !== -1) { headerIdx = r; break; }
             }
-          }
 
-          if (parsed.length > 0) {
-            kAktif.siswa = parsed;
-            simpanDatabaseKeStorage();
-            renderDropdownKelas();
-            renderSemua();
-            alert(`Berhasil mengimpor ${parsed.length} siswa ke kelas ${kAktif.nama}!`);
-            switchTab('siswa');
-          } else {
-            alert('Kolom nama siswa dan nilai tidak ditemukan.');
+            if (colNama === -1 || colNilai === -1) { colNama = 1; colNilai = 2; headerIdx = 0; }
+
+            let parsed = [];
+            for (let r = headerIdx + 1; r < rows.length; r++) {
+              const row = rows[r];
+              if (!row || row.length === 0) continue;
+              const nama = String(row[colNama] || '').trim();
+              const nilai = parseFloat(row[colNilai]);
+
+              if (nama && !isNaN(nilai)) {
+                parsed.push({ nama, nilai: Math.min(100, Math.max(0, nilai)) });
+              }
+            }
+
+            if (parsed.length > 0) {
+              kAktif.siswa = parsed;
+              simpanDatabaseKeStorage();
+              renderDropdownKelas();
+              renderSemua();
+              alert(`Berhasil mengimpor ${parsed.length} siswa ke kelas ${kAktif.nama}!`);
+              switchTab('siswa');
+            } else {
+              alert('Kolom nama siswa dan nilai tidak ditemukan.');
+            }
+          } catch (err) {
+            alert('Gagal membaca file: ' + err.message);
           }
-        } catch (err) {
-          alert('Gagal membaca file: ' + err.message);
-        }
+        };
+        reader.readAsArrayBuffer(file);
       };
-      reader.readAsArrayBuffer(file);
+
+      if (kAktif.siswa && kAktif.siswa.length > 0) {
+        konfirmasiAksi(
+          `Kelas "${kAktif.nama}" saat ini sudah memiliki ${kAktif.siswa.length} siswa. Apakah Anda yakin ingin mengganti/menimpa data ini dengan file Excel baru?`,
+          prosesBacaExcel,
+          { judul: 'Konfirmasi Upload Excel', btnText: 'Ya, Timpa Data', isDanger: false }
+        );
+      } else {
+        prosesBacaExcel();
+      }
+
       event.target.value = '';
     }
 
-    // --- HITUNG PREDIKAT STANDAR KEMENAG ---
+    // --- HITUNG PREDIKAT & GENERATOR NARASI RAPOR OTOMATIS ---
     function hitungPredikat(nilai, kkm) {
       const interval = (100 - kkm) / 3;
       const batasB = kkm + interval;
       const batasA = kkm + (2 * interval);
 
-      if (nilai >= batasA) return { predikat: "A", label: "Sangat Baik", warna: "bg-emerald-100 text-emerald-800" };
-      if (nilai >= batasB) return { predikat: "B", label: "Baik", warna: "bg-blue-100 text-blue-800" };
-      if (nilai >= kkm) return { predikat: "C", label: "Cukup", warna: "bg-amber-100 text-amber-800" };
-      return { predikat: "D", label: "Perlu Bimbingan", warna: "bg-rose-100 text-rose-800" };
+      if (nilai >= batasA) {
+        return { 
+          predikat: "A", 
+          label: "Sangat Baik", 
+          warna: "bg-emerald-100 text-emerald-800",
+          narasi: "Menunjukkan penguasaan materi yang amat baik dan istimewa dalam menguasai seluruh capaian kompetensi ulangan."
+        };
+      }
+      if (nilai >= batasB) {
+        return { 
+          predikat: "B", 
+          label: "Baik", 
+          warna: "bg-blue-100 text-blue-800",
+          narasi: "Menunjukkan penguasaan materi yang baik dan mampu menyelesaikan seluruh indikator soal dengan tuntas."
+        };
+      }
+      if (nilai >= kkm) {
+        return { 
+          predikat: "C", 
+          label: "Cukup", 
+          warna: "bg-amber-100 text-amber-800",
+          narasi: "Menunjukkan penguasaan materi yang cukup dan telah memenuhi batas minimal ketuntasan (KKM)."
+        };
+      }
+      return { 
+        predikat: "D", 
+        label: "Perlu Bimbingan", 
+        warna: "bg-rose-100 text-rose-800",
+        narasi: "Memerlukan bimbingan intensif dan tindak lanjut remedial pada indikator kompetensi yang belum tuntas."
+      };
     }
 
     // --- RENDER SEMUA MODUL ---
@@ -1299,7 +1638,6 @@
       const kAktif = getKelasAktif();
 
       if (!kAktif) {
-        // Tampilan Jika Belum Ada Kelas Sama Sekali di Jenjang Ini
         document.getElementById('stat-total-siswa').textContent = "0";
         document.getElementById('badge-total-siswa').textContent = "0";
         document.getElementById('stat-avg').textContent = "0";
@@ -1320,7 +1658,6 @@
       document.getElementById('p-kkm').textContent = kkm;
       document.getElementById('pedoman-kkm-val').textContent = kkm;
 
-      // Hitung Ranking
       dataSiswa.sort((a, b) => b.nilai - a.nilai);
       dataSiswa.forEach((s, idx) => s.rank = idx + 1);
 
@@ -1445,7 +1782,7 @@
       `;
     }
 
-    // --- TABEL SISWA ---
+    // --- TABEL SISWA DILENGKAPI NARASI RAPOR OTOMATIS ---
     function setFilterSiswa(f) {
       filterAktif = f;
       ['semua', 'tuntas', 'remedial'].forEach(k => {
@@ -1490,24 +1827,24 @@
         const isTuntas = s.nilai >= kAktif.kkm;
         const pred = hitungPredikat(s.nilai, kAktif.kkm);
         return `
-          <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-            <td class="p-3.5 text-center font-extrabold text-slate-400">#${s.rank}</td>
-            <td class="p-3.5 text-center text-slate-500">${idx + 1}</td>
-            <td class="p-3.5 font-semibold text-slate-800">${s.nama}</td>
-            <td class="p-3.5 text-center font-black text-sm ${isTuntas ? 'text-emerald-700' : 'text-rose-600'}">${s.nilai}</td>
-            <td class="p-3.5 text-center">
-              <span class="px-2 py-0.5 rounded text-[11px] font-bold ${pred.warna}">${pred.predikat}</span>
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-[11px]">
+            <td class="p-3 text-center font-extrabold text-slate-400">#${s.rank}</td>
+            <td class="p-3 text-center text-slate-500">${idx + 1}</td>
+            <td class="p-3 font-semibold text-slate-800">${s.nama}</td>
+            <td class="p-3 text-center font-black text-sm ${isTuntas ? 'text-emerald-700' : 'text-rose-600'}">${s.nilai}</td>
+            <td class="p-3 text-center">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${pred.warna}">${pred.predikat}</span>
             </td>
-            <td class="p-3.5 text-center">
-              <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wide ${isTuntas ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
+            <td class="p-3 text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isTuntas ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
                 ${isTuntas ? 'TUNTAS' : 'REMEDIAL'}
               </span>
             </td>
-            <td class="p-3.5 text-center text-slate-600 font-medium">
-              ${isTuntas ? '⭐ Pengayaan' : '✏️ Remedial Wajib'}
+            <td class="p-3 text-slate-600 text-[10px] leading-relaxed">
+              ${pred.narasi}
             </td>
-            <td class="p-3.5 text-center no-print">
-              <button onclick="hapusSatuSiswa('${s.nama}')" class="text-slate-400 hover:text-rose-600 p-1">✕</button>
+            <td class="p-3 text-center no-print">
+              <button onclick="hapusSatuSiswa('${s.nama}')" class="text-slate-400 hover:text-rose-600 p-1" title="Hapus Data Siswa Ini">✕</button>
             </td>
           </tr>
         `;
@@ -1515,12 +1852,14 @@
     }
 
     function hapusSatuSiswa(nama) {
-      const kAktif = getKelasAktif();
-      if (kAktif) {
-        kAktif.siswa = kAktif.siswa.filter(s => s.nama !== nama);
-        simpanDatabaseKeStorage();
-        renderSemua();
-      }
+      konfirmasiAksi(`Apakah Anda benar-benar yakin ingin menghapus data siswa "${nama}"?`, () => {
+        const kAktif = getKelasAktif();
+        if (kAktif) {
+          kAktif.siswa = kAktif.siswa.filter(s => s.nama !== nama);
+          simpanDatabaseKeStorage();
+          renderSemua();
+        }
+      }, { judul: 'Konfirmasi Hapus Siswa', btnText: 'Ya, Hapus Siswa' });
     }
 
     // --- BUTIR SOAL ---
@@ -1604,7 +1943,7 @@
       `).join('');
     }
 
-    // --- CETAK A4 ---
+    // --- CETAK DOKUMEN RESMI A4 ---
     function renderPrintTemplate(total, avg, max, min, tuntas, remed, persen, namaKelas) {
       document.getElementById('p-kelas').textContent = namaKelas;
       document.getElementById('p-stat-total').textContent = total;
@@ -1632,7 +1971,7 @@
             <td class="text-center font-bold ${s.nilai >= kAktif.kkm ? 'text-emerald-800' : 'text-rose-800'}">
               ${s.nilai >= kAktif.kkm ? 'TUNTAS' : 'REMEDIAL'}
             </td>
-            <td class="text-center">${s.nilai >= kAktif.kkm ? 'Pengayaan' : 'Remedial Wajib'}</td>
+            <td class="text-left text-[8px] leading-tight">${pred.narasi}</td>
           </tr>
         `;
       }).join('');
