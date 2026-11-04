@@ -1,0 +1,3275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Analisis Nilai & Mutu Pembelajaran Madrasah</title>
+  
+  <!-- Font Modern: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS untuk Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Marked.js untuk Render AI Markdown Super Rapi & Anti-Bug -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+          colors: {
+            brand: {
+              50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0',
+              500: '#10b981', 600: '#059669', 700: '#047857',
+              800: '#065f46', 900: '#064e3b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #ffffff !important; padding: 0 !important; font-size: 11pt; }
+      .print-page { page-break-after: always; display: block !important; padding: 1.5cm; }
+      .print-slip-card { page-break-inside: avoid; margin-bottom: 20px; border: 1px dashed #64748b; padding: 15px; }
+      table { width: 100% !important; border-collapse: collapse !important; }
+      th, td { border: 1px solid #334155 !important; padding: 6px 8px !important; }
+      th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; }
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    /* Styling Khusus Markdown AI */
+    .ai-markdown-output h1, .ai-markdown-output h2, .ai-markdown-output h3 {
+      font-weight: 800;
+      color: #064e3b;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+    .ai-markdown-output h4 {
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 1rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.25rem;
+    }
+    .ai-markdown-output h5 {
+      font-weight: 700;
+      color: #334155;
+      margin-top: 0.75rem;
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+    }
+    .ai-markdown-output p {
+      margin-bottom: 0.65rem;
+      line-height: 1.65;
+      color: #334155;
+    }
+    .ai-markdown-output ul {
+      list-style-type: disc;
+      padding-left: 1.25rem;
+      margin-bottom: 0.65rem;
+      color: #334155;
+    }
+    .ai-markdown-output ol {
+      list-style-type: decimal;
+      padding-left: 1.25rem;
+      margin-bottom: 0.65rem;
+      color: #334155;
+    }
+    .ai-markdown-output li {
+      margin-bottom: 0.25rem;
+    }
+    .ai-markdown-output strong {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .ai-markdown-output em {
+      font-style: italic;
+      color: #475569;
+    }
+    .ai-markdown-output hr {
+      border: 0;
+      border-top: 1px solid #e2e8f0;
+      margin: 1rem 0;
+    }
+    .ai-markdown-output blockquote {
+      border-left: 4px solid #10b981;
+      padding-left: 0.75rem;
+      font-style: italic;
+      color: #475569;
+      background: #f0fdf4;
+      padding-top: 0.35rem;
+      padding-bottom: 0.35rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      margin: 0.75rem 0;
+    }
+    .ai-markdown-output table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.8rem;
+    }
+    .ai-markdown-output th, .ai-markdown-output td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+    }
+    .ai-markdown-output th {
+      background-color: #f8fafc;
+      font-weight: 700;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans min-h-screen flex flex-col">
+
+  <!-- MODAL DIALOG KONFIRMASI -->
+  <div id="customConfirmModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center animate-fade-in border border-slate-100">
+      <div id="confirmIconWrapper" class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black">
+        ⚠️
+      </div>
+      <h3 id="confirmTitle" class="text-base font-black text-slate-900 mb-2">Konfirmasi Tindakan</h3>
+      <div id="confirmMessage" class="text-xs text-slate-600 mb-6 leading-relaxed">
+        Apakah Anda yakin ingin melanjutkan tindakan ini?
+      </div>
+      <div class="flex gap-3 justify-center">
+        <button onclick="tutupConfirmModal()" class="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 transition">
+          Batal
+        </button>
+        <button id="btnExecuteConfirm" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white shadow-md shadow-rose-200 transition">
+          Ya, Lanjutkan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL SIGN UP & SIGN IN -->
+  <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 animate-fade-in">
+      <div class="bg-brand-900 px-6 py-6 text-white text-center">
+        <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <span class="text-2xl">🕌</span>
+        </div>
+        <h3 class="text-lg font-bold">Portal Analisis Nilai Madrasah</h3>
+        <p class="text-xs text-emerald-200 mt-1">Silakan masuk atau daftarkan akun pendidik Anda</p>
+      </div>
+
+      <div class="flex border-b border-slate-200">
+        <button id="tabBtnSignUp" onclick="toggleAuthMode('signup')" class="flex-1 py-3 text-xs font-bold border-b-2 border-brand-700 text-brand-700">
+          Daftar Baru (Sign Up)
+        </button>
+        <button id="tabBtnSignIn" onclick="toggleAuthMode('signin')" class="flex-1 py-3 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600">
+          Sudah Punya Akun (Sign In)
+        </button>
+      </div>
+
+      <form id="authForm" onsubmit="handleAuthSubmit(event)" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Email Guru / Akun Madrasah</label>
+          <input type="email" id="authEmail" required class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none" placeholder="guru@kemenag.go.id">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+          <div class="relative">
+            <input type="password" id="authPassword" required class="w-full text-xs px-3 py-2.5 pr-10 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Minimal 6 karakter">
+            <button type="button" onclick="togglePasswordVisibility('authPassword', 'eyeIconAuth')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+              <svg id="eyeIconAuth" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="signUpFields" class="space-y-4 pt-2 border-t border-slate-100">
+          <p class="text-[11px] font-extrabold text-brand-800 uppercase tracking-wider">Identitas Pembelajaran</p>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap Guru (dengan Gelar)</label>
+            <input type="text" id="authNamaGuru" class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Contoh: Agus Gunawan, M.Pd.">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Madrasah / Satuan Pendidikan</label>
+            <input type="text" id="authNamaMadrasah" class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Contoh: MTs Negeri Kota Cimahi">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran</label>
+              <input type="text" id="authMapel" class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Contoh: Bahasa Arab">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Tahun Pelajaran</label>
+              <input type="text" id="authTapel" class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Contoh: 2026/2027">
+            </div>
+          </div>
+        </div>
+
+        <!-- Captcha Keamanan -->
+        <div class="pt-2 border-t border-slate-100">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Kode Keamanan (Captcha)</label>
+          <div class="flex items-center gap-2 mb-2">
+            <canvas id="captchaCanvas" width="130" height="38" class="bg-slate-100 rounded-lg border border-slate-200"></canvas>
+            <button type="button" onclick="generateCaptcha()" class="text-xs text-brand-700 hover:underline flex items-center gap-1 font-semibold">
+              🔄 Ganti
+            </button>
+          </div>
+          <input type="text" id="captchaInput" required placeholder="Ketik kode di atas" class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500 outline-none uppercase font-mono tracking-widest text-center font-bold">
+        </div>
+
+        <button type="submit" id="btnAuthSubmit" class="w-full py-3 bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold rounded-xl shadow-lg shadow-brand-900/20 transition">
+          Daftar & Mulai Menggunakan
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL PENGATURAN GEMINI API KEY -->
+  <div id="modalGeminiKey" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100 animate-fade-in">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl font-black">
+          ✨
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Hubungkan Google Gemini AI</h3>
+          <p class="text-xs text-slate-500">Integrasikan analisis cerdas langsung dari Google</p>
+        </div>
+      </div>
+
+      <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3 text-xs text-indigo-950 mb-4 leading-relaxed">
+        <p class="font-bold text-indigo-900 mb-1">Cara Mendapatkan API Key Gratis:</p>
+        <ol class="list-decimal list-inside space-y-1 text-[11px] text-indigo-800">
+          <li>Kunjungi <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline font-bold text-indigo-900 hover:text-indigo-600">Google AI Studio (aistudio.google.com)</a></li>
+          <li>Login dengan akun Google/Gmail Anda</li>
+          <li>Klik tombol <b>"Create API Key"</b> lalu salin kodenya</li>
+          <li>Tempelkan kode tersebut pada kolom di bawah ini</li>
+        </ol>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Google Gemini API Key</label>
+          <div class="relative">
+            <input type="password" id="inputGeminiApiKey" placeholder="AIzaSy..." class="w-full text-xs px-3 py-2.5 pr-10 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+            <button type="button" onclick="togglePasswordVisibility('inputGeminiApiKey', 'eyeIconGemini')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+              <svg id="eyeIconGemini" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1">API Key tersimpan aman di browser Anda (Local Storage) dan tidak dikirim ke server lain.</p>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="tutupModalGeminiKey()" class="flex-1 py-2 text-xs font-semibold border rounded-xl hover:bg-slate-50 text-slate-700">Batal</button>
+          <button type="button" onclick="hapusGeminiApiKey()" class="px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200" title="Hapus API Key yang tersimpan">Hapus Key</button>
+          <button type="button" onclick="simpanGeminiApiKey()" class="flex-1 py-2 text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl shadow-md shadow-indigo-200">Simpan Key</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GANTI PASSWORD -->
+  <div id="modalPassword" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 border border-slate-100 animate-fade-in">
+      <h3 class="text-base font-bold text-slate-900 mb-1">Ganti Password</h3>
+      <p class="text-xs text-slate-500 mb-4">Pastikan Anda mengingat password baru Anda</p>
+      
+      <form onsubmit="handleGantiPassword(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Password Lama</label>
+          <input type="password" id="pwLama" required class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Password Baru</label>
+          <input type="password" id="pwBaru" required class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="tutupModalPassword()" class="flex-1 py-2 text-xs font-semibold border rounded-xl hover:bg-slate-50">Batal</button>
+          <button type="submit" class="flex-1 py-2 text-xs font-semibold bg-brand-700 text-white rounded-xl hover:bg-brand-800">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL UBAH PROFIL GURU & MADRASAH -->
+  <div id="modalProfil" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 border border-slate-100 animate-fade-in">
+      <h3 class="text-base font-bold text-slate-900 mb-1">Ubah Profil & Data Madrasah</h3>
+      <p class="text-xs text-slate-500 mb-4">Perbarui informasi identitas pembelajaran Anda</p>
+      
+      <form onsubmit="handleSimpanProfil(event)" class="space-y-3 max-h-[70vh] overflow-y-auto custom-scrollbar pr-1">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap Guru</label>
+          <input type="text" id="profNamaGuru" required class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">NIP Guru</label>
+          <input type="text" id="profNipGuru" class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-brand-500" placeholder="19800101 200501 1 001">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Madrasah</label>
+          <input type="text" id="profNamaMadrasah" required class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Mata Pelajaran</label>
+            <input type="text" id="profMapel" required class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Tahun Pelajaran</label>
+            <input type="text" id="profTapel" required class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Kepala Madrasah</label>
+            <input type="text" id="profNamaKamad" class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-brand-500" placeholder="Drs. H. Muhammad Ilyas">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">NIP Kepala Madrasah</label>
+            <input type="text" id="profNipKamad" class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="tutupModalProfil()" class="flex-1 py-2 text-xs font-semibold border rounded-xl hover:bg-slate-50">Batal</button>
+          <button type="submit" class="flex-1 py-2 text-xs font-semibold bg-brand-700 text-white rounded-xl hover:bg-brand-800">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL EDIT MATRIKS SKOR BUTIR SOAL -->
+  <div id="modalEditMatriks" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col border border-slate-100 animate-fade-in overflow-hidden">
+      <div class="bg-gradient-to-r from-brand-900 to-emerald-800 px-6 py-4 text-white flex justify-between items-center">
+        <div>
+          <h3 class="text-base font-black flex items-center gap-2">
+            <span>📝</span> Input & Edit Skor Butir Soal (PG, PGK, Menjodohkan)
+          </h3>
+          <p class="text-xs text-emerald-200 mt-0.5">
+            Kelas: <b id="m-edit-kelas">-</b> • Jumlah Soal: <b id="m-edit-jmlSoal">-</b> Butir • Total Bobot Maksimal: <b id="m-edit-totalBobot">-</b> Poin
+          </p>
+        </div>
+        <button onclick="tutupModalEditMatriks()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white font-bold text-sm">✕</button>
+      </div>
+
+      <div class="bg-slate-50 border-b border-slate-200 px-6 py-2.5 text-[11px] text-slate-600 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-4">
+          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> <b>PG:</b> Skor 1 / 0</span>
+          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> <b>PGK:</b> Skor bertingkat 0, 1, 2</span>
+          <span class="flex items-center gap-1 font-semibold"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> <b>Menjodohkan:</b> Skor 0, 1, 2, 3</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="aturKonfigurasiSoal()" class="px-2.5 py-1 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg font-bold text-[10px] text-slate-700 shadow-sm">
+            ⚙️ Ubah Bobot/Tipe Soal
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-auto custom-scrollbar p-4">
+        <table class="w-full text-xs text-left border-collapse" id="tableMatriksInput">
+          <thead class="bg-slate-100 text-slate-700 font-bold sticky top-0 z-10 text-[11px] border-b border-slate-300" id="theadMatriksInput"></thead>
+          <tbody id="tbodyMatriksInput" class="divide-y divide-slate-100 text-[11px]"></tbody>
+        </table>
+      </div>
+
+      <div class="bg-white border-t border-slate-200 px-6 py-3 flex justify-between items-center text-xs">
+        <p class="text-slate-500 italic text-[11px]">💡 Nilai total siswa (0-100) dan daya pembeda akan otomatis dihitung saat disimpan.</p>
+        <div class="flex gap-2">
+          <button onclick="tutupModalEditMatriks()" class="px-4 py-2 rounded-xl border border-slate-300 font-bold text-slate-700 hover:bg-slate-50">Batal</button>
+          <button onclick="simpanMatriksSkor()" class="px-5 py-2 rounded-xl bg-brand-800 hover:bg-brand-900 text-white font-bold shadow-md shadow-brand-900/20">💾 Simpan Perubahan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVBAR ATAS -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-tr from-brand-800 to-emerald-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-brand-900/20">
+            <span class="text-xl">🕌</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-brand-800 rounded-full">Kemenag RI</span>
+              <span class="text-xs text-slate-400 font-medium" id="headerMadrasah">Madrasah Terpadu</span>
+            </div>
+            <h1 class="text-sm font-black text-slate-900 tracking-tight">Analisis Nilai Ulangan & Mutu Butir Soal</h1>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Dropdown Profil Guru -->
+          <div class="relative">
+            <button onclick="toggleUserDropdown()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition text-left">
+              <div class="w-7 h-7 rounded-full bg-brand-700 text-white flex items-center justify-center font-bold text-xs" id="navAvatar">
+                A
+              </div>
+              <div class="hidden sm:block">
+                <p class="text-xs font-bold text-slate-800 leading-none truncate max-w-[130px]" id="navNamaGuru">Agus Gunawan</p>
+                <p class="text-[10px] text-slate-400 leading-tight" id="navRole">Guru Pendidik</p>
+              </div>
+              <span class="text-slate-400 text-xs">▼</span>
+            </button>
+
+            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-40 text-xs">
+              <div class="px-4 py-2 border-b border-slate-100">
+                <p class="font-bold text-slate-800" id="dd-nama-guru">Agus Gunawan, M.Pd.</p>
+                <p class="text-[10px] text-slate-400 truncate" id="dd-email">guru@kemenag.go.id</p>
+              </div>
+              
+              <button onclick="bukaModalProfil()" class="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 transition">
+                <span>⚙️</span> Ubah Profil & Madrasah
+              </button>
+              <button onclick="bukaModalPassword()" class="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center gap-2 text-slate-700 transition">
+                <span>🔒</span> Ganti Password
+              </button>
+              <button onclick="bukaModalGeminiKey()" class="w-full px-4 py-2 text-left hover:bg-indigo-50 text-indigo-700 font-semibold flex items-center gap-2 transition">
+                <span>✨</span> Pengaturan Gemini API Key
+              </button>
+
+              <hr class="my-1 border-slate-100">
+              <button onclick="handleSignOut()" class="w-full px-4 py-2 text-left hover:bg-rose-50 text-rose-600 font-bold flex items-center gap-2 transition">
+                <span>🚪</span> Sign Out (Keluar)
+              </button>
+            </div>
+          </div>
+
+          <!-- Tombol Export Excel 3-in-1 Lengkap -->
+          <button onclick="exportExcelMultiSheet()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-lg transition" title="Export Excel 3-in-1 (Leger Nilai, Butir Soal, Remedial)">
+            📊 Export Excel Lengkap
+          </button>
+
+          <!-- Tombol Template Excel Multi-Kelas & Butir Soal -->
+          <button onclick="downloadTemplateExcel()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition shadow-sm" title="Unduh format tabel Excel Butir Soal & Google Form">
+            📥 Template Excel
+          </button>
+          
+          <!-- Tombol Import Excel / Google Form -->
+          <button onclick="document.getElementById('excelUpload').click()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-800 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-lg transition" title="Unggah berkas Excel atau Respon Google Form">
+            📁 Import Excel / G-Form
+          </button>
+          <input type="file" id="excelUpload" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
+
+          <!-- Tombol Cetak Dokumen Resmi -->
+          <button onclick="cetakLaporanA4()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-white bg-brand-800 hover:bg-brand-900 rounded-lg shadow-sm transition">
+            🖨️ Cetak Laporan
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- BAR PEMILIH JENJANG & KELAS DINAMIS (MULTI-KELAS) -->
+  <div class="bg-white border-b border-slate-200 py-2.5 px-4 sm:px-6 lg:px-8 no-print shadow-sm">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-slate-500 font-semibold text-[11px]">Jenjang:</span>
+        <select id="pilihJenjang" onchange="gantiJenjang(this.value)" class="bg-slate-100 border border-slate-300 text-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none focus:ring-2 focus:ring-brand-500">
+          <option value="MI">MI / SD</option>
+          <option value="MTs" selected>MTs / SMP</option>
+          <option value="MA">MA / SMA / SMK</option>
+        </select>
+
+        <span class="text-slate-500 font-semibold text-[11px] ml-2">Pilih Rombel / Kelas:</span>
+        <div class="flex items-center gap-1.5">
+          <select id="selectKelasAktif" onchange="pilihKelas(this.value)" class="bg-brand-50 border border-brand-300 text-brand-900 rounded-lg px-3 py-1.5 text-xs font-extrabold outline-none focus:ring-2 focus:ring-brand-500">
+            <!-- Diisi hanya kelas yang sudah diinput -->
+          </select>
+          <button onclick="tambahKelasBaru()" class="px-2.5 py-1.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg text-xs font-semibold transition" title="Tambah Kelas Baru">
+            + Tambah Kelas
+          </button>
+          <button onclick="hapusKelasAktif()" id="btnHapusKelas" class="px-2 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 rounded-lg text-xs font-semibold transition" title="Hapus Kelas Ini">
+            🗑️ Hapus
+          </button>
+        </div>
+        <!-- Quick Class Switcher Badges -->
+        <div id="containerQuickKelasPills" class="hidden md:flex items-center gap-1.5 flex-wrap"></div>
+      </div>
+
+      <!-- KKM & Tombol Cetak Slip Nilai Murid -->
+      <div class="flex items-center gap-3 text-xs">
+        <button onclick="cetakSlipNilai()" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg font-semibold text-slate-700 transition flex items-center gap-1.5 shadow-sm" title="Cetak Kartu Hasil Belajar untuk dibagikan ke Wali Murid">
+          🎫 Cetak Slip Murid
+        </button>
+
+        <div id="wrapperKKMKelas" class="flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg">
+          <span class="text-amber-800 font-bold text-[11px]">Batas KKM:</span>
+          <input type="number" id="inputKKMKelas" min="0" max="100" value="75" onchange="ubahKKMKelas(this.value)" class="w-12 bg-white text-center font-black text-amber-900 border border-amber-300 rounded px-1 py-0.5 text-xs focus:ring-1 focus:ring-amber-500">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB BAR MENU UTAMA -->
+  <nav class="bg-white border-b border-slate-200 shadow-sm no-print sticky top-16 z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex space-x-1 sm:space-x-3 overflow-x-auto py-2 text-xs font-bold scrollbar-none">
+        
+        <button onclick="switchTab('beranda')" id="tab-btn-beranda" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-brand-800 bg-brand-50/80 border border-brand-200">
+          <span>🏠</span>
+          <span>Beranda & Panduan</span>
+        </button>
+
+        <button onclick="switchTab('siswa')" id="tab-btn-siswa" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
+          <span>👥</span>
+          <span>Data Siswa & Nilai</span>
+          <span id="badge-total-siswa" class="px-1.5 py-0.5 rounded-full text-[10px] bg-brand-200 text-brand-900">32</span>
+        </button>
+
+        <button onclick="switchTab('butir')" id="tab-btn-butir" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
+          <span>🎯</span>
+          <span>Analisis Butir Soal</span>
+        </button>
+
+        <button onclick="switchTab('ketuntasan')" id="tab-btn-ketuntasan" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
+          <span>📊</span>
+          <span>Ketuntasan & Daya Serap</span>
+        </button>
+
+        <button onclick="switchTab('remedial')" id="tab-btn-remedial" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-slate-600 hover:bg-slate-100 border border-transparent">
+          <span>⭐</span>
+          <span>Remedial & Pengayaan</span>
+          <span id="badge-remed-count" class="px-1.5 py-0.5 rounded-full text-[10px] bg-rose-100 text-rose-800">13</span>
+        </button>
+
+        <button onclick="switchTab('ai')" id="tab-btn-ai" class="tab-button flex items-center gap-2 px-4 py-2.5 rounded-xl transition text-indigo-700 bg-gradient-to-r from-purple-50 to-indigo-50 hover:from-purple-100 hover:to-indigo-100 border border-indigo-200 shadow-sm whitespace-nowrap">
+          <span>✨</span>
+          <span>Asisten Gemini AI</span>
+          <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-indigo-600 text-white animate-pulse">AI</span>
+        </button>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- KONTEN UTAMA -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+    
+    <!-- TAB 0: BERANDA & RINGKASAN -->
+    <section id="panel-beranda" class="tab-panel space-y-6">
+      <div class="bg-gradient-to-r from-brand-900 via-brand-800 to-emerald-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+        <div class="relative z-10 max-w-2xl">
+          <span class="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold text-emerald-200 inline-block mb-3">
+            ✨ Evaluasi Pembelajaran Madrasah Terintegrasi
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight mb-2">
+            Analisis Nilai Ulangan & Mutu Butir Soal
+          </h2>
+          <p class="text-xs sm:text-sm text-emerald-100 leading-relaxed mb-4">
+            Kelola evaluasi belajar madrasah secara akurat, modern, dan otomatis. Pantau daya serap, tingkat kesukaran soal, hingga program remedial & pengayaan dalam satu platform terpadu.
+          </p>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <span class="bg-white/20 px-3 py-1 rounded-lg">Mapel: <b id="banner-mapel">Bahasa Arab</b></span>
+            <span class="bg-white/20 px-3 py-1 rounded-lg">Kelas Aktif: <b id="banner-kelas-aktif">VII A</b></span>
+            <span class="bg-white/20 px-3 py-1 rounded-lg">Batas KKM: <b id="banner-kkm">75</b></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kartu Metrik Utama -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+          <p class="text-xs text-slate-500 font-semibold mb-1">Rata-Rata Kelas</p>
+          <h3 class="text-2xl font-black text-slate-900" id="stat-avg">0</h3>
+          <p class="text-[10px] text-slate-400 mt-1">Daya serap klasikal</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+          <p class="text-xs text-slate-500 font-semibold mb-1">Ketuntasan Belajar</p>
+          <h3 class="text-2xl font-black text-emerald-600" id="stat-persen">0%</h3>
+          <p class="text-[10px] text-slate-400 mt-1" id="stat-tuntas-detail">0 dari 0 siswa tuntas</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+          <p class="text-xs text-slate-500 font-semibold mb-1">Perlu Remedial</p>
+          <h3 class="text-2xl font-black text-rose-600" id="stat-remed">0</h3>
+          <p class="text-[10px] text-slate-400 mt-1">Nilai di bawah batas KKM</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+          <p class="text-xs text-slate-500 font-semibold mb-1">Rentang Nilai</p>
+          <h3 class="text-2xl font-black text-indigo-600"><span id="stat-max">0</span> / <span id="stat-min">0</span></h3>
+          <p class="text-[10px] text-slate-400 mt-1">Nilai Tertinggi / Terendah</p>
+        </div>
+      </div>
+
+      <!-- Alur Penggunaan & Daftar Kelas Guru -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+          <h3 class="text-sm font-black text-slate-900 mb-4 flex items-center gap-2">
+            <span>📖</span> Alur Cepat Analisis Nilai Ulangan Multi-Kelas
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <span class="w-6 h-6 rounded-full bg-brand-800 text-white text-[11px] font-bold flex items-center justify-center mb-2">1</span>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Unduh Template Excel</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Gunakan format multi-kelas untuk memasukkan banyak rombel sekaligus dalam 1 sheet atau per sheet.</p>
+              <button onclick="downloadTemplateExcel()" class="mt-3 text-left text-[11px] font-bold text-brand-700 hover:underline">Download Template →</button>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <span class="w-6 h-6 rounded-full bg-brand-800 text-white text-[11px] font-bold flex items-center justify-center mb-2">2</span>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Import File Nilai / G-Form</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Unggah berkas Excel atau respon Google Form. Sistem otomatis memetakan siswa dan butir soal.</p>
+              <button onclick="document.getElementById('excelUpload').click()" class="mt-3 text-left text-[11px] font-bold text-brand-700 hover:underline">Upload File →</button>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <span class="w-6 h-6 rounded-full bg-brand-800 text-white text-[11px] font-bold flex items-center justify-center mb-2">3</span>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Periksa Analisis Nilai & Butir</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Lihat ketuntasan klasikal, tingkat kesukaran soal, dan daftar siswa remedial secara real-time.</p>
+              <button onclick="switchTab('butir')" class="mt-3 text-left text-[11px] font-bold text-brand-700 hover:underline">Buka Butir Soal →</button>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <span class="w-6 h-6 rounded-full bg-brand-800 text-white text-[11px] font-bold flex items-center justify-center mb-2">4</span>
+              <h4 class="text-xs font-bold text-slate-800 mb-1">Konsultasi Gemini AI</h4>
+              <p class="text-[11px] text-slate-500 leading-relaxed">Minta Asisten AI mendiagnosis kelemahan kelas dan menyusun soal remedial otomatis.</p>
+              <button onclick="switchTab('ai')" class="mt-3 text-left text-[11px] font-bold text-indigo-700 hover:underline">Buka Asisten AI →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                <span>📚</span> Daftar Kelas Anda
+              </h3>
+              <button onclick="tambahKelasBaru()" class="text-[11px] font-bold text-brand-700 hover:underline">+ Baru</button>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Kelas yang saat ini tersimpan untuk jenjang <b id="lbl-jenjang-aktif">MTs</b>:</p>
+            
+            <div id="listKelasPreview" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar pr-1"></div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 mt-4 text-[11px] text-slate-500">
+            Total Siswa Terdaftar: <b id="totalSiswaSemuaKelas" class="text-slate-800">32 Siswa</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pedoman Interval Predikat Kemenag -->
+      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+        <h3 class="text-sm font-black text-slate-900 mb-2 flex items-center gap-2">
+          <span>📐</span> Pedoman Rentang Predikat Nilai Ulangan Kemenag (KKM: <span id="lbl-kkm-pedoman">75</span>)
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">Rumus Interval Kemenag: <i>Interval = (100 - KKM) / 3</i></p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
+          <div class="p-3 bg-emerald-50 rounded-2xl border border-emerald-100">
+            <span class="font-extrabold text-emerald-800 text-sm">Predikat A</span>
+            <p class="text-[10px] text-emerald-600 font-bold mt-1">Sangat Baik</p>
+            <p class="font-bold text-slate-700 mt-1" id="pedoman-rentang-a">92 - 100</p>
+          </div>
+          <div class="p-3 bg-blue-50 rounded-2xl border border-blue-100">
+            <span class="font-extrabold text-blue-800 text-sm">Predikat B</span>
+            <p class="text-[10px] text-blue-600 font-bold mt-1">Baik</p>
+            <p class="font-bold text-slate-700 mt-1" id="pedoman-rentang-b">84 - 91</p>
+          </div>
+          <div class="p-3 bg-amber-50 rounded-2xl border border-amber-100">
+            <span class="font-extrabold text-amber-800 text-sm">Predikat C</span>
+            <p class="text-[10px] text-amber-600 font-bold mt-1">Cukup (Batas KKM)</p>
+            <p class="font-bold text-slate-700 mt-1" id="pedoman-rentang-c">75 - 83</p>
+          </div>
+          <div class="p-3 bg-rose-50 rounded-2xl border border-rose-100">
+            <span class="font-extrabold text-rose-800 text-sm">Predikat D</span>
+            <p class="text-[10px] text-rose-600 font-bold mt-1">Perlu Bimbingan (Remedial)</p>
+            <p class="font-bold text-slate-700 mt-1" id="pedoman-rentang-d">&lt; 75</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 1: DATA SISWA & NILAI -->
+    <section id="panel-siswa" class="tab-panel hidden space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex items-center gap-3">
+          <input type="text" id="searchSiswa" onkeyup="renderTabelSiswa()" placeholder="Cari nama siswa..." class="text-xs px-3 py-2 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-brand-500 w-48 sm:w-64">
+          <div class="flex gap-1 text-xs">
+            <button onclick="setFilterSiswa('semua')" id="btn-filter-semua" class="px-3 py-1.5 rounded-lg bg-slate-900 text-white font-semibold">Semua</button>
+            <button onclick="setFilterSiswa('tuntas')" id="btn-filter-tuntas" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200">Tuntas</button>
+            <button onclick="setFilterSiswa('remedial')" id="btn-filter-remedial" class="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200">Remedial</button>
+          </div>
+        </div>
+
+        <div class="text-xs text-slate-500 flex items-center gap-2">
+          <span>Urutkan Nilai:</span>
+          <button onclick="toggleSortNilai()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold text-slate-700" id="btnSortNilai">
+            Tertinggi ↓
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-extrabold border-b border-slate-200">
+              <tr>
+                <th class="p-3 w-12 text-center">Rank</th>
+                <th class="p-3 w-12 text-center">No</th>
+                <th class="p-3">Nama Lengkap Siswa</th>
+                <th class="p-3 w-20 text-center">Nilai</th>
+                <th class="p-3 w-20 text-center">Predikat</th>
+                <th class="p-3 w-24 text-center">Status</th>
+                <th class="p-3 text-left">Rencana Tindak Lanjut Evaluasi</th>
+                <th class="p-3 w-16 text-center no-print">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-siswa" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: ANALISIS BUTIR SOAL -->
+    <section id="panel-butir" class="tab-panel hidden space-y-6">
+      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h3 class="text-base font-bold text-slate-900">Analisis Mutu Butir Soal (Data Riil Siswa)</h3>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-brand-800">100% Data Riil</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">
+            Dihitung dari skor butir siswa untuk tipe <b>Pilihan Ganda (PG)</b>, <b>PG Kompleks (PGK)</b>, dan <b>Menjodohkan</b>.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap text-xs">
+          <div class="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+            <span class="font-bold text-slate-600">Jml Soal:</span>
+            <select id="selectJmlSoal" onchange="ubahJumlahSoal(this.value)" class="bg-transparent font-black text-slate-800 outline-none">
+              <option value="10">10 Soal</option>
+              <option value="15">15 Soal</option>
+              <option value="20">20 Soal</option>
+              <option value="25">25 Soal</option>
+              <option value="30">30 Soal</option>
+              <option value="40">40 Soal</option>
+            </select>
+          </div>
+
+          <button onclick="bukaModalEditMatriks()" class="px-3.5 py-1.5 bg-brand-800 hover:bg-brand-900 text-white font-bold rounded-lg shadow-sm transition flex items-center gap-1.5">
+            <span>📝</span> Edit Skor Butir Siswa
+          </button>
+        </div>
+      </div>
+
+      <!-- Banner Transparansi Sumber Data Pedagogis -->
+      <div class="bg-emerald-50/70 border border-emerald-200 p-4 rounded-2xl text-xs text-emerald-950 flex items-start gap-3">
+        <span class="text-xl">📊</span>
+        <div class="leading-relaxed">
+          <p class="font-bold text-emerald-900">Dari mana angka-angka analisis butir ini berasal?</p>
+          <p class="text-[11px] text-emerald-800 mt-0.5">
+            <b>1. Tingkat Kesukaran (P):</b> Dihitung riil dari rata-rata perolehan skor siswa pada butir tersebut dibagi skor maksimalnya (<i>P = Rata-rata Skor / Skor Maksimal</i>). Nilai <i>P &gt; 0.70</i> (Mudah), <i>0.30 - 0.70</i> (Sedang/Ideal), <i>&lt; 0.30</i> (Sukar).<br>
+            <b>2. Daya Pembeda (DP):</b> Dihitung membandingkan rata-rata <b>27% Siswa Kelompok Atas</b> dengan <b>27% Siswa Kelompok Bawah</b> (<i>DP = (Rata-rata Atas - Rata-rata Bawah) / Skor Maks</i>). Butir berdaya beda <i>DP ≥ 0.30</i> sangat layak disimpan di Bank Soal.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200 text-[11px]">
+                <tr>
+                  <th class="p-3 text-center w-14">No</th>
+                  <th class="p-3 text-center">Tipe Soal</th>
+                  <th class="p-3 text-center">Bobot Maks</th>
+                  <th class="p-3 text-center">Rata-rata Skor</th>
+                  <th class="p-3 text-center">Tingkat Kesukaran (P)</th>
+                  <th class="p-3 text-center">Daya Pembeda (DP)</th>
+                  <th class="p-3 text-center">Status Kelayakan</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-butir" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+            <h4 class="text-xs font-bold text-slate-800 mb-3">Distribusi Tingkat Kesukaran</h4>
+            <div class="h-44 relative">
+              <canvas id="chartButirKesukaran"></canvas>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+            <h4 class="text-xs font-bold text-slate-800 mb-3">Rangkuman Kelayakan Soal</h4>
+            <div class="h-44 relative">
+              <canvas id="chartButirKelayakan"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: KETUNTASAN & DAYA SERAP -->
+    <section id="panel-ketuntasan" class="tab-panel hidden space-y-6">
+      <div class="bg-blue-50/70 border border-blue-200 p-4 rounded-2xl text-xs text-blue-950 flex items-start gap-3">
+        <span class="text-xl">📈</span>
+        <div class="leading-relaxed">
+          <p class="font-bold text-blue-900">Dari mana angka Ketuntasan & Daya Serap ini berasal?</p>
+          <p class="text-[11px] text-blue-800 mt-0.5">
+            <b>1. Daya Serap Klasikal:</b> Dihitung dari <b>Rata-rata Nilai Siswa</b> dibagi skor maksimal 100%. Daya serap mencerminkan sejauh mana materi kurikulum terserap oleh kelas.<br>
+            <b>2. Ketuntasan Belajar Klasikal:</b> Dihitung dari persentase jumlah siswa yang memperoleh nilai <b>≥ Batas KKM</b> (<i>Ketuntasan = (Siswa Tuntas / Total Siswa) × 100%</i>). Standar ketuntasan klasikal madrasah adalah <b>≥ 85%</b>.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 mb-1">Ketuntasan Belajar Klasikal</h3>
+            <p class="text-xs text-slate-500 mb-4">Perbandingan siswa yang telah mencapai KKM vs siswa yang perlu remedial.</p>
+            <div class="h-60 relative">
+              <canvas id="chartPieKetuntasan"></canvas>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mt-4 text-center text-xs">
+            <div class="bg-emerald-50 p-2.5 rounded-xl border border-emerald-100">
+              <span class="text-emerald-800 font-extrabold text-lg" id="chart-lbl-tuntas">0</span>
+              <p class="text-[10px] text-emerald-600 font-bold">Siswa Tuntas</p>
+            </div>
+            <div class="bg-rose-50 p-2.5 rounded-xl border border-rose-100">
+              <span class="text-rose-800 font-extrabold text-lg" id="chart-lbl-remedial">0</span>
+              <p class="text-[10px] text-rose-600 font-bold">Siswa Remedial</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 mb-1">Sebaran Distribusi Nilai</h3>
+            <p class="text-xs text-slate-500 mb-4">Frekuensi rentang nilai siswa dari 0 sampai 100.</p>
+            <div class="h-60 relative">
+              <canvas id="chartBarDistribusi"></canvas>
+            </div>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-600 mt-4 leading-relaxed">
+            💡 <b>Analisis Pedagogis:</b> Kurva nilai normal menunjukkan mutu soal yang seimbang antara butir mudah, sedang, dan sukar.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: PROGRAM REMEDIAL & PENGAYAAN -->
+    <section id="panel-remedial" class="tab-panel hidden space-y-6">
+      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex justify-between items-center flex-wrap gap-4">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Rencana Program Remedial & Pengayaan</h3>
+          <p class="text-xs text-slate-500 mt-1">Daftar tindak lanjut hasil penilaian harian/semester sesuai standar administrasi kurikulum madrasah.</p>
+        </div>
+        <button onclick="switchTab('ai')" class="px-4 py-2 bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
+          <span>✨</span> Susun Soal Remedial dengan Gemini AI →
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-3xl border border-rose-100 shadow-sm p-5">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-xs font-black text-rose-700 uppercase tracking-wider flex items-center gap-1.5">
+              <span>⚠️</span> Daftar Siswa Remedial (<span id="count-siswa-remed">0</span> Siswa)
+            </h4>
+            <span class="text-[10px] text-slate-400">Nilai &lt; KKM</span>
+          </div>
+          <div class="overflow-x-auto custom-scrollbar max-h-96">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-rose-50/60 text-rose-900 font-bold border-b border-rose-100 text-[10px]">
+                <tr>
+                  <th class="p-2 w-8 text-center">No</th>
+                  <th class="p-2">Nama Siswa</th>
+                  <th class="p-2 w-16 text-center">Nilai Asli</th>
+                  <th class="p-2">Rencana Bentuk Remedial</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-remedial" class="divide-y divide-rose-50 text-[11px]"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-emerald-100 shadow-sm p-5">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-xs font-black text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
+              <span>⭐</span> Daftar Siswa Pengayaan (<span id="count-siswa-pengayaan">0</span> Siswa)
+            </h4>
+            <span class="text-[10px] text-slate-400">Nilai ≥ KKM</span>
+          </div>
+          <div class="overflow-x-auto custom-scrollbar max-h-96">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-emerald-50/60 text-emerald-900 font-bold border-b border-emerald-100 text-[10px]">
+                <tr>
+                  <th class="p-2 w-8 text-center">No</th>
+                  <th class="p-2">Nama Siswa</th>
+                  <th class="p-2 w-16 text-center">Nilai Asli</th>
+                  <th class="p-2">Rencana Bentuk Pengayaan</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-pengayaan" class="divide-y divide-emerald-50 text-[11px]"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: ASISTEN GEMINI AI -->
+    <section id="panel-ai" class="tab-panel hidden space-y-6">
+      
+      <!-- Banner Utama Gemini AI -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-indigo-800/40">
+        <div class="relative z-10 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="px-3 py-1 bg-indigo-500/20 border border-indigo-400/30 backdrop-blur-md rounded-full text-xs font-bold text-indigo-200 flex items-center gap-1.5">
+              <span>✨</span> Pakar Evaluasi Pembelajaran & Remedial Madrasah
+            </span>
+            <span id="badgeStatusGeminiLive" onclick="bukaModalGeminiKey()" class="cursor-pointer px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-slate-400" id="indicatorGeminiDot"></span>
+              <span id="lblStatusGeminiLive">Cek Status API Key</span>
+            </span>
+          </div>
+
+          <h2 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight mb-2">
+            Asisten Gemini AI: Olah Nilai & Rencana Perbaikan
+          </h2>
+          <p class="text-xs sm:text-sm text-indigo-100/90 leading-relaxed mb-4">
+            Manfaatkan kecerdasan buatan Google Gemini untuk menganalisis kendala hasil belajar, mendiagnosis butir soal yang bermasalah, serta merumuskan modul dan <b>soal remedial & pengayaan otomatis</b> siap pakai.
+          </p>
+
+          <div class="flex flex-wrap gap-2 text-xs">
+            <button onclick="jalankanAnalisisAI('diagnosis_lengkap')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-md shadow-indigo-900/50 transition flex items-center gap-2">
+              <span>📊</span> Analisis Komprehensif Kelas
+            </button>
+            <button onclick="jalankanAnalisisAI('remedial_modul')" class="px-4 py-2 rounded-xl bg-brand-700 hover:bg-brand-600 text-white font-bold shadow-md shadow-brand-900/50 transition flex items-center gap-2">
+              <span>📝</span> Susun Soal & Rencana Remedial
+            </button>
+            <button onclick="jalankanAnalisisAI('pengayaan_hots')" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-600 text-white font-bold shadow-md shadow-purple-900/50 transition flex items-center gap-2">
+              <span>🚀</span> Buat Soal Pengayaan HOTS
+            </button>
+            <button onclick="bukaModalGeminiKey()" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition border border-white/20 flex items-center gap-1.5" title="Atur Google Gemini API Key">
+              <span>🔑</span> Pengaturan API Key
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Prompt Chips & Interactive AI Query -->
+      <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+        <div class="flex justify-between items-center">
+          <label class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+            <span>💬</span> Tanya Asisten Gemini AI Mengenai Data Kelas Ini:
+          </label>
+          <span class="text-[10px] text-slate-400">Kelas Aktif: <b class="lbl-kelas-aktif text-brand-800">VII A</b></span>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="customAIPrompt" placeholder="Contoh: Mengapa Soal 5 dan 6 paling banyak salah? Buatkan 3 soal perbaikannya..." class="flex-1 text-xs px-4 py-2.5 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500">
+          <button onclick="jalankanCustomAIPrompt()" class="px-5 py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
+            <span>Kirim</span> <span>➤</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap pt-1 text-[11px]">
+          <span class="text-slate-400 font-semibold text-[10px]">Pertanyaan Cepat:</span>
+          <button onclick="setPromptAndRun('Analisis mendalam mengapa butir soal sukar tidak dapat dijawab siswa dan bagaimana rekomendasi perbaikannya.')" class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg transition font-medium">
+            🔍 Diagnosis Soal Sukar
+          </button>
+          <button onclick="setPromptAndRun('Susun rencana bimbingan dan 3 paket soal latihan remedial baru untuk siswa yang nilainya di bawah KKM.')" class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg transition font-medium">
+            📋 3 Soal Remedial Siap Pakai
+          </button>
+          <button onclick="setPromptAndRun('Rekomendasikan strategi mengajar dan media pembelajaran yang cocok agar daya serap klasikal mencapai 85%.')" class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg transition font-medium">
+            💡 Strategi Mengajar Efektif
+          </button>
+          <button onclick="setPromptAndRun('Buatkan tugas proyek mandiri dan 2 soal penalaran HOTS untuk siswa berprestasi (kelompok atas).')" class="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg transition font-medium">
+            🎯 Soal HOTS Pengayaan
+          </button>
+        </div>
+      </div>
+
+      <!-- Kotak Output Hasil Analisis Gemini AI -->
+      <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="bg-slate-50 border-b border-slate-200 px-6 py-3.5 flex flex-wrap justify-between items-center gap-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+              AI
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-slate-800" id="aiOutputTitle">Hasil Analisis & Rekomendasi Pedagogis</h3>
+              <p class="text-[10px] text-slate-400" id="aiOutputSubtitle">Siap disalin atau dicetak sebagai lampiran portofolio guru</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs">
+            <button onclick="salinHasilAI()" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg font-semibold transition flex items-center gap-1 shadow-sm">
+              <span>📋</span> Salin Teks
+            </button>
+            <button onclick="cetakHasilAI()" class="px-3 py-1.5 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded-lg font-semibold transition flex items-center gap-1">
+              <span>🖨️</span> Cetak Lembar Rencana AI
+            </button>
+          </div>
+        </div>
+
+        <div id="containerHasilAI" class="p-6 text-xs sm:text-sm text-slate-700 leading-relaxed space-y-4 ai-markdown-output max-h-[650px] overflow-y-auto custom-scrollbar">
+          <div class="text-center py-12 text-slate-400">
+            <span class="text-4xl block mb-2 opacity-50">✨</span>
+            <p class="font-bold text-slate-600">Belum ada analisis yang dijalankan.</p>
+            <p class="text-[11px] mt-1 max-w-md mx-auto">Klik salah satu tombol analisis di atas untuk meminta Asisten Gemini AI mendiagnosis hasil belajar dan merumuskan program remedial secara cerdas.</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- TEMPLATE CETAK DOKUMEN RESMI A4 -->
+  <div id="printAreaResmi" class="hidden print-page">
+    <div class="text-center border-b-2 border-slate-900 pb-3 mb-4">
+      <p class="text-[11px] font-bold tracking-wider uppercase">KEMENTERIAN AGAMA REPUBLIK INDONESIA</p>
+      <p class="text-[11px] font-bold tracking-wider uppercase">KANTOR KEMENTERIAN AGAMA KABUPATEN / KOTA</p>
+      <h2 class="text-base font-black tracking-tight uppercase" id="p-kop-madrasah">MTS NEGERI KOTA CIMAHI</h2>
+      <p class="text-[9px] text-slate-600 mt-0.5">Alamat: Jl. Pesantren No. 123 Kota Cimahi | Telp: (022) 1234567 | Website: kemenag.go.id</p>
+    </div>
+
+    <div class="text-center mb-4">
+      <h3 class="text-xs font-black uppercase underline tracking-wide">LAPORAN ANALISIS HASIL EVALUASI PEMBELAJARAN & BUTIR SOAL</h3>
+      <p class="text-[10px] text-slate-600 mt-0.5">Tahun Pelajaran <span id="p-kop-tapel">2026/2027</span> • Semester Ganjil</p>
+    </div>
+
+    <div class="grid grid-cols-2 text-[10px] mb-4">
+      <div class="space-y-0.5">
+        <p>Mata Pelajaran: <b id="p-mapel">Bahasa Arab</b></p>
+        <p>Kelas / Rombel: <b id="p-kelas">VII A</b></p>
+      </div>
+      <div class="space-y-0.5 text-right">
+        <p>Guru Pengampu: <b id="p-guru">Agus Gunawan, M.Pd.</b></p>
+        <p>Batas KKM: <b id="p-kkm">75</b></p>
+      </div>
+    </div>
+
+    <table class="w-full text-[9px] mb-4">
+      <tr class="bg-slate-100 font-bold text-center">
+        <td>Jumlah Siswa</td>
+        <td>Rata-Rata Nilai</td>
+        <td>Tertinggi</td>
+        <td>Terendah</td>
+        <td>Siswa Tuntas</td>
+        <td>Siswa Remedial</td>
+        <td>% Ketuntasan</td>
+      </tr>
+      <tr class="text-center font-bold">
+        <td id="p-stat-total">32</td>
+        <td id="p-stat-avg">71.8</td>
+        <td id="p-stat-max">97</td>
+        <td id="p-stat-min">0</td>
+        <td id="p-stat-tuntas">19</td>
+        <td id="p-stat-remed">13</td>
+        <td id="p-stat-persen">59%</td>
+      </tr>
+    </table>
+
+    <table class="w-full text-[9px] mb-6">
+      <thead>
+        <tr class="bg-slate-100 font-bold">
+          <th class="w-8 text-center">Rank</th>
+          <th class="w-8 text-center">No</th>
+          <th class="text-left">Nama Lengkap Siswa</th>
+          <th class="w-14 text-center">Nilai</th>
+          <th class="w-14 text-center">Predikat</th>
+          <th class="w-16 text-center">Status</th>
+          <th class="text-left">Rencana Tindak Lanjut Evaluasi</th>
+        </tr>
+      </thead>
+      <tbody id="p-tbody-siswa"></tbody>
+    </table>
+
+    <div class="grid grid-cols-2 text-center text-[10px] pt-4">
+      <div>
+        <p>Mengetahui,</p>
+        <p class="font-bold">Kepala Madrasah</p>
+        <div class="h-14"></div>
+        <p id="p-kamad" class="font-bold underline">Drs. H. Muhammad Ilyas, M.Ag</p>
+        <p class="text-slate-500" id="p-nip-kamad">NIP. 19730812 199903 1 002</p>
+      </div>
+      <div>
+        <p id="p-tgl-cetak">Cimahi, ..................... 2026</p>
+        <p class="font-bold">Guru Mata Pelajaran</p>
+        <div class="h-14"></div>
+        <p id="p-ttd-guru" class="font-bold underline">Agus Gunawan, M.Pd.</p>
+        <p class="text-slate-500" id="p-nip-guru">NIP. 19820514 200801 1 008</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATE CETAK SLIP NILAI WALI MURID -->
+  <div id="printAreaSlipNilai" class="hidden print-page">
+    <div id="containerSlipNilai"></div>
+  </div>
+
+  <!-- SCRIPT UTAMA SISTEM -->
+  <script>
+    // =========================================================
+    // --- INTEGRASI GOOGLE GEMINI AI & MESIN PAKAR REMEDIAL ---
+    // =========================================================
+    let geminiApiKey = localStorage.getItem('gemini_api_key') || '';
+    let lastGeneratedAIText = '';
+
+    function bukaModalGeminiKey() {
+      document.getElementById('inputGeminiApiKey').value = geminiApiKey;
+      document.getElementById('modalGeminiKey').classList.remove('hidden');
+    }
+
+    function tutupModalGeminiKey() {
+      document.getElementById('modalGeminiKey').classList.add('hidden');
+    }
+
+    function simpanGeminiApiKey() {
+      const key = document.getElementById('inputGeminiApiKey').value.trim();
+      if (!key) {
+        alert("Silakan masukkan Google Gemini API Key Anda.");
+        return;
+      }
+      geminiApiKey = key;
+      localStorage.setItem('gemini_api_key', key);
+      tutupModalGeminiKey();
+      updateGeminiStatusBadge();
+      alert("Alhamdulillah! Google Gemini API Key berhasil disimpan. Asisten AI siap digunakan secara live!");
+    }
+
+    function hapusGeminiApiKey() {
+      konfirmasiAksi("Apakah Anda yakin ingin menghapus API Key Gemini yang tersimpan di perangkat ini?", () => {
+        geminiApiKey = '';
+        localStorage.removeItem('gemini_api_key');
+        tutupModalGeminiKey();
+        updateGeminiStatusBadge();
+        alert("API Key berhasil dihapus. Sistem akan menggunakan Mesin Pakar Kurikulum Bawaan.");
+      }, { judul: "Hapus API Key", btnText: "Ya, Hapus" });
+    }
+
+    function updateGeminiStatusBadge() {
+      const badge = document.getElementById('badgeStatusGeminiLive');
+      const dot = document.getElementById('indicatorGeminiDot');
+      const lbl = document.getElementById('lblStatusGeminiLive');
+      if (!badge || !dot || !lbl) return;
+
+      if (geminiApiKey) {
+        badge.className = "cursor-pointer px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-600/50 transition flex items-center gap-1.5";
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+        lbl.textContent = "🟢 Gemini AI Live Aktif";
+      } else {
+        badge.className = "cursor-pointer px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5";
+        dot.className = "w-2 h-2 rounded-full bg-amber-400";
+        lbl.textContent = "⚪ Pakar Bawaan (Klik untuk Hubungkan API)";
+      }
+    }
+
+    async function panggilGeminiAPI(promptSistem, dataKonteks) {
+      if (!geminiApiKey) {
+        throw new Error("NO_API_KEY");
+      }
+
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
+      const payload = {
+        contents: [
+          {
+            parts: [
+              {
+                text: `${promptSistem}\n\nDATA EVALUASI PEMBELAJARAN KELAS:\n\`\`\`json\n${JSON.stringify(dataKonteks, null, 2)}\n\`\`\``
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2500
+        }
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error?.message || `HTTP error ${response.status}`);
+      }
+
+      const resData = await response.json();
+      const textOutput = resData.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!textOutput) throw new Error("Format respon Gemini AI kosong.");
+      return textOutput;
+    }
+
+    async function jalankanAnalisisAI(mode = 'diagnosis_lengkap') {
+      const kAktif = getKelasAktif();
+      if (!kAktif || !kAktif.siswa || kAktif.siswa.length === 0) {
+        alert("Pilih kelas yang memiliki data siswa dan nilai terlebih dahulu!");
+        return;
+      }
+
+      switchTab('ai');
+
+      const container = document.getElementById('containerHasilAI');
+      const titleEl = document.getElementById('aiOutputTitle');
+      const subEl = document.getElementById('aiOutputSubtitle');
+
+      container.innerHTML = `
+        <div class="py-16 text-center text-indigo-700 space-y-3">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent"></div>
+          <p class="font-bold text-sm text-slate-800">Sedang Menganalisis Data Hasil Belajar & Butir Soal...</p>
+          <p class="text-xs text-slate-500 max-w-sm mx-auto">Asisten AI sedang memproses statistik kelas, memetakan indikator soal sukar, serta menyusun rekomendasi remedial.</p>
+        </div>
+      `;
+
+      const total = kAktif.siswa.length;
+      let sum = 0, tuntas = 0, remed = 0;
+      let tuntasList = [], remedList = [];
+      kAktif.siswa.forEach(s => {
+        sum += s.nilai;
+        if (s.nilai >= kAktif.kkm) { tuntas++; tuntasList.push({ nama: s.nama, nilai: s.nilai }); }
+        else { remed++; remedList.push({ nama: s.nama, nilai: s.nilai }); }
+      });
+      const avg = (sum / (total || 1)).toFixed(1);
+      const persen = Math.round((tuntas / (total || 1)) * 100);
+
+      let soalSukar = [], soalDayaBedaRendah = [];
+      if (kAktif.soalConfig) {
+        const sorted = [...kAktif.siswa].sort((a, b) => b.nilai - a.nilai);
+        const nk = Math.max(1, Math.round(0.27 * total));
+        const upper = sorted.slice(0, nk);
+        const lower = sorted.slice(-nk);
+
+        kAktif.soalConfig.forEach((cfg, i) => {
+          let tot = 0;
+          kAktif.siswa.forEach(s => tot += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+          const p = parseFloat(((tot / total) / cfg.bobot).toFixed(2));
+          let sU = 0, sL = 0;
+          upper.forEach(s => sU += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+          lower.forEach(s => sL += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+          const dp = parseFloat((((sU / nk) - (sL / nk)) / cfg.bobot).toFixed(2));
+
+          if (p < 0.35) soalSukar.push({ no: i + 1, tipe: cfg.tipe, p: p, dp: dp });
+          if (dp < 0.25) soalDayaBedaRendah.push({ no: i + 1, tipe: cfg.tipe, p: p, dp: dp });
+        });
+      }
+
+      const dataKonteks = {
+        madrasah: userProfile.namaMadrasah,
+        guru: userProfile.namaGuru,
+        mataPelajaran: userProfile.mapel,
+        tahunPelajaran: userProfile.tahunPelajaran,
+        kelas: kAktif.nama,
+        kkm: kAktif.kkm,
+        totalSiswa: total,
+        rataRataKelas: avg,
+        ketuntasanKlasikalPersen: persen,
+        jumlahSiswaTuntas: tuntas,
+        jumlahSiswaRemedial: remed,
+        butirSoalSukar: soalSukar,
+        butirSoalDayaBedaRendah: soalDayaBedaRendah,
+        contohSiswaRemedial: remedList.slice(0, 10),
+        contohSiswaTuntas: tuntasList.slice(0, 5)
+      };
+
+      let promptSistem = "";
+      if (mode === 'diagnosis_lengkap') {
+        titleEl.textContent = `Diagnosis Komprehensif Hasil Belajar & Butir Soal Kelas ${kAktif.nama}`;
+        subEl.textContent = `Analisis ketercapaian kompetensi, evaluasi butir soal, dan tindak lanjut`;
+        promptSistem = `Anda adalah Pakar Pengukuran & Evaluasi Pembelajaran Madrasah (Senior Educational Assessment & Psychometrics Specialist) sekaligus Konsultan Kurikulum Kemenag RI.
+Analisis data evaluasi pembelajaran kelas ini secara mendalam, profesional, dan solutif.
+Sajikan dalam format Markdown yang rapi dengan struktur:
+1. Ringkasan Kinerja & Daya Serap Klasikal (evaluasi apakah mencapai standar Kemenag 85%).
+2. Diagnosis Penyebab Siswa Belum Tuntas & Analisis Kesulitan Belajar.
+3. Evaluasi Kualitas Butir Soal (ulas butir yang sukar dan daya beda rendah serta saran revisi).
+4. Rekomendasi Program Perbaikan (Remedial & Pengayaan).
+5. Saran Metodologi Pengajaran Guru untuk materi berikutnya.`;
+      } else if (mode === 'remedial_modul') {
+        titleEl.textContent = `Modul & Paket Soal Remedial Otomatis Kelas ${kAktif.nama}`;
+        subEl.textContent = `Program bimbingan terstruktur dan 3 paket soal remedial siap pakai`;
+        promptSistem = `Anda adalah Ahli Kurikulum & Evaluasi Pembelajaran Madrasah.
+Berdasarkan data kelas terlampir, susunlah Dokumen Program Remedial Lengkap dan Siap Pakai:
+1. Strategi Pengelompokan Remedial:
+   - Kelompok Bimbingan Intensif Langsung oleh Guru (siswa nilai rendah).
+   - Kelompok Pendampingan Tutor Sebaya.
+2. Rencana Pelaksanaan Pembelajaran Ulang (Re-teaching) ringkas.
+3. TULISKAN 3-4 PAKET BUTIR SOAL REMEDIAL BARU yang relevan dengan mata pelajaran ${userProfile.mapel} (tipe Pilihan Ganda & Menjodohkan), lengkap dengan Kunci Jawaban dan Pembahasannya.
+4. Kriteria Kelulusan Pasca Remedial.`;
+      } else if (mode === 'pengayaan_hots') {
+        titleEl.textContent = `Program Pengayaan HOTS & Proyek Mandiri Kelas ${kAktif.nama}`;
+        subEl.textContent = `Penguatan penalaran tingkat tinggi bagi siswa kelompok atas`;
+        promptSistem = `Anda adalah Pakar Pembelajaran HOTS (Higher Order Thinking Skills).
+Berdasarkan data siswa yang telah tuntas KKM di kelas ${kAktif.nama}, susunlah Program Pengayaan:
+1. Rekomendasi Penugasan Analitis & Literasi Eksploratif Mandiri.
+2. Peran sebagai Tutor Sebaya bagi rekan yang remedial.
+3. TULISKAN 2 BUTIR SOAL PENALARAN HOTS (Level Kognitif C4-C6 Analisis/Evaluasi/Kreasi) sesuai mata pelajaran ${userProfile.mapel}, lengkap dengan Rubrik Penilaian dan Kunci Jawaban.`;
+      } else {
+        titleEl.textContent = `Analisis & Rekomendasi Khusus Gemini AI`;
+        subEl.textContent = `Jawaban atas pertanyaan spesifik guru`;
+        promptSistem = `Anda adalah Konsultan Ahli Pendidikan Madrasah. Jawablah instruksi khusus guru secara mendalam, praktis, dan langsung dapat diimplementasikan di kelas: ${mode}`;
+      }
+
+      try {
+        let hasilTeks = "";
+        let isLiveAI = false;
+
+        if (geminiApiKey) {
+          try {
+            hasilTeks = await panggilGeminiAPI(promptSistem, dataKonteks);
+            isLiveAI = true;
+          } catch (errApi) {
+            console.warn("Gemini API Error, fallback to expert engine:", errApi.message);
+            hasilTeks = generateExpertAnalysisOffline(mode, dataKonteks);
+          }
+        } else {
+          hasilTeks = generateExpertAnalysisOffline(mode, dataKonteks);
+        }
+
+        lastGeneratedAIText = hasilTeks;
+        const bannerLive = isLiveAI 
+          ? `<div class="mb-4 p-2.5 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-900 text-xs flex items-center justify-between">
+               <span class="font-bold flex items-center gap-1.5"><span>✨</span> Dihasilkan secara langsung oleh Google Gemini AI Live</span>
+               <span class="text-[10px] text-indigo-600 font-semibold">Model: Gemini 1.5 Flash</span>
+             </div>`
+          : `<div class="mb-4 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs flex items-center justify-between">
+               <span class="font-bold flex items-center gap-1.5"><span>💡</span> Dihasilkan oleh Mesin Pakar Kurikulum Bawaan</span>
+               <button onclick="bukaModalGeminiKey()" class="text-[10px] bg-amber-200 hover:bg-amber-300 text-amber-900 px-2 py-0.5 rounded font-bold">Hubungkan Gemini API Key</button>
+             </div>`;
+
+        container.innerHTML = bannerLive + renderMarkdownAI(hasilTeks);
+
+      } catch (err) {
+        container.innerHTML = `
+          <div class="p-6 text-center text-rose-600 bg-rose-50 rounded-2xl border border-rose-200">
+            <p class="font-bold mb-1">Gagal Menjalankan Analisis AI</p>
+            <p class="text-xs text-rose-500">${err.message}</p>
+            <button onclick="jalankanAnalisisAI('${mode}')" class="mt-3 px-4 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-bold">Coba Lagi</button>
+          </div>
+        `;
+      }
+    }
+
+    function generateExpertAnalysisOffline(mode, ctx) {
+      const isTuntasKlasikal = ctx.ketuntasanKlasikalPersen >= 85;
+      const mapel = ctx.mataPelajaran || "Mata Pelajaran";
+      const kelas = ctx.kelas || "Kelas";
+
+      if (mode === 'remedial_modul') {
+        return `### 📋 DOKUMEN PROGRAM REMEDIAL & SOAL PERBAIKAN
+**Madrasah:** ${ctx.madrasah}  
+**Mata Pelajaran:** ${mapel} | **Kelas:** ${kelas}  
+**Target Batas KKM:** ${ctx.kkm} | **Jumlah Siswa Remedial:** ${ctx.jumlahSiswaRemedial} Siswa  
+
+---
+
+#### 1. Strategi Pengelompokan Pembelajaran Remedial
+Berdasarkan analisis nilai, ${ctx.jumlahSiswaRemedial} siswa yang belum tuntas dibagi menjadi 2 kelompok penanganan:
+- **Kelompok A (Bimbingan Konsep Intensif - Nilai < 50):**  
+  Memerlukan *re-teaching* (pembelajaran ulang) secara langsung oleh guru dengan pendekatan individual dan penyederhanaan indikator materi dasar.
+- **Kelompok B (Tutor Sebaya Terbimbing - Nilai 50 s.d. ${ctx.kkm - 1}):**  
+  Didampingi oleh siswa kelompok atas (${ctx.contohSiswaTuntas.map(s => s.nama).slice(0, 3).join(', ')}) untuk membahas kembali soal-soal latihan dan indikator yang keliru.
+
+---
+
+#### 2. Paket Soal Latihan Remedial Baru (Siap Pakai)
+Berikut adalah butir soal perbaikan yang disesuaikan dengan indikator yang belum tuntas:
+
+**Paket Soal 1 (Pilihan Ganda - Pemahaman Konsep):**  
+1. *Soal:* Pada materi pembelajaran ${mapel}, identifikasi pernyataan berikut yang paling tepat sesuai kaidah konsep dasar yang telah dipelajari...  
+   - A. Konsep dasar yang menyatakan hubungan sebab-akibat langsung  
+   - B. Kaidah umum yang berlaku pada setiap kondisi pembelajaran *(Kunci)*  
+   - C. Contoh kasus khusus yang memiliki pengecualian  
+   - D. Bentuk penyimpangan kaidah bahasa/konsep  
+   *Kunci Jawaban: B* | *Indikator: Memahami konsep dasar materi bab ulangan.*
+
+2. *Soal:* Perhatikan ilustrasi kasus pembelajaran berikut. Manakah langkah penerapan kaidah yang paling tepat untuk menyelesaikan permasalahan tersebut?  
+   - A. Menyesuaikan kaidah dengan aturan yang telah dibahas *(Kunci)*  
+   - B. Mengabaikan aturan dasar dan memilih jalan pintas  
+   - C. Mengganti variabel dengan ketentuan baru tanpa dasar  
+   - D. Menunda penyelesaian hingga materi berikutnya  
+   *Kunci Jawaban: A* | *Indikator: Menerapkan kaidah materi dalam contoh konkret.*
+
+**Paket Soal 2 (Menjodohkan - Penguasaan Istilah & Kaidah):**  
+3. *Instruksi:* Pasangkanlah istilah/kosakata di Kolom A dengan definisi/padanan yang tepat di Kolom B:  
+   - **Kolom A (Istilah):** (1) Istilah Pokok 1, (2) Kaidah Pokok 2, (3) Contoh Penerapan 3  
+   - **Kolom B (Definisi):** (A) Penerapan praktis, (B) Definisi dasar, (C) Ketentuan hukum kaidah  
+   *Kunci Pasangan: 1-B, 2-C, 3-A.*
+
+---
+
+#### 3. Ketentuan Penilaian Pasca Remedial
+- Nilai maksimal yang diberikan setelah tuntas remedial adalah **setara nilai KKM (${ctx.kkm})**.
+- Siswa yang telah mencapai KKM pada tes perbaikan dinyatakan tuntas dan berhak melanjutkan ke bab berikutnya.`;
+      }
+
+      if (mode === 'pengayaan_hots') {
+        return `### 🚀 PROGRAM PENGAYAAN HOTS & PENDALAMAN MATERI
+**Madrasah:** ${ctx.madrasah}  
+**Mata Pelajaran:** ${mapel} | **Kelas:** ${kelas}  
+**Siswa Pengayaan:** ${ctx.jumlahSiswaTuntas} Siswa (${ctx.ketuntasanKlasikalPersen}% Tuntas)  
+
+---
+
+#### 1. Rencana Aksi Pengayaan (Penalaran Tingkat Tinggi / HOTS)
+Bagi siswa yang telah melampaui batas KKM (terutama siswa peringkat teratas: ${ctx.contohSiswaTuntas.map(s => `${s.nama} [${s.nilai}]`).join(', ')}), diberikan pengayaan berupa:
+1. **Peran Edukatif:** Ditunjuk sebagai Duta Pembelajaran / Tutor Sebaya dalam mendampingi rekan kelompok remedial.
+2. **Tugas Proyek Analisis Mandiri:** Menyusun peta konsep (mind mapping) atau resume analisis perbandingan konsep materi ${mapel}.
+
+---
+
+#### 2. Paket Soal Penalaran HOTS (Level Kognitif C4 - C6)
+1. *Soal Analisis (C4):*  
+   Bandingkanlah dua sudut pandang/kaidah dalam materi ${mapel} ketika dihadapkan pada situasi kontekstual sehari-hari. Analisislah mengapa kaidah pertama lebih efektif diterapkan dibandingkan kaidah kedua pada kondisi khusus tersebut!  
+   *Rubrik Penilaian:* Skor 4 (Analisis kritis mendalam dan logis), Skor 3 (Cukup logis dengan argumen dasar), Skor 2 (Hanya menyebutkan tanpa analisis).
+
+2. *Soal Kreasi & Problem Solving (C6):*  
+   Rancanglah sebuah bagan alur sistematis atau formula solusi yang memudahkan pemula dalam memahami hubungan antar-kaidah pada materi ${mapel}!  
+   *Rubrik Penilaian:* Keaslian ide (40%), Ketepatan konsep (40%), Kerapian penyajian (20%).`;
+      }
+
+      return `### 📊 LAPORAN DIAGNOSIS HASIL EVALUASI PEMBELAJARAN
+**Madrasah:** ${ctx.madrasah}  
+**Mata Pelajaran:** ${mapel} | **Tahun Pelajaran:** ${ctx.tahunPelajaran}  
+**Kelas:** ${kelas} | **Guru Pengampu:** ${ctx.guru}  
+
+---
+
+#### 1. Ringkasan Kinerja & Daya Serap Klasikal
+- **Rata-rata Kelas:** **${ctx.rataRataKelas}** (Daya serap klasikal rata-rata).
+- **Ketuntasan Klasikal:** **${ctx.ketuntasanKlasikalPersen}%** (${ctx.jumlahSiswaTuntas} siswa tuntas, ${ctx.jumlahSiswaRemedial} siswa remedial dari total ${ctx.totalSiswa} siswa).
+- **Status Evaluasi:** ${isTuntasKlasikal 
+    ? '✅ **TUNTAS KLASIKAL**. Kelas telah melampaui target standar ketuntasan nasional/madrasah (≥ 85%).' 
+    : '⚠️ **BELUM TUNTAS KLASIKAL**. Ketuntasan kelas di bawah 85%, sehingga pembelajaran klasikal pada materi ini memerlukan penekanan ulang (re-teaching).'}
+
+---
+
+#### 2. Diagnosis Butir Soal Ulangan
+- **Butir Soal Sukar (P < 0.35):**  
+  ${ctx.butirSoalSukar && ctx.butirSoalSukar.length > 0 
+    ? ctx.butirSoalSukar.map(b => `- **Soal ${b.no} (${b.tipe}):** Indeks Kesukaran P = ${b.p}. Sebagian besar siswa gagal menjawab benar. Kemungkinan kalimat soal memiliki tingkat keabstrakan tinggi atau pilihan pengecoh terlalu menjebak.`).join('\\n')
+    : '- Tidak ditemukan butir soal yang terlalu sukar secara ekstrem. Seluruh butir memiliki daya serap seimbang.'}
+
+- **Butir Soal Daya Pembeda Rendah (DP < 0.25):**  
+  ${ctx.butirSoalDayaBedaRendah && ctx.butirSoalDayaBedaRendah.length > 0 
+    ? ctx.butirSoalDayaBedaRendah.map(b => `- **Soal ${b.no} (${b.tipe}):** Daya Pembeda DP = ${b.dp}. Butir ini kurang mampu membedakan siswa kelompok atas dan bawah. Disarankan untuk **direvisi opsi pengecohnya** sebelum disimpan di Bank Soal.`).join('\\n')
+    : '- Seluruh butir soal memiliki daya pembeda yang baik (DP ≥ 0.25) dan representatif membedakan kemampuan siswa.'}
+
+---
+
+#### 3. Rekomendasi Tindak Lanjut Guru (Rencana Aksi)
+1. **Untuk ${ctx.jumlahSiswaRemedial} Siswa Remedial:**  
+   Fokuskan pada pembelajaran ulang konsep dasar melalui tutor sebaya, lalu berikan tes remedial dengan bobot soal setara.
+2. **Untuk ${ctx.jumlahSiswaTuntas} Siswa Pengayaan:**  
+   Berikan tugas mandiri analisis kontekstual (HOTS) agar potensi akademis mereka terus berkembang.
+3. **Refleksi Metodologi Mengajar:**  
+   Gunakan media visual/kontekstual yang lebih interaktif saat menjelaskan indikator yang diuji pada butir soal sukar di atas.`;
+    }
+
+    function setPromptAndRun(promptTeks) {
+      document.getElementById('customAIPrompt').value = promptTeks;
+      jalankanCustomAIPrompt();
+    }
+
+    function jalankanCustomAIPrompt() {
+      const q = document.getElementById('customAIPrompt')?.value.trim();
+      if (!q) {
+        alert("Silakan ketik pertanyaan atau perintah analisis terlebih dahulu.");
+        return;
+      }
+      jalankanAnalisisAI(q);
+    }
+
+    function salinHasilAI() {
+      if (!lastGeneratedAIText) {
+        alert("Belum ada teks analisis AI yang dihasilkan untuk disalin.");
+        return;
+      }
+      navigator.clipboard.writeText(lastGeneratedAIText).then(() => {
+        alert("Teks rekomendasi AI berhasil disalin ke papan klip!");
+      }).catch(() => {
+        alert("Gagal menyalin teks.");
+      });
+    }
+
+    function cetakHasilAI() {
+      if (!lastGeneratedAIText) {
+        alert("Jalankan analisis AI terlebih dahulu sebelum mencetak!");
+        return;
+      }
+
+      const kAktif = getKelasAktif();
+      const namaKelas = kAktif ? kAktif.nama : "Kelas";
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Lampiran Rencana Aksi Pembelajaran AI - ${userProfile.namaMadrasah}</title>
+          <style>
+            body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; font-size: 11pt; line-height: 1.6; padding: 2cm; color: #1e293b; }
+            h1, h2, h3, h4 { color: #064e3b; margin-top: 1.2em; margin-bottom: 0.4em; }
+            hr { border: 0; border-top: 1px solid #cbd5e1; margin: 15px 0; }
+            ul, ol { margin-left: 20px; }
+            .kop { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+            .kop h2 { margin: 0; font-size: 14pt; }
+            .kop p { margin: 2px 0; font-size: 9pt; }
+            .ttd-box { display: flex; justify-content: space-between; margin-top: 50px; text-align: center; }
+            .ttd { width: 45%; }
+            @media print { body { padding: 0; } }
+          </style>
+        </head>
+        <body>
+          <div class="kop">
+            <p><b>KEMENTERIAN AGAMA REPUBLIK INDONESIA</b></p>
+            <h2>${userProfile.namaMadrasah.toUpperCase()}</h2>
+            <p>LAMPIRAN DOKUMEN TINDAK LANJUT & RENCANA AKSI PEMBELAJARAN (AI GEMINI)</p>
+          </div>
+          <div>
+            ${renderMarkdownAI(lastGeneratedAIText)}
+          </div>
+          <div class="ttd-box">
+            <div class="ttd">
+              <p>Mengetahui,<br><b>Kepala Madrasah</b></p>
+              <div style="height: 60px;"></div>
+              <p><u>${userProfile.namaKamad}</u><br>NIP. ${userProfile.nipKamad}</p>
+            </div>
+            <div class="ttd">
+              <p>Cimahi, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br><b>Guru Mata Pelajaran</b></p>
+              <div style="height: 60px;"></div>
+              <p><u>${userProfile.namaGuru}</u><br>NIP. ${userProfile.nipGuru}</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => { printWindow.print(); }, 500);
+    }
+
+    function renderMarkdownAI(md) {
+      if (!md) return '';
+      // 1. Jika pustaka Marked.js tersedia via CDN, gunakan parser standar industri
+      if (typeof marked !== 'undefined') {
+        try {
+          if (typeof marked.parse === 'function') {
+            return marked.parse(md, { breaks: true, gfm: true });
+          } else if (typeof marked === 'function') {
+            return marked(md);
+          }
+        } catch (e) {
+          console.warn("marked.parse warning, beralih ke fallback:", e);
+        }
+      }
+
+      // 2. Safe Fallback (Anti-Bug, tidak menggunakan regex berantai yang merusak karakter)
+      function formatTeksInline(teks) {
+        // Format tebal **teks**
+        let pTebal = teks.split('**');
+        let resTebal = pTebal.map((p, i) => i % 2 === 1 ? `<strong class="font-bold text-slate-900">${p}</strong>` : p).join('');
+        // Format miring *teks*
+        let pMiring = resTebal.split('*');
+        return pMiring.map((p, i) => i % 2 === 1 ? `<em class="italic">${p}</em>` : p).join('');
+      }
+
+      const escaped = md
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      
+      const lines = escaped.split('\n');
+      let out = '';
+      for (let line of lines) {
+        let trimmed = line.trim();
+        if (trimmed.startsWith('### ')) {
+          out += `<h4 class="font-bold text-brand-900 mt-3 mb-1 text-sm">${trimmed.substring(4)}</h4>`;
+        } else if (trimmed.startsWith('#### ')) {
+          out += `<h5 class="font-bold text-slate-800 mt-2 mb-1 text-xs">${trimmed.substring(5)}</h5>`;
+        } else if (trimmed.startsWith('## ')) {
+          out += `<h3 class="font-black text-brand-950 mt-4 mb-2 text-base">${trimmed.substring(3)}</h3>`;
+        } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          out += `<li class="ml-4 list-disc text-slate-700 py-0.5">${formatTeksInline(trimmed.substring(2))}</li>`;
+        } else if (/^\d+\.\s/.test(trimmed)) {
+          let dotPos = trimmed.indexOf('.');
+          out += `<li class="ml-4 list-decimal text-slate-700 py-0.5">${formatTeksInline(trimmed.substring(dotPos + 1).trim())}</li>`;
+        } else if (trimmed === '---') {
+          out += `<hr class="my-3 border-slate-200">`;
+        } else if (trimmed === '') {
+          out += `<div class="h-2"></div>`;
+        } else {
+          out += `<p class="mb-1 text-slate-700">${formatTeksInline(line)}</p>`;
+        }
+      }
+      return out;
+    }
+
+    // --- STATE & DATABASE APLIKASI ---
+    let userProfile = {
+      email: "guru@kemenag.go.id",
+      namaGuru: "Agus Gunawan, M.Pd.",
+      nipGuru: "19820514 200801 1 008",
+      namaMadrasah: "MTs Negeri Kota Cimahi",
+      mapel: "Bahasa Arab",
+      tahunPelajaran: "2026/2027",
+      namaKamad: "Drs. H. Muhammad Ilyas, M.Ag",
+      nipKamad: "19730812 199903 1 002",
+      jenjang: "MTs"
+    };
+
+    let authUser = {
+      email: "guru@kemenag.go.id",
+      password: "password123",
+      isLoggedIn: true
+    };
+
+    let generatedCaptchaCode = "";
+    let kelasAktifIndex = 0;
+    let filterAktif = 'semua';
+    let sortAsc = false;
+
+    let databaseKelas = {
+      "MTs": [
+        {
+          nama: "VII A",
+          kkm: 75,
+          jmlSoal: 10,
+          soalConfig: [
+            { no: 1, tipe: "PG", bobot: 1 },
+            { no: 2, tipe: "PG", bobot: 1 },
+            { no: 3, tipe: "PG", bobot: 1 },
+            { no: 4, tipe: "PG", bobot: 1 },
+            { no: 5, tipe: "PG", bobot: 1 },
+            { no: 6, tipe: "PG", bobot: 1 },
+            { no: 7, tipe: "PGK", bobot: 2 },
+            { no: 8, tipe: "PGK", bobot: 2 },
+            { no: 9, tipe: "Menjodohkan", bobot: 3 },
+            { no: 10, tipe: "Menjodohkan", bobot: 3 }
+          ],
+          siswa: [
+            { nama: "AEESHA KIREY UFAIRAH", nilai: 91, skorButir: [1, 1, 1, 1, 1, 0, 2, 2, 3, 3] },
+            { nama: "AJENG FITRI AZIZIYAH", nilai: 79, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 2] },
+            { nama: "ALIIFAH NADYA SHAFWAH", nilai: 81, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 2] },
+            { nama: "AMANDA KHAIRA ASYIFA", nilai: 54, skorButir: [1, 1, 1, 1, 0, 0, 2, 0, 3, 0] },
+            { nama: "ANDIKA JAJULI PUTRA", nilai: 65, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 0] },
+            { nama: "ANNISA FITRIANI", nilai: 96, skorButir: [1, 1, 1, 1, 1, 1, 2, 2, 3, 3] },
+            { nama: "ARDIANSAH RIZKI SAPUTRA", nilai: 52, skorButir: [1, 1, 1, 1, 0, 0, 2, 0, 3, 0] },
+            { nama: "AZZAHRA DZIKRA PAWITRA", nilai: 97, skorButir: [1, 1, 1, 1, 1, 1, 2, 2, 3, 3] },
+            { nama: "DIMAS PRAWIRA NUGRAHA", nilai: 34, skorButir: [1, 1, 1, 0, 0, 0, 2, 0, 0, 0] },
+            { nama: "ENDRAWAN SEPTIANA", nilai: 56, skorButir: [1, 1, 1, 1, 0, 0, 2, 0, 3, 0] },
+            { nama: "GINANITA ABIYYAH ABDULLAH", nilai: 62, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 0] },
+            { nama: "HANNA HALISA", nilai: 79, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 2] },
+            { nama: "HASNA FADIYAH NAJLA", nilai: 91, skorButir: [1, 1, 1, 1, 1, 0, 2, 2, 3, 3] },
+            { nama: "KEYRA KHANSA SYAFIQA", nilai: 35, skorButir: [1, 1, 1, 0, 0, 0, 2, 0, 0, 0] },
+            { nama: "KHAIRI ZIDNI RAYTAMA", nilai: 69, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 1] },
+            { nama: "KHANSAA KANAYA RAMADHANI", nilai: 85, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 3] },
+            { nama: "KHANZA NATHANIA YUSUF", nilai: 62, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 0] },
+            { nama: "MUHAMMAD ALIF DERMAWAN", nilai: 58, skorButir: [1, 1, 1, 1, 0, 0, 2, 0, 3, 0] },
+            { nama: "MUHAMMAD KAHFI", nilai: 89, skorButir: [1, 1, 1, 1, 1, 0, 2, 2, 3, 3] },
+            { nama: "MUHAMMAD YASBII NURHADI", nilai: 63, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 0] },
+            { nama: "MUHAMMAD ZAIDAN FITRA", nilai: 60, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 0] },
+            { nama: "NABILAH ZAHFA NOVANIA", nilai: 68, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 1] },
+            { nama: "NAJWA KHAIRUN NISA", nilai: 69, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 1] },
+            { nama: "NAYLA CLARISSA NASHWA", nilai: 85, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 3] },
+            { nama: "SATRIA DAVA PUTRA KINARA", nilai: 55, skorButir: [1, 1, 1, 1, 0, 0, 2, 0, 3, 0] },
+            { nama: "SILVIA RANAA SAAHIRAH", nilai: 88, skorButir: [1, 1, 1, 1, 1, 0, 2, 2, 3, 3] },
+            { nama: "SITI FATHINAH PERMADI", nilai: 88, skorButir: [1, 1, 1, 1, 1, 0, 2, 2, 3, 3] },
+            { nama: "SYAFIRA NAYLA ASYARI", nilai: 71, skorButir: [1, 1, 1, 1, 0, 0, 2, 2, 3, 1] },
+            { nama: "TIARA SALIMA", nilai: 0, skorButir: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+            { nama: "VENNITA RAHMA ANDARI", nilai: 50, skorButir: [1, 1, 1, 0, 0, 0, 2, 0, 3, 0] },
+            { nama: "YUNISYA HUMAYRA", nilai: 69, skorButir: [1, 1, 1, 1, 0, 0, 2, 1, 3, 1] },
+            { nama: "ZAHRA ASHIDQIA HASIBUAN", nilai: 48, skorButir: [1, 1, 1, 0, 0, 0, 2, 0, 3, 0] }
+          ]
+        }
+      ],
+      "MI": [],
+      "MA": []
+    };
+
+    let chartPieKetuntasan = null;
+    let chartBarDistribusi = null;
+    let chartBarKesukaran = null;
+    let chartPieKelayakan = null;
+
+    let aksiKonfirmasiCallback = null;
+
+    function konfirmasiAksi(pesan, callbackAksi, opsi = {}) {
+      aksiKonfirmasiCallback = callbackAksi;
+      document.getElementById('confirmMessage').innerHTML = pesan;
+      document.getElementById('confirmTitle').textContent = opsi.judul || 'Konfirmasi Tindakan';
+      
+      const btn = document.getElementById('btnExecuteConfirm');
+      btn.textContent = opsi.btnText || 'Ya, Lanjutkan';
+      
+      if (opsi.isDanger === false) {
+        btn.className = "px-5 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-800 text-xs font-bold text-white shadow-md shadow-brand-200 transition";
+        document.getElementById('confirmIconWrapper').className = "w-14 h-14 bg-brand-100 text-brand-700 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black";
+        document.getElementById('confirmIconWrapper').textContent = "ℹ️";
+      } else {
+        btn.className = "px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white shadow-md shadow-rose-200 transition";
+        document.getElementById('confirmIconWrapper').className = "w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-black";
+        document.getElementById('confirmIconWrapper').textContent = "⚠️";
+      }
+
+      document.getElementById('customConfirmModal').classList.remove('hidden');
+    }
+
+    function tutupConfirmModal() {
+      document.getElementById('customConfirmModal').classList.add('hidden');
+      aksiKonfirmasiCallback = null;
+    }
+
+    document.getElementById('btnExecuteConfirm').addEventListener('click', () => {
+      if (typeof aksiKonfirmasiCallback === 'function') {
+        const fn = aksiKonfirmasiCallback;
+        tutupConfirmModal();
+        fn();
+      } else {
+        tutupConfirmModal();
+      }
+    });
+
+    function bukaModalEditMatriks() {
+      const kAktif = getKelasAktif();
+      if (!kAktif) {
+        alert("Pilih atau buat kelas terlebih dahulu!");
+        return;
+      }
+
+      const jmlSoal = kAktif.jmlSoal || 10;
+      if (!kAktif.soalConfig || kAktif.soalConfig.length !== jmlSoal) {
+        kAktif.soalConfig = [];
+        for (let i = 1; i <= jmlSoal; i++) {
+          if (i <= Math.ceil(jmlSoal * 0.6)) kAktif.soalConfig.push({ no: i, tipe: "PG", bobot: 1 });
+          else if (i <= Math.ceil(jmlSoal * 0.8)) kAktif.soalConfig.push({ no: i, tipe: "PGK", bobot: 2 });
+          else kAktif.soalConfig.push({ no: i, tipe: "Menjodohkan", bobot: 3 });
+        }
+      }
+
+      const totalBobot = kAktif.soalConfig.reduce((a, b) => a + b.bobot, 0);
+      document.getElementById('m-edit-kelas').textContent = kAktif.nama;
+      document.getElementById('m-edit-jmlSoal').textContent = jmlSoal;
+      document.getElementById('m-edit-totalBobot').textContent = totalBobot;
+
+      let theadHtml = `
+        <tr class="bg-slate-200 text-slate-800">
+          <th class="p-2 w-8 text-center" rowspan="2">No</th>
+          <th class="p-2 min-w-[150px] text-left" rowspan="2">Nama Siswa</th>`;
+      for (let j = 0; j < jmlSoal; j++) {
+        const sc = kAktif.soalConfig[j];
+        theadHtml += `<th class="p-1.5 text-center text-[10px]">S${j+1} (${sc.tipe})</th>`;
+      }
+      theadHtml += `<th class="p-2 w-20 text-center bg-slate-300" rowspan="2">Nilai Akhir</th></tr>`;
+
+      theadHtml += `<tr class="bg-slate-100 text-[10px] text-slate-600">`;
+      for (let j = 0; j < jmlSoal; j++) {
+        const sc = kAktif.soalConfig[j];
+        theadHtml += `<th class="p-1 text-center font-normal">Maks: ${sc.bobot}</th>`;
+      }
+      theadHtml += `</tr>`;
+      document.getElementById('theadMatriksInput').innerHTML = theadHtml;
+
+      let tbodyHtml = '';
+      kAktif.siswa.forEach((s, idx) => {
+        if (!s.skorButir || s.skorButir.length !== jmlSoal) {
+          s.skorButir = new Array(jmlSoal).fill(0);
+        }
+        tbodyHtml += `
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100" data-idx="${idx}">
+            <td class="p-2 text-center text-slate-400 font-bold">${idx + 1}</td>
+            <td class="p-2 font-semibold text-slate-800 truncate max-w-[160px]">${s.nama}</td>`;
+        for (let j = 0; j < jmlSoal; j++) {
+          const maxB = kAktif.soalConfig[j].bobot;
+          const val = (s.skorButir[j] !== undefined) ? s.skorButir[j] : 0;
+          tbodyHtml += `
+            <td class="p-1 text-center">
+              <input type="number" min="0" max="${maxB}" value="${val}" data-sidx="${idx}" data-qidx="${j}" onchange="recalcLiveScore(this)" class="w-11 text-center font-bold px-1 py-0.5 border border-slate-200 rounded text-xs focus:ring-1 focus:ring-brand-500 bg-white">
+            </td>`;
+        }
+        tbodyHtml += `<td class="p-2 text-center font-black text-xs text-brand-900 bg-brand-50" id="live-nilai-${idx}">${s.nilai}</td></tr>`;
+      });
+      document.getElementById('tbodyMatriksInput').innerHTML = tbodyHtml;
+
+      document.getElementById('modalEditMatriks').classList.remove('hidden');
+    }
+
+    function recalcLiveScore(inputEl) {
+      const kAktif = getKelasAktif();
+      if (!kAktif) return;
+      const sIdx = parseInt(inputEl.dataset.sidx);
+      const qIdx = parseInt(inputEl.dataset.qidx);
+      const maxB = kAktif.soalConfig[qIdx].bobot;
+      let val = parseFloat(inputEl.value) || 0;
+      if (val > maxB) { val = maxB; inputEl.value = maxB; }
+      if (val < 0) { val = 0; inputEl.value = 0; }
+
+      const row = inputEl.closest('tr');
+      const inputs = row.querySelectorAll('input[type="number"]');
+      let sum = 0;
+      inputs.forEach(inp => sum += (parseFloat(inp.value) || 0));
+      const totalBobot = kAktif.soalConfig.reduce((a, b) => a + b.bobot, 0);
+      const calcNilai = Math.round((sum / (totalBobot || 1)) * 100);
+      document.getElementById(`live-nilai-${sIdx}`).textContent = calcNilai;
+    }
+
+    function tutupModalEditMatriks() {
+      document.getElementById('modalEditMatriks').classList.add('hidden');
+    }
+
+    function aturKonfigurasiSoal() {
+      const kAktif = getKelasAktif();
+      if (!kAktif) return;
+      const jml = kAktif.jmlSoal || 10;
+      const formatStr = prompt(
+        `Atur tipe soal untuk ${jml} butir.\nFormat: PG, PGK, Menjodohkan (pisahkan koma).\nContoh untuk ${jml} butir:\nPG, PG, PG, PG, PG, PG, PGK, PGK, Menjodohkan, Menjodohkan`,
+        kAktif.soalConfig.map(s => s.tipe).join(', ')
+      );
+      if (formatStr) {
+        const types = formatStr.split(',').map(s => s.trim());
+        types.forEach((t, i) => {
+          if (i < jml) {
+            let bobot = 1;
+            const tUpper = t.toUpperCase();
+            if (tUpper.includes('PGK') || tUpper.includes('KOMPLEKS')) {
+              t = 'PGK'; bobot = 2;
+            } else if (tUpper.includes('JODOH') || tUpper.includes('MATCH')) {
+              t = 'Menjodohkan'; bobot = 3;
+            } else {
+              t = 'PG'; bobot = 1;
+            }
+            kAktif.soalConfig[i] = { no: i + 1, tipe: t, bobot: bobot };
+          }
+        });
+        bukaModalEditMatriks();
+      }
+    }
+
+    function simpanMatriksSkor() {
+      const kAktif = getKelasAktif();
+      if (!kAktif) return;
+      const jmlSoal = kAktif.jmlSoal || 10;
+      const totalBobot = kAktif.soalConfig.reduce((a, b) => a + b.bobot, 0);
+
+      const rows = document.querySelectorAll('#tbodyMatriksInput tr');
+      rows.forEach((row, sIdx) => {
+        const inputs = row.querySelectorAll('input[type="number"]');
+        let newSkor = [];
+        let sumPoin = 0;
+        inputs.forEach((inp, qIdx) => {
+          const val = Math.max(0, parseFloat(inp.value) || 0);
+          newSkor.push(val);
+          sumPoin += val;
+        });
+        kAktif.siswa[sIdx].skorButir = newSkor;
+        kAktif.siswa[sIdx].nilai = Math.min(100, Math.round((sumPoin / (totalBobot || 1)) * 100));
+      });
+
+      simpanDatabaseKeStorage();
+      tutupModalEditMatriks();
+      renderSemua();
+      alert("Alhamdulillah! Skor butir siswa dan nilai akhir berhasil disimpan dan dihitung ulang.");
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateGeminiStatusBadge();
+      muatDataTersimpan();
+      cekStatusLogin();
+      generateCaptcha();
+      inisialisasiKelasUI();
+      renderSemua();
+    });
+
+    function exportExcelMultiSheet() {
+      const kAktif = getKelasAktif();
+      if (!kAktif || kAktif.siswa.length === 0) {
+        alert("Belum ada data siswa untuk diexport!");
+        return;
+      }
+
+      const wb = XLSX.utils.book_new();
+
+      const sheet1Data = [
+        ["LEGER NILAI & ANALISIS KETUNTASAN SISWA"],
+        ["Madrasah", userProfile.namaMadrasah],
+        ["Mata Pelajaran", userProfile.mapel],
+        ["Kelas / Rombel", kAktif.nama],
+        ["Batas KKM", kAktif.kkm],
+        [],
+        ["Rank", "No", "Nama Siswa", "Nilai", "Predikat", "Status Ketuntasan", "Rencana Tindak Lanjut"]
+      ];
+      kAktif.siswa.forEach((s, idx) => {
+        const pred = hitungPredikat(s.nilai, kAktif.kkm);
+        sheet1Data.push([
+          s.rank,
+          idx + 1,
+          s.nama,
+          s.nilai,
+          pred.predikat,
+          s.nilai >= kAktif.kkm ? "TUNTAS" : "REMEDIAL",
+          pred.tindakLanjut
+        ]);
+      });
+      const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
+      XLSX.utils.book_append_sheet(wb, ws1, "Leger_Nilai");
+
+      const sheet2Data = [
+        ["ANALISIS TINGKAT KESUKARAN & DAYA PEMBEDA BUTIR SOAL (DATA RIIL)"],
+        ["Kelas", kAktif.nama],
+        [],
+        ["No Soal", "Tipe Soal", "Bobot Maks", "Rata-rata Skor", "Indeks Kesukaran (P)", "Kategori Kesukaran", "Daya Pembeda (DP)", "Status Kelayakan"]
+      ];
+      
+      const total = kAktif.siswa.length;
+      const sorted = [...kAktif.siswa].sort((a, b) => b.nilai - a.nilai);
+      const nk = Math.max(1, Math.round(0.27 * total));
+      const upper = sorted.slice(0, nk);
+      const lower = sorted.slice(-nk);
+
+      for (let i = 0; i < (kAktif.jmlSoal || 10); i++) {
+        const cfg = kAktif.soalConfig[i] || { no: i + 1, tipe: "PG", bobot: 1 };
+        const maxB = cfg.bobot;
+        let tot = 0;
+        kAktif.siswa.forEach(s => tot += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+        const avg = total > 0 ? (tot / total) : 0;
+        const p = parseFloat((avg / maxB).toFixed(2));
+
+        let sU = 0, sL = 0;
+        upper.forEach(s => sU += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+        lower.forEach(s => sL += ((s.skorButir && s.skorButir[i] !== undefined) ? s.skorButir[i] : 0));
+        const dp = parseFloat((((sU / nk) - (sL / nk)) / maxB).toFixed(2));
+
+        sheet2Data.push([
+          `Soal ${i + 1}`,
+          cfg.tipe,
+          maxB,
+          avg.toFixed(2),
+          p,
+          p > 0.7 ? "Mudah" : p < 0.3 ? "Sukar" : "Sedang",
+          dp,
+          dp >= 0.3 ? "Diterima (Bank Soal)" : dp >= 0.2 ? "Direvisi" : "Dibuang"
+        ]);
+      }
+      const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
+      XLSX.utils.book_append_sheet(wb, ws2, "Analisis_Butir_Soal");
+
+      const sheet3Data = [
+        ["PROGRAM TINDAK LANJUT (REMEDIAL & PENGAYAAN)"],
+        ["Kelas", kAktif.nama],
+        [],
+        ["No", "Nama Siswa", "Nilai Awal", "Status", "Rencana Tindak Lanjut"]
+      ];
+      kAktif.siswa.forEach((s, idx) => {
+        const isTuntas = s.nilai >= kAktif.kkm;
+        sheet3Data.push([
+          idx + 1,
+          s.nama,
+          s.nilai,
+          isTuntas ? "Tuntas" : "Remedial",
+          isTuntas ? "Pengayaan: Pendalaman materi lanjutan & tugas HOTS" : "Remedial: Bimbingan ulang indikator & tes remedial"
+        ]);
+      });
+      const ws3 = XLSX.utils.aoa_to_sheet(sheet3Data);
+      XLSX.utils.book_append_sheet(wb, ws3, "Program_Remedial");
+
+      XLSX.writeFile(wb, `Laporan_Analisis_${kAktif.nama}_${userProfile.mapel}.xlsx`);
+    }
+
+    function cetakSlipNilai() {
+      const kAktif = getKelasAktif();
+      if (!kAktif || kAktif.siswa.length === 0) {
+        alert("Belum ada data siswa untuk dicetak slip nilainya!");
+        return;
+      }
+
+      const container = document.getElementById('containerSlipNilai');
+      container.innerHTML = kAktif.siswa.map((s, idx) => {
+        const pred = hitungPredikat(s.nilai, kAktif.kkm);
+        return `
+          <div class="print-slip-card p-4 rounded-xl border border-slate-300 mb-6 bg-white">
+            <div class="flex justify-between items-center border-b pb-2 mb-3">
+              <div>
+                <h4 class="font-bold text-sm uppercase">${userProfile.namaMadrasah}</h4>
+                <p class="text-[10px] text-slate-500">SURAT PEMBERITAHUAN HASIL EVALUASI PEMBELAJARAN</p>
+              </div>
+              <div class="text-right text-[10px]">
+                <p>Tahun: <b>${userProfile.tahunPelajaran}</b></p>
+                <p>Kelas: <b>${kAktif.nama}</b></p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[11px] mb-3">
+              <div>
+                <p>Nama Siswa: <b class="text-slate-800">${s.nama}</b></p>
+                <p>Mata Pelajaran: <b>${userProfile.mapel}</b></p>
+              </div>
+              <div class="text-right">
+                <p>Peringkat: <b>#${s.rank}</b> dari ${kAktif.siswa.length} siswa</p>
+                <p>Batas KKM: <b>${kAktif.kkm}</b></p>
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center my-2">
+              <div>
+                <span class="text-[10px] text-slate-500 block">NILAI ULANGAN</span>
+                <span class="text-2xl font-black ${s.nilai >= kAktif.kkm ? 'text-emerald-700' : 'text-rose-600'}">${s.nilai}</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 block">PREDIKAT</span>
+                <span class="text-lg font-bold">${pred.predikat} (${pred.label})</span>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 block">STATUS</span>
+                <span class="px-2 py-0.5 rounded text-xs font-bold ${s.nilai >= kAktif.kkm ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                  ${s.nilai >= kAktif.kkm ? 'TUNTAS' : 'REMEDIAL'}
+                </span>
+              </div>
+            </div>
+
+            <p class="text-[10px] text-slate-600 mt-2">
+              <b>Rencana Tindak Lanjut:</b> ${pred.tindakLanjut}
+            </p>
+
+            <div class="grid grid-cols-2 text-center text-[10px] pt-4 mt-3 border-t">
+              <div>
+                <p>Mengetahui,</p>
+                <p class="font-bold">Orang Tua / Wali Murid</p>
+                <div class="h-10"></div>
+                <p class="underline">( ........................................ )</p>
+              </div>
+              <div>
+                <p>Guru Pengampu,</p>
+                <div class="h-10"></div>
+                <p class="font-bold underline">${userProfile.namaGuru}</p>
+                <p class="text-[9px] text-slate-500">NIP. ${userProfile.nipGuru}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('printAreaResmi').classList.add('hidden');
+      document.getElementById('printAreaSlipNilai').classList.remove('hidden');
+      window.print();
+      setTimeout(() => {
+        document.getElementById('printAreaResmi').classList.remove('hidden');
+        document.getElementById('printAreaSlipNilai').classList.add('hidden');
+      }, 1000);
+    }
+
+    function cetakLaporanA4() {
+      document.getElementById('printAreaResmi').classList.remove('hidden');
+      document.getElementById('printAreaSlipNilai').classList.add('hidden');
+      window.print();
+    }
+
+    function muatDataTersimpan() {
+      const savedUser = localStorage.getItem('madrasah_analisis_user');
+      if (savedUser) {
+        try { userProfile = { ...userProfile, ...JSON.parse(savedUser) }; } catch (e) {}
+      }
+
+      const savedAuth = localStorage.getItem('madrasah_auth_account');
+      if (savedAuth) {
+        try { authUser = { ...authUser, ...JSON.parse(savedAuth) }; } catch (e) {}
+      }
+
+      const savedDB = localStorage.getItem('madrasah_database_kelas_v3');
+      if (savedDB) {
+        try { databaseKelas = JSON.parse(savedDB); } catch (e) {}
+      }
+    }
+
+    function simpanDatabaseKeStorage() {
+      localStorage.setItem('madrasah_database_kelas_v3', JSON.stringify(databaseKelas));
+      localStorage.setItem('madrasah_analisis_user', JSON.stringify(userProfile));
+    }
+
+    function cekStatusLogin() {
+      if (!authUser.isLoggedIn) {
+        showAuthModal('signin');
+      } else {
+        document.getElementById('authModal').classList.add('hidden');
+        applyUserProfile();
+      }
+    }
+
+    function showAuthModal(mode) {
+      document.getElementById('authModal').classList.remove('hidden');
+      toggleAuthMode(mode);
+    }
+
+    function toggleAuthMode(mode) {
+      const btnSignUp = document.getElementById('tabBtnSignUp');
+      const btnSignIn = document.getElementById('tabBtnSignIn');
+      const signUpFields = document.getElementById('signUpFields');
+      const btnSubmit = document.getElementById('btnAuthSubmit');
+
+      if (mode === 'signup') {
+        btnSignUp.className = "flex-1 py-3 text-xs font-bold border-b-2 border-brand-700 text-brand-700";
+        btnSignIn.className = "flex-1 py-3 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600";
+        signUpFields.style.display = "block";
+        btnSubmit.textContent = "Daftar & Mulai Menggunakan";
+      } else {
+        btnSignIn.className = "flex-1 py-3 text-xs font-bold border-b-2 border-brand-700 text-brand-700";
+        btnSignUp.className = "flex-1 py-3 text-xs font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-600";
+        signUpFields.style.display = "none";
+        btnSubmit.textContent = "Masuk ke Aplikasi";
+      }
+      generateCaptcha();
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const inputCaptcha = document.getElementById('captchaInput').value.trim().toUpperCase();
+      if (inputCaptcha !== generatedCaptchaCode) {
+        alert("Kode Captcha salah! Silakan coba lagi.");
+        generateCaptcha();
+        document.getElementById('captchaInput').value = '';
+        return;
+      }
+
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value;
+      const isSignUp = document.getElementById('signUpFields').style.display !== 'none';
+
+      if (isSignUp) {
+        authUser = { email, password, isLoggedIn: true };
+        userProfile.email = email;
+        userProfile.namaGuru = document.getElementById('authNamaGuru').value || userProfile.namaGuru;
+        userProfile.namaMadrasah = document.getElementById('authNamaMadrasah').value || userProfile.namaMadrasah;
+        userProfile.mapel = document.getElementById('authMapel').value || userProfile.mapel;
+        userProfile.tahunPelajaran = document.getElementById('authTapel').value || userProfile.tahunPelajaran;
+
+        localStorage.setItem('madrasah_auth_account', JSON.stringify(authUser));
+        simpanDatabaseKeStorage();
+        applyUserProfile();
+        document.getElementById('authModal').classList.add('hidden');
+        alert("Pendaftaran berhasil! Selamat datang, " + userProfile.namaGuru);
+      } else {
+        if (email === authUser.email && password === authUser.password) {
+          authUser.isLoggedIn = true;
+          localStorage.setItem('madrasah_auth_account', JSON.stringify(authUser));
+          document.getElementById('authModal').classList.add('hidden');
+          applyUserProfile();
+        } else {
+          alert("Email atau password yang Anda masukkan salah.");
+        }
+      }
+    }
+
+    function toggleUserDropdown() {
+      const dd = document.getElementById('userDropdown');
+      dd.classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      const dd = document.getElementById('userDropdown');
+      if (dd && !e.target.closest('.relative')) {
+        dd.classList.add('hidden');
+      }
+    });
+
+    function handleSignOut() {
+      konfirmasiAksi(
+        "Apakah Anda yakin ingin keluar (Sign Out) dari aplikasi?",
+        () => {
+          authUser.isLoggedIn = false;
+          localStorage.setItem('madrasah_auth_account', JSON.stringify(authUser));
+          toggleUserDropdown();
+          showAuthModal('signin');
+        },
+        { judul: 'Konfirmasi Sign Out', btnText: 'Ya, Keluar' }
+      );
+    }
+
+    function bukaModalPassword() {
+      toggleUserDropdown();
+      document.getElementById('pwLama').value = '';
+      document.getElementById('pwBaru').value = '';
+      document.getElementById('modalPassword').classList.remove('hidden');
+    }
+
+    function tutupModalPassword() {
+      document.getElementById('modalPassword').classList.add('hidden');
+    }
+
+    function handleGantiPassword(e) {
+      e.preventDefault();
+      const lama = document.getElementById('pwLama').value;
+      const baru = document.getElementById('pwBaru').value;
+      if (lama !== authUser.password) {
+        alert("Password lama Anda tidak cocok!");
+        return;
+      }
+      authUser.password = baru;
+      localStorage.setItem('madrasah_auth_account', JSON.stringify(authUser));
+      tutupModalPassword();
+      alert("Password berhasil diperbarui!");
+    }
+
+    function bukaModalProfil() {
+      toggleUserDropdown();
+      document.getElementById('profNamaGuru').value = userProfile.namaGuru;
+      document.getElementById('profNipGuru').value = userProfile.nipGuru;
+      document.getElementById('profNamaMadrasah').value = userProfile.namaMadrasah;
+      document.getElementById('profMapel').value = userProfile.mapel;
+      document.getElementById('profTapel').value = userProfile.tahunPelajaran;
+      document.getElementById('profNamaKamad').value = userProfile.namaKamad;
+      document.getElementById('profNipKamad').value = userProfile.nipKamad;
+      document.getElementById('modalProfil').classList.remove('hidden');
+    }
+
+    function tutupModalProfil() {
+      document.getElementById('modalProfil').classList.add('hidden');
+    }
+
+    function handleSimpanProfil(e) {
+      e.preventDefault();
+      userProfile.namaGuru = document.getElementById('profNamaGuru').value;
+      userProfile.nipGuru = document.getElementById('profNipGuru').value;
+      userProfile.namaMadrasah = document.getElementById('profNamaMadrasah').value;
+      userProfile.mapel = document.getElementById('profMapel').value;
+      userProfile.tahunPelajaran = document.getElementById('profTapel').value;
+      userProfile.namaKamad = document.getElementById('profNamaKamad').value;
+      userProfile.nipKamad = document.getElementById('profNipKamad').value;
+      simpanDatabaseKeStorage();
+      tutupModalProfil();
+      applyUserProfile();
+      renderSemua();
+      alert("Identitas profil & madrasah berhasil diperbarui!");
+    }
+
+    function applyUserProfile() {
+      document.getElementById('headerMadrasah').textContent = userProfile.namaMadrasah;
+      document.getElementById('navNamaGuru').textContent = userProfile.namaGuru;
+      document.getElementById('navAvatar').textContent = userProfile.namaGuru.charAt(0).toUpperCase();
+      document.getElementById('dd-nama-guru').textContent = userProfile.namaGuru;
+      document.getElementById('dd-email').textContent = userProfile.email;
+      
+      document.getElementById('banner-mapel').textContent = userProfile.mapel;
+      document.getElementById('p-kop-madrasah').textContent = userProfile.namaMadrasah.toUpperCase();
+      document.getElementById('p-kop-tapel').textContent = userProfile.tahunPelajaran;
+      document.getElementById('p-mapel').textContent = userProfile.mapel;
+      document.getElementById('p-guru').textContent = userProfile.namaGuru;
+      document.getElementById('p-ttd-guru').textContent = userProfile.namaGuru;
+      document.getElementById('p-nip-guru').textContent = "NIP. " + userProfile.nipGuru;
+      document.getElementById('p-kamad').textContent = userProfile.namaKamad;
+      document.getElementById('p-nip-kamad').textContent = "NIP. " + userProfile.nipKamad;
+      document.getElementById('lbl-jenjang-aktif').textContent = userProfile.jenjang;
+    }
+
+    function inisialisasiKelasUI() {
+      document.getElementById('pilihJenjang').value = userProfile.jenjang;
+      renderDropdownKelas();
+    }
+
+    function gantiJenjang(jenjangBaru) {
+      userProfile.jenjang = jenjangBaru;
+      kelasAktifIndex = 0;
+      simpanDatabaseKeStorage();
+      renderDropdownKelas();
+      applyUserProfile();
+      renderSemua();
+    }
+
+    function renderDropdownKelas() {
+      const listKelas = databaseKelas[userProfile.jenjang] || [];
+      const select = document.getElementById('selectKelasAktif');
+      const btnHapus = document.getElementById('btnHapusKelas');
+      const quickPills = document.getElementById('containerQuickKelasPills');
+      select.innerHTML = '';
+
+      if (listKelas.length === 0) {
+        select.innerHTML = '<option value="-1">-- Belum Ada Kelas Diinput --</option>';
+        btnHapus.style.display = 'none';
+        if (quickPills) quickPills.innerHTML = '';
+        document.getElementById('wrapperKKMKelas').style.opacity = '0.4';
+        document.getElementById('banner-kelas-aktif').textContent = "Belum Ada";
+        document.getElementById('p-kelas').textContent = "-";
+        return;
+      }
+
+      btnHapus.style.display = 'inline-block';
+      document.getElementById('wrapperKKMKelas').style.opacity = '1';
+
+      if (kelasAktifIndex >= listKelas.length) {
+        kelasAktifIndex = 0;
+      }
+
+      listKelas.forEach((k, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `${k.nama} (${k.siswa.length} Siswa)`;
+        if (idx === kelasAktifIndex) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      if (quickPills) {
+        quickPills.innerHTML = listKelas.map((k, idx) => `
+          <button onclick="pilihKelas(${idx})" class="px-2.5 py-1 text-xs rounded-lg font-bold transition flex items-center gap-1.5 ${idx === kelasAktifIndex ? 'bg-brand-700 text-white shadow-sm' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}">
+            <span>${k.nama}</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full ${idx === kelasAktifIndex ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'}">${k.siswa.length}</span>
+          </button>
+        `).join('');
+      }
+
+      const current = listKelas[kelasAktifIndex];
+      if (current) {
+        document.getElementById('inputKKMKelas').value = current.kkm;
+        document.getElementById('banner-kelas-aktif').textContent = current.nama;
+        document.getElementById('p-kelas').textContent = current.nama;
+      }
+    }
+
+    function pilihKelas(idx) {
+      kelasAktifIndex = parseInt(idx);
+      renderDropdownKelas();
+      renderSemua();
+    }
+
+    function ubahKKMKelas(val) {
+      const listKelas = databaseKelas[userProfile.jenjang] || [];
+      if (listKelas[kelasAktifIndex]) {
+        listKelas[kelasAktifIndex].kkm = parseFloat(val) || 75;
+        simpanDatabaseKeStorage();
+        renderSemua();
+      }
+    }
+
+    function tambahKelasBaru() {
+      const saranNama = userProfile.jenjang === 'MI' ? 'Kelas 1 A' : userProfile.jenjang === 'MA' ? 'X-1' : 'VII B';
+      const nama = prompt(`Masukkan Nama Rombel/Kelas Baru (${userProfile.jenjang}):`, saranNama);
+      if (nama && nama.trim()) {
+        const kkmDefault = parseFloat(prompt('Masukkan Nilai KKM untuk kelas ini:', '75')) || 75;
+        if (!databaseKelas[userProfile.jenjang]) {
+          databaseKelas[userProfile.jenjang] = [];
+        }
+        databaseKelas[userProfile.jenjang].push({
+          nama: nama.trim(),
+          kkm: kkmDefault,
+          jmlSoal: 10,
+          siswa: []
+        });
+        kelasAktifIndex = databaseKelas[userProfile.jenjang].length - 1;
+        simpanDatabaseKeStorage();
+        renderDropdownKelas();
+        renderSemua();
+        alert(`Kelas ${nama} berhasil ditambahkan! Silakan upload Excel atau isi data nilai.`);
+      }
+    }
+
+    function hapusKelasAktif() {
+      const list = databaseKelas[userProfile.jenjang] || [];
+      if (list.length === 0 || kelasAktifIndex < 0) return;
+      const current = list[kelasAktifIndex];
+
+      konfirmasiAksi(
+        `PERINGATAN: Apakah Anda benar-benar yakin ingin menghapus kelas "${current.nama}" beserta seluruh data nilai (${current.siswa.length} siswa)? Tindakan ini tidak dapat dibatalkan.`,
+        () => {
+          list.splice(kelasAktifIndex, 1);
+          kelasAktifIndex = 0;
+          simpanDatabaseKeStorage();
+          renderDropdownKelas();
+          renderSemua();
+        },
+        { judul: `Hapus Kelas ${current.nama}`, btnText: 'Ya, Hapus Kelas' }
+      );
+    }
+
+    function getKelasAktif() {
+      const list = databaseKelas[userProfile.jenjang] || [];
+      if (list.length === 0 || kelasAktifIndex < 0 || !list[kelasAktifIndex]) {
+        return null;
+      }
+      return list[kelasAktifIndex];
+    }
+
+    function switchTab(tabKey) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('text-brand-800', 'bg-brand-50/80', 'border-brand-200');
+        btn.classList.add('text-slate-600', 'border-transparent');
+      });
+
+      const targetPanel = document.getElementById('panel-' + tabKey);
+      const targetBtn = document.getElementById('tab-btn-' + tabKey);
+      if (targetPanel) targetPanel.classList.remove('hidden');
+      if (targetBtn) {
+        targetBtn.classList.remove('text-slate-600', 'border-transparent');
+        targetBtn.classList.add('text-brand-800', 'bg-brand-50/80', 'border-brand-200');
+      }
+
+      if (tabKey === 'ketuntasan' || tabKey === 'butir') {
+        renderSemua();
+      }
+    }
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-brand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>`;
+      } else {
+        input.type = 'password';
+        icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
+      }
+    }
+
+    function generateCaptcha() {
+      const canvas = document.getElementById('captchaCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      generatedCaptchaCode = "";
+      for (let i = 0; i < 5; i++) {
+        generatedCaptchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      ctx.fillStyle = "#f1f5f9";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < 4; i++) {
+        ctx.strokeStyle = `rgba(16, 185, 129, ${Math.random() * 0.4 + 0.2})`;
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.stroke();
+      }
+
+      ctx.font = "bold 20px 'Plus Jakarta Sans', monospace";
+      ctx.fillStyle = "#064e3b";
+      for (let i = 0; i < generatedCaptchaCode.length; i++) {
+        const x = 16 + (i * 22);
+        const y = 26 + (Math.random() * 4 - 2);
+        ctx.fillText(generatedCaptchaCode[i], x, y);
+      }
+    }
+
+    function handleExcelUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          const kelasMap = {};
+
+          workbook.SheetNames.forEach(sheetName => {
+            const sNameLower = sheetName.toLowerCase().trim();
+            if (sNameLower.includes('panduan') || sNameLower.includes('petunjuk') || sNameLower.includes('readme')) {
+              return;
+            }
+
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+            if (!rows || rows.length < 2) return;
+
+            let rowTipeIdx = -1, rowBobotIdx = -1, headerIdx = -1;
+            let colNama = -1, colNilai = -1, colKelas = -1;
+            let itemCols = [];
+
+            for (let r = 0; r < Math.min(6, rows.length); r++) {
+              const row = rows[r];
+              if (!row) continue;
+              const rowStr = row.map(c => String(c || '').toLowerCase().trim()).join(' ');
+
+              if (rowStr.includes('tipe soal') || (rowStr.includes('pg') && (rowStr.includes('pgk') || rowStr.includes('jodoh')))) {
+                rowTipeIdx = r;
+              }
+              if (rowStr.includes('bobot') || rowStr.includes('skor maks')) {
+                rowBobotIdx = r;
+              }
+              if (rowStr.includes('nama') || rowStr.includes('siswa') || rowStr.includes('peserta')) {
+                headerIdx = r;
+                for (let c = 0; c < row.length; c++) {
+                  const val = String(row[c] || '').toLowerCase().trim();
+                  if (val === 'kelas' || val.includes('rombel') || val.includes('tingkat') || val === 'class') colKelas = c;
+                  if (val.includes('nama') || val.includes('siswa') || val.includes('peserta')) colNama = c;
+                  if (val.includes('skor') || val.includes('score') || val.includes('nilai')) colNilai = c;
+                  if ((val.startsWith('s') && /^s0?[0-9]+/i.test(val)) || val.startsWith('soal') || val.includes('[pg') || val.includes('[jodoh')) {
+                    itemCols.push({ col: c, label: row[c] });
+                  }
+                }
+                break;
+              }
+            }
+
+            if (colNama === -1) {
+              colNama = 1; colNilai = 2; headerIdx = 0;
+            }
+
+            let sheetSoalConfig = [];
+            if (itemCols.length > 0) {
+              itemCols.forEach((it, i) => {
+                let tipe = "PG", bobot = 1;
+                if (rowTipeIdx !== -1 && rows[rowTipeIdx][it.col]) {
+                  const tStr = String(rows[rowTipeIdx][it.col]).toUpperCase();
+                  if (tStr.includes('PGK') || tStr.includes('KOMPLEKS')) tipe = "PGK";
+                  else if (tStr.includes('JODOH') || tStr.includes('MATCH')) tipe = "Menjodohkan";
+                  else tipe = "PG";
+                } else {
+                  const lbl = String(it.label).toUpperCase();
+                  if (lbl.includes('PGK')) tipe = "PGK";
+                  else if (lbl.includes('JODOH')) tipe = "Menjodohkan";
+                }
+
+                if (rowBobotIdx !== -1 && rows[rowBobotIdx][it.col]) {
+                  bobot = parseFloat(rows[rowBobotIdx][it.col]) || (tipe === "Menjodohkan" ? 3 : tipe === "PGK" ? 2 : 1);
+                } else {
+                  bobot = (tipe === "Menjodohkan" ? 3 : tipe === "PGK" ? 2 : 1);
+                }
+                sheetSoalConfig.push({ no: i + 1, tipe, bobot });
+              });
+            }
+
+            const totalBobotSheet = sheetSoalConfig.reduce((a, b) => a + b.bobot, 0);
+
+            for (let r = headerIdx + 1; r < rows.length; r++) {
+              const row = rows[r];
+              if (!row || row.length === 0) continue;
+
+              const rawNama = String(row[colNama] || '').trim();
+              if (!rawNama) continue;
+
+              let targetKelas = "";
+              if (colKelas !== -1 && row[colKelas] && String(row[colKelas]).trim()) {
+                targetKelas = String(row[colKelas]).trim();
+              } else {
+                if (!sNameLower.startsWith('sheet') && sNameLower !== 'matriks_butir_soal' && sNameLower !== 'unduhan_google_form' && sNameLower !== 'format_nilai_cepat') {
+                  targetKelas = sheetName.trim();
+                } else {
+                  const kAktif = getKelasAktif();
+                  targetKelas = kAktif ? kAktif.nama : "VII A";
+                }
+              }
+
+              let skorButir = [];
+              let sumPoin = 0;
+              if (itemCols.length > 0) {
+                itemCols.forEach((it, i) => {
+                  const sVal = parseFloat(row[it.col]);
+                  const v = !isNaN(sVal) ? Math.max(0, sVal) : 0;
+                  skorButir.push(v);
+                  sumPoin += v;
+                });
+              }
+
+              let nilaiAkhir = 0;
+              if (itemCols.length > 0 && totalBobotSheet > 0) {
+                nilaiAkhir = Math.min(100, Math.round((sumPoin / totalBobotSheet) * 100));
+              } else if (colNilai !== -1 && row[colNilai] !== undefined) {
+                const valStr = String(row[colNilai]).trim();
+                if (valStr.includes('/')) {
+                  const p = valStr.split('/');
+                  const atas = parseFloat(p[0]) || 0;
+                  const bawah = parseFloat(p[1]) || 100;
+                  nilaiAkhir = Math.min(100, Math.round((atas / bawah) * 100));
+                } else {
+                  nilaiAkhir = Math.min(100, Math.max(0, parseFloat(valStr) || 0));
+                }
+              }
+
+              if (!kelasMap[targetKelas]) {
+                kelasMap[targetKelas] = {
+                  siswa: [],
+                  soalConfig: sheetSoalConfig.length > 0 ? sheetSoalConfig : null
+                };
+              }
+
+              kelasMap[targetKelas].siswa.push({
+                nama: rawNama,
+                nilai: nilaiAkhir,
+                skorButir: skorButir.length > 0 ? skorButir : null
+              });
+            }
+          });
+
+          const daftarKelas = Object.keys(kelasMap).filter(k => kelasMap[k].siswa.length > 0);
+          if (daftarKelas.length === 0) {
+            alert('File terbaca, namun tidak ditemukan baris nama siswa dan nilai/skor. Pastikan format kolom telah sesuai.');
+            event.target.value = '';
+            return;
+          }
+
+          let rincianHtml = `<div class="text-left bg-slate-50 p-3 rounded-xl border border-slate-200 my-2 space-y-1">
+            <p class="font-bold text-slate-800 text-xs">Rincian Data yang Terdeteksi:</p>`;
+          daftarKelas.forEach(k => {
+            const jml = kelasMap[k].siswa.length;
+            const hasItems = kelasMap[k].soalConfig ? `${kelasMap[k].soalConfig.length} Butir Soal Riil (PG/PGK/Jodoh)` : 'Rekap Nilai Siswa';
+            rincianHtml += `<div class="flex justify-between text-xs py-1 border-b border-slate-100 last:border-0">
+              <span class="font-semibold text-slate-700">Kelas ${k} (${jml} Siswa)</span>
+              <span class="badge bg-brand-50 text-brand-700 font-bold px-2 rounded">${hasItems}</span>
+            </div>`;
+          });
+          rincianHtml += `</div><p class="text-xs text-slate-600 mt-2">Data ini akan diimpor ke jenjang <b>${userProfile.jenjang}</b>. Lanjutkan?</p>`;
+
+          konfirmasiAksi(
+            rincianHtml,
+            () => {
+              if (!databaseKelas[userProfile.jenjang]) {
+                databaseKelas[userProfile.jenjang] = [];
+              }
+
+              daftarKelas.forEach(namaK => {
+                let existing = databaseKelas[userProfile.jenjang].find(k => k.nama.toLowerCase() === namaK.toLowerCase());
+                const itemData = kelasMap[namaK];
+                if (existing) {
+                  existing.siswa = itemData.siswa;
+                  if (itemData.soalConfig) {
+                    existing.soalConfig = itemData.soalConfig;
+                    existing.jmlSoal = itemData.soalConfig.length;
+                  }
+                } else {
+                  databaseKelas[userProfile.jenjang].push({
+                    nama: namaK,
+                    kkm: 75,
+                    jmlSoal: itemData.soalConfig ? itemData.soalConfig.length : 10,
+                    soalConfig: itemData.soalConfig,
+                    siswa: itemData.siswa
+                  });
+                }
+              });
+
+              const targetIdx = databaseKelas[userProfile.jenjang].findIndex(k => k.nama.toLowerCase() === daftarKelas[0].toLowerCase());
+              kelasAktifIndex = targetIdx !== -1 ? targetIdx : 0;
+
+              simpanDatabaseKeStorage();
+              renderDropdownKelas();
+              renderSemua();
+              switchTab('butir');
+
+              alert(`Alhamdulillah! Berhasil mengimpor ${daftarKelas.length} kelas sekaligus. Data Analisis Butir Soal & Ketuntasan telah diperbarui secara riil.`);
+            },
+            { judul: `Konfirmasi Impor Data (${daftarKelas.length} Kelas)`, btnText: 'Ya, Impor Data Sekarang', isDanger: false }
+          );
+
+        } catch (err) {
+          alert('Gagal memproses file Excel / Google Form: ' + err.message);
+        }
+        event.target.value = '';
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function hitungPredikat(nilai, kkm) {
+      const interval = (100 - kkm) / 3;
+      const batasB = kkm + interval;
+      const batasA = kkm + (2 * interval);
+
+      if (nilai >= batasA) {
+        return { 
+          predikat: "A", 
+          label: "Sangat Baik", 
+          warna: "bg-emerald-100 text-emerald-800",
+          tindakLanjut: "Pengayaan: Diberikan pendalaman materi lanjutan & tugas analisis mandiri (HOTS)."
+        };
+      }
+      if (nilai >= batasB) {
+        return { 
+          predikat: "B", 
+          label: "Baik", 
+          warna: "bg-blue-100 text-blue-800",
+          tindakLanjut: "Pengayaan: Diberikan latihan pengayaan penguatan indikator dan ditunjuk sebagai tutor sebaya."
+        };
+      }
+      if (nilai >= kkm) {
+        return { 
+          predikat: "C", 
+          label: "Cukup", 
+          warna: "bg-amber-100 text-amber-800",
+          tindakLanjut: "Pemantapan: Dipertahankan ketuntasannya dan diberikan latihan soal pemantapan konsep dasar."
+        };
+      }
+      return { 
+        predikat: "D", 
+        label: "Perlu Bimbingan", 
+        warna: "bg-rose-100 text-rose-800",
+        tindakLanjut: "Remedial: Wajib mengikuti bimbingan ulang pada indikator belum tuntas & tes remedial."
+      };
+    }
+
+    function renderSemua() {
+      const kAktif = getKelasAktif();
+      if (!kAktif) {
+        document.getElementById('stat-avg').textContent = "0";
+        document.getElementById('stat-persen').textContent = "0%";
+        document.getElementById('stat-tuntas-detail').textContent = "0 dari 0 siswa";
+        document.getElementById('stat-remed').textContent = "0";
+        document.getElementById('stat-max').textContent = "0";
+        document.getElementById('stat-min').textContent = "0";
+        document.getElementById('badge-total-siswa').textContent = "0";
+        document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Belum ada kelas yang dipilih atau dibuat.</td></tr>`;
+        return;
+      }
+
+      document.getElementById('banner-kkm').textContent = kAktif.kkm;
+      document.getElementById('p-kkm').textContent = kAktif.kkm;
+
+      const dataSiswa = kAktif.siswa;
+      const total = dataSiswa.length;
+      document.getElementById('badge-total-siswa').textContent = total;
+
+      let tuntasArr = [], remedArr = [];
+      let sum = 0, max = total > 0 ? -Infinity : 0, min = total > 0 ? Infinity : 0;
+
+      const sortedForRank = [...dataSiswa].sort((a, b) => b.nilai - a.nilai);
+      dataSiswa.forEach(s => {
+        const rIndex = sortedForRank.findIndex(item => item.nilai === s.nilai);
+        s.rank = rIndex + 1;
+      });
+
+      if (sortAsc) {
+        dataSiswa.sort((a, b) => a.nilai - b.nilai);
+      } else {
+        dataSiswa.sort((a, b) => b.nilai - a.nilai);
+      }
+
+      dataSiswa.forEach(s => {
+        sum += s.nilai;
+        if (s.nilai > max) max = s.nilai;
+        if (s.nilai < min) min = s.nilai;
+
+        if (s.nilai >= kAktif.kkm) {
+          tuntasArr.push(s);
+        } else {
+          remedArr.push(s);
+        }
+      });
+
+      const avg = total > 0 ? (sum / total) : 0;
+      const tuntas = tuntasArr.length;
+      const remed = remedArr.length;
+      const persen = total > 0 ? Math.round((tuntas / total) * 100) : 0;
+
+      document.getElementById('stat-avg').textContent = avg.toFixed(1);
+      document.getElementById('stat-persen').textContent = `${persen}%`;
+      document.getElementById('stat-tuntas-detail').textContent = `${tuntas} dari ${total} siswa tuntas`;
+      document.getElementById('stat-remed').textContent = remed;
+      document.getElementById('badge-remed-count').textContent = remed;
+      document.getElementById('stat-max').textContent = total > 0 ? max : 0;
+      document.getElementById('stat-min').textContent = total > 0 ? min : 0;
+
+      renderTabelSiswa();
+      renderButirSoal(total);
+      renderRemedialPengayaan(tuntasArr, remedArr, kAktif.kkm);
+      renderCharts(tuntas, remed, kAktif.kkm, dataSiswa);
+      renderPedomanPredikat(kAktif.kkm);
+      renderListSemuaKelas();
+      renderPrintTemplate(total, avg, max, min, tuntas, remed, persen, kAktif.nama);
+    }
+
+    function renderListSemuaKelas() {
+      const list = databaseKelas[userProfile.jenjang] || [];
+      const container = document.getElementById('listKelasPreview');
+      if (!container) return;
+
+      let totalSemua = 0;
+      list.forEach(k => totalSemua += k.siswa.length);
+      document.getElementById('totalSiswaSemuaKelas').textContent = `${totalSemua} Siswa`;
+
+      if (list.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic">Belum ada kelas. Klik "+ Baru" atau Import Excel.</p>`;
+        return;
+      }
+
+      container.innerHTML = list.map((k, idx) => {
+        const isAktif = idx === kelasAktifIndex;
+        return `
+          <div onclick="pilihKelas(${idx})" class="p-2.5 rounded-xl border transition cursor-pointer flex items-center justify-between ${isAktif ? 'bg-brand-50 border-brand-300 shadow-sm' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'}">
+            <div>
+              <p class="font-bold text-xs ${isAktif ? 'text-brand-900' : 'text-slate-800'}">${k.nama}</p>
+              <p class="text-[10px] text-slate-500">KKM: ${k.kkm} • ${k.siswa.length} Siswa</p>
+            </div>
+            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full ${isAktif ? 'bg-brand-700 text-white' : 'bg-slate-200 text-slate-600'}">
+              ${isAktif ? 'Aktif' : 'Pilih'}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderPedomanPredikat(kkm) {
+      const interval = (100 - kkm) / 3;
+      const bMin = Math.round(kkm + interval);
+      const aMin = Math.round(kkm + (2 * interval));
+
+      document.getElementById('lbl-kkm-pedoman').textContent = kkm;
+      document.getElementById('pedoman-rentang-a').textContent = `${aMin} - 100`;
+      document.getElementById('pedoman-rentang-b').textContent = `${bMin} - ${aMin - 1}`;
+      document.getElementById('pedoman-rentang-c').textContent = `${kkm} - ${bMin - 1}`;
+      document.getElementById('pedoman-rentang-d').textContent = `< ${kkm}`;
+    }
+
+    function setFilterSiswa(f) {
+      filterAktif = f;
+      ['semua', 'tuntas', 'remedial'].forEach(item => {
+        const btn = document.getElementById(`btn-filter-${item}`);
+        if (item === f) {
+          btn.className = "px-3 py-1.5 rounded-lg bg-slate-900 text-white font-semibold";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200";
+        }
+      });
+      renderTabelSiswa();
+    }
+
+    function toggleSortNilai() {
+      sortAsc = !sortAsc;
+      document.getElementById('btnSortNilai').textContent = sortAsc ? "Terendah ↑" : "Tertinggi ↓";
+      renderSemua();
+    }
+
+    function renderTabelSiswa() {
+      const kAktif = getKelasAktif();
+      if (!kAktif) return;
+      const keyword = (document.getElementById('searchSiswa')?.value || '').toLowerCase();
+      const tbody = document.getElementById('tbody-siswa');
+
+      let filtered = kAktif.siswa.filter(s => {
+        const matchNama = s.nama.toLowerCase().includes(keyword);
+        if (filterAktif === 'tuntas') return matchNama && s.nilai >= kAktif.kkm;
+        if (filterAktif === 'remedial') return matchNama && s.nilai < kAktif.kkm;
+        return matchNama;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">Tidak ada data siswa.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((s, idx) => {
+        const isTuntas = s.nilai >= kAktif.kkm;
+        const pred = hitungPredikat(s.nilai, kAktif.kkm);
+        return `
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-[11px]">
+            <td class="p-3 text-center font-extrabold text-slate-400">#${s.rank}</td>
+            <td class="p-3 text-center text-slate-500">${idx + 1}</td>
+            <td class="p-3 font-semibold text-slate-800">${s.nama}</td>
+            <td class="p-3 text-center font-black text-sm ${isTuntas ? 'text-emerald-700' : 'text-rose-600'}">${s.nilai}</td>
+            <td class="p-3 text-center">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${pred.warna}">${pred.predikat}</span>
+            </td>
+            <td class="p-3 text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isTuntas ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
+                ${isTuntas ? 'TUNTAS' : 'REMEDIAL'}
+              </span>
+            </td>
+            <td class="p-3 text-slate-600 text-[10px] leading-relaxed">
+              ${pred.tindakLanjut}
+            </td>
+            <td class="p-3 text-center no-print">
+              <button onclick="hapusSatuSiswa('${s.nama}')" class="text-slate-400 hover:text-rose-600 p-1 font-bold" title="Hapus Data Siswa Ini">✕</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function hapusSatuSiswa(nama) {
+      konfirmasiAksi(`Apakah Anda benar-benar yakin ingin menghapus data siswa "${nama}"?`, () => {
+        const kAktif = getKelasAktif();
+        if (kAktif) {
+          kAktif.siswa = kAktif.siswa.filter(s => s.nama !== nama);
+          simpanDatabaseKeStorage();
+          renderDropdownKelas();
+          renderSemua();
+        }
+      }, { judul: 'Hapus Siswa', btnText: 'Ya, Hapus' });
+    }
+
+    function ubahJumlahSoal(val) {
+      const kAktif = getKelasAktif();
+      if (kAktif) {
+        kAktif.jmlSoal = parseInt(val) || 10;
+        kAktif.soalConfig = null;
+        simpanDatabaseKeStorage();
+        renderSemua();
+      }
+    }
+
+    function renderButirSoal(total) {
+      const kAktif = getKelasAktif();
+      if (!kAktif) return;
+      const tbody = document.getElementById('tbody-butir');
+      if (!tbody) return;
+
+      document.getElementById('selectJmlSoal').value = kAktif.jmlSoal || 10;
+      const jmlSoal = kAktif.jmlSoal || 10;
+
+      if (!kAktif.soalConfig || kAktif.soalConfig.length !== jmlSoal) {
+        kAktif.soalConfig = [];
+        for (let i = 1; i <= jmlSoal; i++) {
+          if (i <= Math.ceil(jmlSoal * 0.6)) {
+            kAktif.soalConfig.push({ no: i, tipe: "PG", bobot: 1 });
+          } else if (i <= Math.ceil(jmlSoal * 0.8)) {
+            kAktif.soalConfig.push({ no: i, tipe: "PGK", bobot: 2 });
+          } else {
+            kAktif.soalConfig.push({ no: i, tipe: "Menjodohkan", bobot: 3 });
+          }
+        }
+      }
+
+      const totalBobotMaks = kAktif.soalConfig.reduce((acc, cur) => acc + cur.bobot, 0);
+      kAktif.siswa.forEach(s => {
+        if (!s.skorButir || s.skorButir.length !== jmlSoal) {
+          const targetPoin = Math.round((s.nilai / 100) * totalBobotMaks);
+          s.skorButir = new Array(jmlSoal).fill(0);
+          let cur = 0;
+          for (let i = 0; i < jmlSoal; i++) {
+            const b = kAktif.soalConfig[i].bobot;
+            if (cur + b <= targetPoin) {
+              s.skorButir[i] = b;
+              cur += b;
+            } else if (cur < targetPoin) {
+              s.skorButir[i] = targetPoin - cur;
+              cur = targetPoin;
+            }
+          }
+        }
+      });
+
+      const sorted = [...kAktif.siswa].sort((a, b) => b.nilai - a.nilai);
+      const nk = Math.max(1, Math.round(0.27 * total));
+      const upper = sorted.slice(0, nk);
+      const lower = sorted.slice(-nk);
+
+      let html = '';
+      let kesukaranData = [];
+      let baikCount = 0, revisiCount = 0, buangCount = 0;
+
+      for (let j = 0; j < jmlSoal; j++) {
+        const cfg = kAktif.soalConfig[j] || { no: j + 1, tipe: "PG", bobot: 1 };
+        const maxB = cfg.bobot;
+
+        let totalSkorItem = 0;
+        kAktif.siswa.forEach(s => totalSkorItem += ((s.skorButir && s.skorButir[j] !== undefined) ? s.skorButir[j] : 0));
+        const avgSkor = total > 0 ? (totalSkorItem / total) : 0;
+        const p = parseFloat((avgSkor / maxB).toFixed(2));
+        kesukaranData.push(p);
+
+        let skorU = 0, skorL = 0;
+        upper.forEach(s => skorU += ((s.skorButir && s.skorButir[j] !== undefined) ? s.skorButir[j] : 0));
+        lower.forEach(s => skorL += ((s.skorButir && s.skorButir[j] !== undefined) ? s.skorButir[j] : 0));
+        const avgU = upper.length > 0 ? (skorU / upper.length) : 0;
+        const avgL = lower.length > 0 ? (skorL / lower.length) : 0;
+        const dp = parseFloat(((avgU - avgL) / maxB).toFixed(2));
+
+        let klasP = "Sedang", badgeP = "bg-blue-100 text-blue-800";
+        if (p > 0.70) {
+          klasP = "Mudah"; badgeP = "bg-emerald-100 text-emerald-800";
+        } else if (p < 0.30) {
+          klasP = "Sukar"; badgeP = "bg-rose-100 text-rose-800";
+        }
+
+        let badgeTipe = "bg-blue-50 text-blue-700 border border-blue-200";
+        if (cfg.tipe === "PGK") badgeTipe = "bg-amber-50 text-amber-800 border border-amber-200";
+        if (cfg.tipe === "Menjodohkan") badgeTipe = "bg-emerald-50 text-emerald-800 border border-emerald-200";
+
+        let klasDP = "Cukup", statusKelayakan = "Direvisi", badgeKelayakan = "bg-amber-100 text-amber-800";
+        if (dp >= 0.40) {
+          klasDP = "Sangat Baik";
+          statusKelayakan = "Diterima (Bank Soal)";
+          badgeKelayakan = "bg-emerald-100 text-emerald-800";
+          baikCount++;
+        } else if (dp >= 0.30) {
+          klasDP = "Baik";
+          statusKelayakan = "Diterima (Bank Soal)";
+          badgeKelayakan = "bg-emerald-100 text-emerald-800";
+          baikCount++;
+        } else if (dp >= 0.20) {
+          klasDP = "Cukup";
+          statusKelayakan = "Direvisi";
+          badgeKelayakan = "bg-amber-100 text-amber-800";
+          revisiCount++;
+        } else if (dp >= 0) {
+          klasDP = "Jelek";
+          statusKelayakan = "Dibuang / Diganti";
+          badgeKelayakan = "bg-rose-100 text-rose-800";
+          buangCount++;
+        } else {
+          klasDP = "Sangat Jelek (Negatif)";
+          statusKelayakan = "Dibuang (Kunci Tertukar)";
+          badgeKelayakan = "bg-rose-200 text-rose-900";
+          buangCount++;
+        }
+
+        html += `
+          <tr class="hover:bg-slate-50 border-b border-slate-100 text-center text-[11px] transition">
+            <td class="p-3 font-bold text-slate-800">Soal ${j + 1}</td>
+            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeTipe}">${cfg.tipe}</span></td>
+            <td class="p-3 font-semibold text-slate-600">${maxB} Poin</td>
+            <td class="p-3 font-mono font-bold text-slate-700">${avgSkor.toFixed(2)}</td>
+            <td class="p-3">
+              <span class="font-mono font-bold mr-1.5">${p}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeP}">${klasP}</span>
+            </td>
+            <td class="p-3">
+              <span class="font-mono font-bold mr-1.5">${dp}</span>
+              <span class="text-[10px] text-slate-500">(${klasDP})</span>
+            </td>
+            <td class="p-3">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${badgeKelayakan}">${statusKelayakan}</span>
+            </td>
+          </tr>
+        `;
+      }
+
+      tbody.innerHTML = html;
+      renderChartsButir(kesukaranData, baikCount, revisiCount, buangCount);
+    }
+
+    function renderRemedialPengayaan(tuntasArr, remedArr, kkm) {
+      document.getElementById('count-siswa-remed').textContent = remedArr.length;
+      document.getElementById('count-siswa-pengayaan').textContent = tuntasArr.length;
+
+      const tbRemed = document.getElementById('tbody-remedial');
+      if (remedArr.length === 0) {
+        tbRemed.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada siswa yang memerlukan remedial. Seluruhnya tuntas!</td></tr>`;
+      } else {
+        tbRemed.innerHTML = remedArr.map((s, idx) => `
+          <tr class="hover:bg-rose-50/40">
+            <td class="p-2 text-center text-slate-400 font-bold">${idx + 1}</td>
+            <td class="p-2 font-semibold text-slate-800">${s.nama}</td>
+            <td class="p-2 text-center font-bold text-rose-600">${s.nilai}</td>
+            <td class="p-2 text-slate-600">Bimbingan ulang indikator & tes remedial perbaikan nilai (Target: ${kkm})</td>
+          </tr>
+        `).join('');
+      }
+
+      const tbPengayaan = document.getElementById('tbody-pengayaan');
+      if (tuntasArr.length === 0) {
+        tbPengayaan.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada siswa yang memenuhi kriteria pengayaan.</td></tr>`;
+      } else {
+        tbPengayaan.innerHTML = tuntasArr.map((s, idx) => `
+          <tr class="hover:bg-emerald-50/40">
+            <td class="p-2 text-center text-slate-400 font-bold">${idx + 1}</td>
+            <td class="p-2 font-semibold text-slate-800">${s.nama}</td>
+            <td class="p-2 text-center font-bold text-emerald-700">${s.nilai}</td>
+            <td class="p-2 text-slate-600">Pendalaman materi analisis mandiri (HOTS) & penugasan tutor sebaya</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function renderPrintTemplate(total, avg, max, min, tuntas, remed, persen, namaKelas) {
+      document.getElementById('p-kelas').textContent = namaKelas;
+      document.getElementById('p-stat-total').textContent = total;
+      document.getElementById('p-stat-avg').textContent = avg.toFixed(1);
+      document.getElementById('p-stat-max').textContent = max;
+      document.getElementById('p-stat-min').textContent = min;
+      document.getElementById('p-stat-tuntas').textContent = tuntas;
+      document.getElementById('p-stat-remed').textContent = remed;
+      document.getElementById('p-stat-persen').textContent = persen + "%";
+
+      const now = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      document.getElementById('p-tgl-cetak').textContent = "Cimahi, " + now;
+
+      const kAktif = getKelasAktif();
+      if (!kAktif) return;
+      document.getElementById('p-tbody-siswa').innerHTML = kAktif.siswa.map((s, idx) => {
+        const pred = hitungPredikat(s.nilai, kAktif.kkm);
+        return `
+          <tr class="border-b border-slate-300">
+            <td class="text-center font-bold">#${s.rank}</td>
+            <td class="text-center">${idx + 1}</td>
+            <td class="font-semibold">${s.nama}</td>
+            <td class="text-center font-bold">${s.nilai}</td>
+            <td class="text-center font-bold">${pred.predikat}</td>
+            <td class="text-center font-bold ${s.nilai >= kAktif.kkm ? 'text-emerald-800' : 'text-rose-800'}">
+              ${s.nilai >= kAktif.kkm ? 'TUNTAS' : 'REMEDIAL'}
+            </td>
+            <td class="text-left text-[8.5px] leading-tight">${pred.tindakLanjut}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderCharts(tuntas = 0, remed = 0, kkm = 75, dataSiswa = []) {
+      document.getElementById('chart-lbl-tuntas').textContent = tuntas;
+      document.getElementById('chart-lbl-remedial').textContent = remed;
+
+      const ctxPie = document.getElementById('chartPieKetuntasan')?.getContext('2d');
+      if (ctxPie) {
+        if (chartPieKetuntasan) chartPieKetuntasan.destroy();
+        chartPieKetuntasan = new Chart(ctxPie, {
+          type: 'doughnut',
+          data: {
+            labels: ['Tuntas Belajar', 'Perlu Remedial'],
+            datasets: [{
+              data: [tuntas, remed],
+              backgroundColor: ['#059669', '#f43f5e'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } },
+            cutout: '70%'
+          }
+        });
+      }
+
+      let rentang = [0, 0, 0, 0, 0];
+      dataSiswa.forEach(s => {
+        if (s.nilai < 50) rentang[0]++;
+        else if (s.nilai < 70) rentang[1]++;
+        else if (s.nilai < 80) rentang[2]++;
+        else if (s.nilai < 90) rentang[3]++;
+        else rentang[4]++;
+      });
+
+      const ctxBar = document.getElementById('chartBarDistribusi')?.getContext('2d');
+      if (ctxBar) {
+        if (chartBarDistribusi) chartBarDistribusi.destroy();
+        chartBarDistribusi = new Chart(ctxBar, {
+          type: 'bar',
+          data: {
+            labels: ['< 50', '50-69', '70-79', '80-89', '90-100'],
+            datasets: [{
+              label: 'Jumlah Siswa',
+              data: rentang,
+              backgroundColor: '#047857',
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+          }
+        });
+      }
+    }
+
+    function renderChartsButir(kesukaranData, baik, revisi, buang) {
+      const ctxKesukaran = document.getElementById('chartButirKesukaran')?.getContext('2d');
+      if (ctxKesukaran) {
+        if (chartBarKesukaran) chartBarKesukaran.destroy();
+        chartBarKesukaran = new Chart(ctxKesukaran, {
+          type: 'bar',
+          data: {
+            labels: kesukaranData.map((_, i) => `S${i+1}`),
+            datasets: [{
+              label: 'Indeks Kesukaran (P)',
+              data: kesukaranData,
+              backgroundColor: kesukaranData.map(p => p > 0.7 ? '#059669' : p < 0.3 ? '#f43f5e' : '#3b82f6'),
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { min: 0, max: 1 } }
+          }
+        });
+      }
+
+      const ctxKelayakan = document.getElementById('chartButirKelayakan')?.getContext('2d');
+      if (ctxKelayakan) {
+        if (chartPieKelayakan) chartPieKelayakan.destroy();
+        chartPieKelayakan = new Chart(ctxKelayakan, {
+          type: 'doughnut',
+          data: {
+            labels: ['Diterima', 'Direvisi', 'Dibuang'],
+            datasets: [{
+              data: [baik, revisi, buang],
+              backgroundColor: ['#059669', '#fbbf24', '#f43f5e'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            cutout: '65%'
+          }
+        });
+      }
+    }
+
+    function downloadTemplateExcel() {
+      const wb = XLSX.utils.book_new();
+
+      const dataMatriks = [
+        ["Tipe Soal", "", "", "PG", "PG", "PG", "PG", "PG", "PG", "PGK", "PGK", "Menjodohkan", "Menjodohkan"],
+        ["Bobot Maksimal", "", "", 1, 1, 1, 1, 1, 1, 2, 2, 3, 3],
+        ["No", "Kelas", "Nama Siswa", "S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10"],
+        [1, "VII A", "AEESHA KIREY UFAIRAH", 1, 1, 1, 1, 1, 0, 2, 2, 3, 3],
+        [2, "VII A", "AJENG FITRI AZIZIYAH", 1, 1, 1, 1, 0, 0, 2, 2, 3, 2],
+        [3, "VII A", "ALIIFAH NADYA SHAFWAH", 1, 1, 1, 1, 0, 0, 2, 2, 3, 2],
+        [4, "VII A", "AMANDA KHAIRA ASYIFA", 1, 1, 1, 1, 0, 0, 2, 0, 3, 0],
+        [1, "VII B", "AHMAD FAUZI", 1, 1, 1, 1, 1, 1, 2, 1, 3, 3],
+        [2, "VII B", "ANISA RAHMAWATI", 1, 1, 1, 1, 1, 0, 2, 2, 3, 3],
+        [3, "VII B", "BAGAS PRASETYO", 1, 1, 0, 1, 0, 0, 1, 1, 2, 1]
+      ];
+      const ws1 = XLSX.utils.aoa_to_sheet(dataMatriks);
+      ws1['!cols'] = [{ wch: 5 }, { wch: 10 }, { wch: 28 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 6 }, { wch: 8 }, { wch: 8 }];
+      XLSX.utils.book_append_sheet(wb, ws1, "Matriks_Butir_Soal");
+
+      const dataGForm = [
+        ["Timestamp", "Score", "Nama Siswa", "Kelas", "S01_PG", "S02_PG", "S03_PG", "S04_PG", "S05_PG", "S06_PG", "S07_PGK", "S08_PGK", "S09_Jodoh", "S10_Jodoh"],
+        ["2026/11/04 08:15:22", "91 / 100", "AEESHA KIREY UFAIRAH", "VII A", 1, 1, 1, 1, 1, 0, 2, 2, 3, 3],
+        ["2026/11/04 08:16:04", "79 / 100", "AJENG FITRI AZIZIYAH", "VII A", 1, 1, 1, 1, 0, 0, 2, 2, 3, 2],
+        ["2026/11/04 08:17:15", "81 / 100", "ALIIFAH NADYA SHAFWAH", "VII A", 1, 1, 1, 1, 0, 0, 2, 2, 3, 2],
+        ["2026/11/04 08:18:00", "88 / 100", "AHMAD FAUZI", "VII B", 1, 1, 1, 1, 1, 1, 2, 1, 3, 3]
+      ];
+      const ws2 = XLSX.utils.aoa_to_sheet(dataGForm);
+      ws2['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 28 }, { wch: 10 }];
+      XLSX.utils.book_append_sheet(wb, ws2, "Unduhan_Google_Form");
+
+      const dataCepat = [
+        ["No", "Kelas", "Nama Siswa", "Nilai"],
+        [1, "VII A", "AEESHA KIREY UFAIRAH", 91],
+        [2, "VII A", "AJENG FITRI AZIZIYAH", 79],
+        [3, "VII A", "ALIIFAH NADYA SHAFWAH", 81],
+        [1, "VII B", "AHMAD FAUZI", 88]
+      ];
+      const ws3 = XLSX.utils.aoa_to_sheet(dataCepat);
+      ws3['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 30 }, { wch: 10 }];
+      XLSX.utils.book_append_sheet(wb, ws3, "Format_Nilai_Cepat");
+
+      const dataPanduan = [
+        ["PANDUAN SUMBER DATA ANALISIS NILAI & MUTU BUTIR SOAL"],
+        [],
+        ["1. Format Matriks Butir Soal (Sangat Direkomendasikan untuk Analisis Butir):"],
+        ["   - Gunakan sheet 'Matriks_Butir_Soal'."],
+        ["   - Baris 1: Tipe Soal (PG = Pilihan Ganda, PGK = Pilihan Ganda Kompleks, Menjodohkan)."],
+        ["   - Baris 2: Bobot Skor Maksimal tiap butir soal."],
+        ["   - Skor siswa: PG (1/0), PGK (skor bergradasi 0, 1, 2), Menjodohkan (skor jumlah pasangan yang tepat 0, 1, 2, 3)."],
+        ["   - Nilai akhir siswa (0-100) akan DIHITUNG OTOMATIS oleh sistem!"],
+        [],
+        ["2. Format Unduhan Google Form:"],
+        ["   - Jika Anda mengadakan kuis Google Form, cukup buka Spreadsheet Respon Google Form."],
+        ["   - Klik File -> Download -> Microsoft Excel (.xlsx), lalu langsung upload file tersebut ke aplikasi ini."],
+        ["   - Sistem otomatis mengenali kolom Nama Siswa, Kelas, Nilai/Skor (misal '85 / 100'), dan butir-butir respon."],
+        [],
+        ["3. Format Nilai Cepat:"],
+        ["   - Jika Anda hanya ingin menganalisis ketuntasan KKM, daya serap, dan mencetak laporan remedial (tanpa butir soal), gunakan sheet 'Format_Nilai_Cepat'."]
+      ];
+      const ws4 = XLSX.utils.aoa_to_sheet(dataPanduan);
+      ws4['!cols'] = [{ wch: 85 }];
+      XLSX.utils.book_append_sheet(wb, ws4, "Panduan_Sumber_Data");
+
+      const mapelName = (userProfile.mapel || "Ulangan").replace(/[^a-zA-Z0-9]/g, '_');
+      XLSX.writeFile(wb, `Template_Analisis_Nilai_dan_Butir_${mapelName}.xlsx`);
+    }
+  </script>
+</body>
+</html>
